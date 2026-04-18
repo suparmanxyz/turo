@@ -1,10 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import type { Audiens } from "@/types";
 
 type Hasil = { narasi: string; svg: string };
 
-export function TombolJelaskanVisual({ konsep, konteks }: { konsep: string; konteks?: string }) {
+export function TombolJelaskanVisual({
+  konsep,
+  konteks,
+  audiens,
+}: {
+  konsep: string;
+  konteks?: string;
+  audiens: Audiens;
+}) {
   const [loading, setLoading] = useState(false);
   const [hasil, setHasil] = useState<Hasil | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +25,7 @@ export function TombolJelaskanVisual({ konsep, konteks }: { konsep: string; kont
       const r = await fetch("/api/jelaskan-visual", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ konsep, konteks }),
+        body: JSON.stringify({ konsep, konteks, ...audiens }),
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       setHasil(await r.json());

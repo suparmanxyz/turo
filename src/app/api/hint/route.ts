@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chatRingan } from "@/lib/ai-provider";
 import { extractJson } from "@/lib/extract-json";
-import { audiensPrompt, DEFAULT_KATEGORI } from "@/lib/kategori-prompt";
-import type { Kategori } from "@/types";
+import { audiensPrompt, audiensDariBody } from "@/lib/kategori-prompt";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -10,11 +9,12 @@ export const runtime = "nodejs";
 const Schema = z.object({ petunjuk: z.array(z.string()).min(1) });
 
 export async function POST(req: NextRequest) {
-  const { soal, kategori } = await req.json();
+  const body = await req.json();
+  const { soal } = body;
   if (!soal) return NextResponse.json({ error: "soal wajib" }, { status: 400 });
-  const kat: Kategori = (kategori as Kategori) ?? DEFAULT_KATEGORI;
+  const audiens = audiensDariBody(body);
 
-  const prompt = `Berikan petunjuk (hint) untuk ${audiensPrompt(kat)} yang sedang mengerjakan soal berikut.
+  const prompt = `Berikan petunjuk (hint) untuk ${audiensPrompt(audiens)} yang sedang mengerjakan soal berikut.
 Soal: ${soal}
 
 ATURAN:

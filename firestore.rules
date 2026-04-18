@@ -21,5 +21,13 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+    match /visualCache/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /subTopikCache/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }

@@ -45,6 +45,11 @@ debug-response.txt
 
 # Screenshots/uji coba
 /del.png
+/da.png
+/err.png
+
+# Reference docs (besar, jangan commit) — pak ustadz simpan lokal
+/docs/
 
 # vercel
 .vercel

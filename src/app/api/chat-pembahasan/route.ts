@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chatRingan, type Pesan } from "@/lib/ai-provider";
-import { audiensPrompt, DEFAULT_KATEGORI } from "@/lib/kategori-prompt";
-import type { Kategori } from "@/types";
+import { audiensPrompt, audiensDariBody } from "@/lib/kategori-prompt";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
-  const { soal, langkahSebelumnya, langkahIni, penjelasanTambahan, messages, kategori } = await req.json();
+  const body = await req.json();
+  const { soal, langkahSebelumnya, langkahIni, penjelasanTambahan, messages } = body;
   if (!Array.isArray(messages) || messages.length === 0) {
     return NextResponse.json({ error: "messages wajib" }, { status: 400 });
   }
-  const kat: Kategori = (kategori as Kategori) ?? DEFAULT_KATEGORI;
+  const audiens = audiensDariBody(body);
 
-  const system = `Kamu adalah tutor matematika untuk ${audiensPrompt(kat)}. Siswa sedang belajar soal ini dan terjebak di salah satu langkah pembahasan. Jawab pertanyaannya dengan sabar, ramah, dan sederhana.
+  const system = `Kamu adalah tutor matematika untuk ${audiensPrompt(audiens)}. Siswa sedang belajar soal ini dan terjebak di salah satu langkah pembahasan. Jawab pertanyaannya dengan sabar, ramah, dan sederhana.
 
 SOAL:
 ${soal ?? "(tidak tersedia)"}

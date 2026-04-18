@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chatRingan } from "@/lib/ai-provider";
-import { audiensPrompt, DEFAULT_KATEGORI } from "@/lib/kategori-prompt";
-import type { Kategori } from "@/types";
+import { audiensPrompt, audiensDariBody } from "@/lib/kategori-prompt";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
-  const { soal, langkahSebelumnya, langkahIni, percobaan, kategori } = await req.json();
+  const body = await req.json();
+  const { soal, langkahSebelumnya, langkahIni, percobaan } = body;
   if (!langkahIni) return NextResponse.json({ error: "langkahIni wajib" }, { status: 400 });
-  const kat: Kategori = (kategori as Kategori) ?? DEFAULT_KATEGORI;
+  const audiens = audiensDariBody(body);
 
   const gaya =
     percobaan >= 2
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       ? "lebih sederhana dari sebelumnya, pecah jadi sub-langkah kecil"
       : "lebih sederhana & detail, jelaskan mengapa langkah ini dilakukan";
 
-  const prompt = `${audiensPrompt(kat)} belum paham langkah pembahasan berikut. Jelaskan ${gaya}.
+  const prompt = `${audiensPrompt(audiens)} belum paham langkah pembahasan berikut. Jelaskan ${gaya}.
 
 Soal: ${soal ?? "(konteks soal)"}
 ${langkahSebelumnya?.length ? `Langkah-langkah sebelumnya (sudah dipahami):\n${langkahSebelumnya.map((s: string, i: number) => `${i + 1}. ${s}`).join("\n")}` : ""}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { Audiens } from "@/types";
 import { MathText } from "./MathText";
 
 type Pesan = { role: "user" | "assistant"; content: string };
@@ -10,12 +11,14 @@ export function ChatTahap({
   langkahSebelumnya,
   langkahIni,
   penjelasanTambahan,
+  audiens,
   onTutup,
 }: {
   soal: string;
   langkahSebelumnya: string[];
   langkahIni: string;
   penjelasanTambahan: string[];
+  audiens: Audiens;
   onTutup: () => void;
 }) {
   const [messages, setMessages] = useState<Pesan[]>([
@@ -44,6 +47,7 @@ export function ChatTahap({
           langkahIni,
           penjelasanTambahan,
           messages: baru,
+          ...audiens,
         }),
       });
       const data = await r.json();

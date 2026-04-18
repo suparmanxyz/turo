@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getClaude, pilihModel } from "@/lib/claude";
 import { extractJson } from "@/lib/extract-json";
 import { getAdminDb } from "@/lib/firebase-admin";
-import { audiensPrompt, levelKesulitanPanduan, DEFAULT_KATEGORI } from "@/lib/kategori-prompt";
-import type { Kategori } from "@/types";
+import { audiensPrompt, levelKesulitanPanduan, audiensDariBody } from "@/lib/kategori-prompt";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -16,8 +15,9 @@ const SoalSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const { topik, level, hindari, materiSlug, subMateriSlug, hindariIds, kategori } = await req.json();
-  const kat: Kategori = (kategori as Kategori) ?? DEFAULT_KATEGORI;
+  const body = await req.json();
+  const { topik, level, hindari, materiSlug, subMateriSlug, hindariIds } = body;
+  const audiens = audiensDariBody(body);
   if (!topik) {
     return NextResponse.json({ error: "topik wajib diisi" }, { status: 400 });
   }
@@ -51,14 +51,14 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const prompt = `Buat 1 soal matematika untuk ${audiensPrompt(kat)}.
+  const prompt = `Buat 1 soal matematika untuk ${audiensPrompt(audiens)}.
 Topik: "${topik}"
 Level kesulitan: ${level ?? 1} (0=paling sulit, makin besar makin dasar/mudah).
 ${hindari?.length ? `Hindari soal yang mirip dengan: ${hindari.join(" | ")}` : ""}
 
 ATURAN KETAT:
 - Soal harus realistis untuk audiens di atas, tidak melampaui kemampuan wajarnya.
-${levelKesulitanPanduan(kat)}
+${levelKesulitanPanduan(audiens)}
 - Pembahasan: maksimal 5 langkah, tiap langkah SINGKAT (1-2 kalimat).
 - Output HANYA JSON murni, TANPA code fence (tanpa backtick), TANPA teks penjelasan di luar JSON.
 

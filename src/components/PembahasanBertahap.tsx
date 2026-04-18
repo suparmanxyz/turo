@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { Audiens } from "@/types";
 import { MathText } from "./MathText";
 import { ChatTahap } from "./ChatTahap";
 
@@ -9,9 +10,11 @@ const MAX_TIDAK = 3;
 export function PembahasanBertahap({
   soal,
   pembahasan,
+  audiens,
 }: {
   soal: string;
   pembahasan: string[];
+  audiens: Audiens;
 }) {
   const [tahapIdx, setTahapIdx] = useState(0);
   const [penjelasanPerTahap, setPenjelasanPerTahap] = useState<Record<number, string[]>>({});
@@ -40,6 +43,7 @@ export function PembahasanBertahap({
           langkahSebelumnya: pembahasan.slice(0, tahapIdx),
           langkahIni: pembahasan[tahapIdx],
           percobaan: tidakCount,
+          ...audiens,
         }),
       });
       const data = await r.json();
@@ -126,6 +130,7 @@ export function PembahasanBertahap({
             langkahSebelumnya={pembahasan.slice(0, tahapIdx)}
             langkahIni={pembahasan[tahapIdx]}
             penjelasanTambahan={penjelasanTambahan}
+            audiens={audiens}
             onTutup={() => setChatAktif(false)}
           />
           <div className="mt-3">
