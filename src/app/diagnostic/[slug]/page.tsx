@@ -10,11 +10,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { saveDiagnostik, type LaporanDiagnostik } from "@/lib/laporan";
 import { cekMasteryBab, sudahMastery, MASTERY_THRESHOLD } from "@/lib/mastery";
 import {
+  adaPohonBelumTuntas,
   evaluasiTahap,
   initPohonState,
   MAX_SOAL_DIAGNOSTIK,
   nodeById,
-  nodeIdsPerluBelajar,
+  nodeIdsKemungkinanBelumKuasai,
   semuaPohonSelesai,
   subKonsepUntuk,
   type JawabanUser,
@@ -275,11 +276,12 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
     async (riwayatSoalArg: SoalDiagnostik[], riwayatJawabanArg: Record<string, number>, statesArg: PohonState[]) => {
       if (!user || !materi || !peta) return;
       setStatusSimpan("menyimpan");
-      const perluBelajarIds = nodeIdsPerluBelajar(statesArg);
-      const perluBelajar = perluBelajarIds
-        .map((id) => nodeById(peta, id))
-        .filter((n): n is NonNullable<typeof n> => !!n)
-        .map((n) => {
+      // Gabung node yang gagal tuntas (sudah turun) + node yang masih aktif (belum tuntas karena cap)
+      const perluBelajarItems = nodeIdsKemungkinanBelumKuasai(statesArg);
+      const perluBelajar = perluBelajarItems
+        .map((it) => {
+          const n = nodeById(peta, it.id);
+          if (!n) return null;
           const linkedNama = n.linkedSlug
             ? DAFTAR_MATERI.find((m) => m.slug === n.linkedSlug)?.nama
             : undefined;
@@ -291,7 +293,8 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
             linkedSlug: n.linkedSlug,
             linkedNama,
           };
-        });
+        })
+        .filter((n): n is NonNullable<typeof n> => !!n);
       const totalSoal = riwayatSoalArg.length;
       const totalBenar = riwayatSoalArg.filter((s) => s.opsi[riwayatJawabanArg[s.id]]?.benar).length;
       const okPohon = statesArg.filter((p) => p.status === "selesai-ok").length;
@@ -793,13 +796,14 @@ function DiagnostikHasil({
   temaBgSoft: string;
   temaBorder: string;
 }) {
-  const perluBelajarIds = nodeIdsPerluBelajar(pohonStates);
-  const perluBelajarNodes = perluBelajarIds
-    .map((id) => nodeById(peta, id))
+  const perluBelajarItems = nodeIdsKemungkinanBelumKuasai(pohonStates);
+  const perluBelajarNodes = perluBelajarItems
+    .map((it) => nodeById(peta, it.id))
     .filter((n): n is NonNullable<typeof n> => !!n);
 
   const okPohon = pohonStates.filter((p) => p.status === "selesai-ok");
   const autoOkCount = autoMasteryNodes.size;
+  const belumTuntas = adaPohonBelumTuntas(pohonStates);
 
   const totalSoal = soalRiwayat.length;
   const totalBenar = soalRiwayat.filter((s) => s.opsi[jawaban[s.id]]?.benar).length;
@@ -831,6 +835,16 @@ function DiagnostikHasil({
           </p>
         )}
       </div>
+
+      {belumTuntas && (
+        <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <strong>⚠ Tes berhenti karena mencapai batas {totalSoal} soal</strong>
+          <p className="mt-1 text-xs text-amber-800">
+            Masih ada cabang yang belum diuji tuntas. Topik di rencana belajar di bawah berisi node-node yang user gagal kuasai
+            ATAU node yang sedang aktif di-uji saat tes berhenti — semua perlu dipelajari/dicek lebih lanjut.
+          </p>
+        </div>
+      )}
 
       {/* Flow ringkasan per pohon — debug "kenapa berhenti di level X" */}
       <details className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">

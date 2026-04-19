@@ -174,4 +174,24 @@ export function nodeIdsPerluBelajar(states: PohonState[]): string[] {
 }
 
 /** Cap maksimum soal per diagnostik. Kalau hit, force ke hasil walau ada pohon belum tuntas. */
-export const MAX_SOAL_DIAGNOSTIK = 25;
+export const MAX_SOAL_DIAGNOSTIK = 40;
+
+/** Daftar nodeId yang user "kemungkinan belum kuasai" — gabungan: nodeGagal + nodeAktif (kalau pohon belum selesai). */
+export function nodeIdsKemungkinanBelumKuasai(states: PohonState[]): { id: string; tuntas: boolean }[] {
+  const map = new Map<string, { id: string; tuntas: boolean }>();
+  for (const p of states) {
+    for (const id of p.nodeGagalIds) {
+      if (!map.has(id)) map.set(id, { id, tuntas: true }); // sudah ditelusuri sampai turun
+    }
+    // Kalau pohon belum selesai, nodeAktif belum diuji tuntas → tetap masuk daftar
+    if (p.status === "aktif-initial" || p.status === "aktif-konfirmasi") {
+      if (!map.has(p.nodeAktifId)) map.set(p.nodeAktifId, { id: p.nodeAktifId, tuntas: false });
+    }
+  }
+  return Array.from(map.values());
+}
+
+/** True kalau ada pohon yang masih aktif (tes terhenti karena cap, bukan karena selesai natural). */
+export function adaPohonBelumTuntas(states: PohonState[]): boolean {
+  return states.some((p) => p.status === "aktif-initial" || p.status === "aktif-konfirmasi");
+}
