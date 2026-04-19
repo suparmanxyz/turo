@@ -16,6 +16,7 @@ const NodeSchema = z.object({
   prasyarat: z.array(z.string()),
   subKonsep: z.array(z.string()).optional(),
   linkedSlug: z.string().optional(),
+  kelasEstimasi: z.number().int().min(1).max(12).optional(),
 });
 
 const ResponSchema = z.object({
@@ -89,6 +90,8 @@ ${babList}
 
 Untuk setiap node, kalau topik node BENAR-BENAR cocok dengan salah satu bab di daftar di atas (bukan sekedar mirip nama), isi field "linkedSlug" dengan slug bab tsb. Kalau tidak yakin/konseptual general, JANGAN isi linkedSlug (biarkan kosong).
 
+Untuk setiap node, isi "kelasEstimasi" (1-12) — perkiraan kelas tempat konsep itu pertama kali dipelajari di sekolah Indonesia. Misal "penjumlahan 1-10" = kelas 1, "perkalian dasar" = kelas 2, "faktorisasi prima" = kelas 4-5, "Pythagoras" = kelas 8, "trigonometri" = kelas 10. Berguna untuk traceability admin.
+
 Schema:
 {
   "rootId": "string",
@@ -99,7 +102,8 @@ Schema:
       "level": 0,
       "prasyarat": ["..."],
       "subKonsep": ["sub konsep 1", "sub konsep 2"],
-      "linkedSlug": "slug-bab-kalau-match"
+      "linkedSlug": "slug-bab-kalau-match",
+      "kelasEstimasi": 5
     }
   ]
 }`;

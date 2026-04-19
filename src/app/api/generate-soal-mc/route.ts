@@ -60,7 +60,12 @@ ATURAN TEKNIS SVG:
 - viewBox proporsional dengan konten (lebar max 400, tinggi sesuai). Jangan terlalu kecil.
 - Stroke 2-3px, warna kontras tinggi. Font 14-22px.
 - Label angka/titik penting dengan <text>.
-- Untuk geometri: WAJIB cantumkan ukuran/satuan yang relevan (jari-jari, panjang sisi, sudut) sebagai label.
+- PENTING: di dalam SVG <text>, JANGAN pakai LaTeX ($..$, \\frac, \\times, dll). SVG tidak render LaTeX. Pakai:
+  * Plain text/angka biasa: "−5", "P", "Q", "12 cm", "60°"
+  * Unicode untuk simbol: × (×), ÷ (÷), ≤ (≤), ≥ (≥), √ (√), π (π), θ (θ), α (α), β (β)
+  * Pangkat pakai unicode: x² (x²), x³ (x³), aⁿ (aⁿ)
+  * Pecahan tulis verbal: "1/2" atau pisah jadi 2 baris dengan garis horizontal <line>
+- Untuk geometri: WAJIB cantumkan ukuran/satuan yang relevan (jari-jari, panjang sisi, sudut) sebagai label PLAIN TEXT.
 
 ${gayaSvg}`;
 

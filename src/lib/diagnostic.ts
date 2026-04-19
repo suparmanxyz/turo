@@ -16,6 +16,8 @@ export type SoalDiagnostik = SoalMc & {
   subKonsep: string;      // sub-konsep spesifik
   /** "initial" = soal awal (1 per sub). "konfirmasi" = soal kedua untuk sub yang salah di initial. */
   jenisTahap: "initial" | "konfirmasi";
+  /** Tahap ke-berapa di flow tes (1, 2, 3, ...). */
+  tahapNo: number;
 };
 
 export type JawabanUser = {

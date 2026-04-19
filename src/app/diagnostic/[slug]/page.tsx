@@ -226,6 +226,7 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
           nodeId: job.nodeId,
           subKonsep: job.subKonsep,
           jenisTahap: job.jenisTahap,
+          tahapNo: tahapNo + 1,
           ...mc,
         };
       }),
@@ -315,8 +316,10 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
             nodeTopik: node?.topik,
             nodeId: s.nodeId,
             nodeLevel: node?.level,
+            kelasEstimasi: node?.kelasEstimasi,
             subKonsep: s.subKonsep,
             jenisTahap: s.jenisTahap,
+            tahapNo: s.tahapNo,
             waktuMs: waktuPerSoal[s.id],
             ...(s.svg ? { svg: s.svg } : {}),
           };

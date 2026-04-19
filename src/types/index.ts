@@ -107,6 +107,8 @@ export type NodePrasyarat = {
   /** Soft link ke slug Materi di DAFTAR_MATERI kalau topik ini cocok dengan bab existing.
    * Optional — Claude isi kalau yakin match, kosong kalau konseptual general. */
   linkedSlug?: string;
+  /** Estimasi kelas tempat konsep ini diajarkan (untuk traceability admin). 1-12 untuk reguler. */
+  kelasEstimasi?: number;
 };
 
 export type PetaPrasyarat = {

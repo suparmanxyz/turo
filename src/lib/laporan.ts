@@ -43,8 +43,12 @@ export type LaporanDiagnostik = {
     nodeTopik?: string;
     nodeId?: string;
     nodeLevel?: number;
+    /** Estimasi kelas tempat konsep ini diajarkan (untuk traceability). */
+    kelasEstimasi?: number;
     subKonsep?: string;
     jenisTahap?: "initial" | "konfirmasi";
+    /** Tahap ke-berapa soal ini muncul di flow tes (1, 2, 3, ...). */
+    tahapNo?: number;
     /** Estimasi waktu user mengerjakan soal ini (ms). */
     waktuMs?: number;
     /** SVG inline kalau soal butuh visual. */
@@ -77,14 +81,32 @@ export function buatKeyDiagnostik(materiSlug: string, jenis: "diagnostik" | "pos
   return `${materiSlug}__${jenis}__${Date.now()}`;
 }
 
+/** Recursively hapus field dengan nilai undefined (Firestore tolak undefined). */
+function bersihkanUndefined<T>(obj: T): T {
+  if (obj === null || obj === undefined) return obj;
+  if (Array.isArray(obj)) {
+    return obj.map((v) => bersihkanUndefined(v)) as unknown as T;
+  }
+  if (typeof obj === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+      if (v === undefined) continue;
+      out[k] = bersihkanUndefined(v);
+    }
+    return out as T;
+  }
+  return obj;
+}
+
 export async function saveDiagnostik(
   uid: string,
   key: string,
   data: Omit<LaporanDiagnostik, "createdAt">,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
+    const clean = bersihkanUndefined(data);
     // merge:true supaya bisa update partial (incremental save tiap tahap)
-    await setDoc(diagnostikRef(uid, key), { ...data, createdAt: serverTimestamp() }, { merge: true });
+    await setDoc(diagnostikRef(uid, key), { ...clean, createdAt: serverTimestamp() }, { merge: true });
     return { ok: true };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

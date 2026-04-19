@@ -16,8 +16,10 @@ type JawabanRiwayat = {
   nodeTopik?: string;
   nodeId?: string;
   nodeLevel?: number;
+  kelasEstimasi?: number;
   subKonsep?: string;
   jenisTahap?: "initial" | "konfirmasi";
+  tahapNo?: number;
   waktuMs?: number;
   svg?: string;
 };
@@ -86,32 +88,52 @@ export default function AdminDiagnostikDetailPage(props: { params: Promise<{ uid
         Soal di-group berdasar pohon prasyarat (level dalam = prasyarat dasar).
       </p>
 
-      {/* Statistik per node + level */}
+      {/* Statistik per node + level + kelas estimasi */}
       {(() => {
-        const byNode = new Map<string, { topik: string; level: number; soal: typeof data.jawabanRiwayat }>();
+        const byNode = new Map<string, { topik: string; level: number; kelas?: number; soal: typeof data.jawabanRiwayat }>();
         for (const s of data.jawabanRiwayat) {
           const key = s.nodeId ?? s.nodeTopik ?? "_unknown_";
           if (!byNode.has(key)) {
-            byNode.set(key, { topik: s.nodeTopik ?? key, level: s.nodeLevel ?? 0, soal: [] });
+            byNode.set(key, { topik: s.nodeTopik ?? key, level: s.nodeLevel ?? 0, kelas: s.kelasEstimasi, soal: [] });
           }
           byNode.get(key)!.soal.push(s);
         }
+        const byTahap = new Map<number, number>();
+        for (const s of data.jawabanRiwayat) {
+          const t = s.tahapNo ?? 0;
+          byTahap.set(t, (byTahap.get(t) ?? 0) + 1);
+        }
         return (
-          <div className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">
-            <strong className="text-slate-700">Distribusi: {byNode.size} node prasyarat</strong>
-            <ul className="mt-1 space-y-0.5">
-              {Array.from(byNode.entries())
-                .sort(([, a], [, b]) => a.level - b.level)
-                .map(([k, info]) => {
-                  const benar = info.soal.filter((x) => x.benar).length;
-                  return (
-                    <li key={k} className="text-slate-600">
-                      <span className="inline-block w-12 text-[10px] font-mono text-slate-400">L{info.level}</span>
-                      <strong>{info.topik}</strong> · {info.soal.length} soal · {benar}/{info.soal.length} benar
-                    </li>
-                  );
-                })}
-            </ul>
+          <div className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs space-y-3">
+            <div>
+              <strong className="text-slate-700">Distribusi tahap:</strong>{" "}
+              {Array.from(byTahap.entries())
+                .sort(([a], [b]) => a - b)
+                .map(([tahap, n]) => (
+                  <span key={tahap} className="inline-block mr-2 px-2 py-0.5 bg-violet-100 text-violet-700 rounded">
+                    T{tahap}: {n} soal
+                  </span>
+                ))}
+            </div>
+            <div>
+              <strong className="text-slate-700">Distribusi node ({byNode.size}):</strong>
+              <ul className="mt-1 space-y-0.5">
+                {Array.from(byNode.entries())
+                  .sort(([, a], [, b]) => a.level - b.level)
+                  .map(([k, info]) => {
+                    const benar = info.soal.filter((x) => x.benar).length;
+                    return (
+                      <li key={k} className="text-slate-600 flex items-center gap-1.5 flex-wrap">
+                        <span className="font-mono text-[10px] bg-slate-100 px-1.5 rounded">L{info.level}</span>
+                        {info.kelas !== undefined && (
+                          <span className="text-[10px] bg-sky-100 text-sky-700 px-1.5 rounded">~kelas {info.kelas}</span>
+                        )}
+                        <strong>{info.topik}</strong> · {info.soal.length} soal · {benar}/{info.soal.length} benar
+                      </li>
+                    );
+                  })}
+              </ul>
+            </div>
           </div>
         );
       })()}
@@ -125,8 +147,14 @@ export default function AdminDiagnostikDetailPage(props: { params: Promise<{ uid
                 <span className={`px-2 py-0.5 rounded-full font-medium ${s.benar ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
                   {s.benar ? "✓ User benar" : "✗ User salah"}
                 </span>
+                {s.tahapNo !== undefined && (
+                  <span className="px-2 py-0.5 bg-violet-100 text-violet-700 rounded text-[10px]">T{s.tahapNo}</span>
+                )}
                 {s.nodeLevel !== undefined && (
-                  <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded font-mono">L{s.nodeLevel}</span>
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded font-mono text-[10px]">L{s.nodeLevel}</span>
+                )}
+                {s.kelasEstimasi !== undefined && (
+                  <span className="px-2 py-0.5 bg-sky-100 text-sky-700 rounded text-[10px]">kelas ~{s.kelasEstimasi}</span>
                 )}
                 {s.nodeTopik && <span className="text-slate-500">{s.nodeTopik}</span>}
                 {s.subKonsep && <span className="text-slate-400 italic">· {s.subKonsep}</span>}
