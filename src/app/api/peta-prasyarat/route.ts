@@ -188,8 +188,43 @@ Schema:
     console.warn("peta gen pertama fail:", result.reason, result.rawSnippet);
     result = await generateOnce(`SEBELUMNYA gagal (${result.reason}). Pastikan output JSON valid sesuai schema, dan SINGKAT (max 15 nodes total, prasyarat & subKonsep ringkas). Kalau konsep dasar (kelas 1-2) tanpa prasyarat formal, BOLEH return 1 node saja.`);
   }
+
+  // Kalau 2x retry tetap fail, fallback ke peta minimal (1-node root) supaya diagnostik
+  // tetap bisa jalan untuk topik super-basic (kelas 1-2) yang tanpa prasyarat formal.
   if (!result.ok) {
-    return NextResponse.json({ error: result.reason, detail: result.rawSnippet }, { status: 502 });
+    console.warn(`peta gen fail 2x untuk "${subMateri}", pakai fallback minimal:`, result.reason);
+    const fallbackId = subMateri.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "konsep-dasar";
+    const peta: z.infer<typeof ResponSchema> = {
+      rootId: fallbackId,
+      nodes: [
+        {
+          id: fallbackId,
+          topik: subMateri,
+          level: 0,
+          prasyarat: [],
+          subKonsep: ["konsep utama"],
+          kelasEstimasi: kelasTarget ?? undefined,
+        },
+      ],
+    };
+    // Save fallback ke cache, biar tidak retry-fail terus tiap user buka
+    try {
+      const db = getAdminDb();
+      await db.collection("petaCache").doc(cacheKey).set({
+        peta,
+        subMateri,
+        soalTargetPreview: typeof soalTarget === "string" ? soalTarget.slice(0, 200) : null,
+        kategoriUtama: audiens.kategoriUtama,
+        jenjang: audiens.jenjang ?? null,
+        kelas: audiens.kelas ?? null,
+        createdAt: Date.now(),
+        _minimalFallback: true,
+        _gagalReason: result.reason,
+      });
+    } catch (e) {
+      console.warn("save fallback peta gagal:", e);
+    }
+    return NextResponse.json({ ...peta, _minimalFallback: true, _gagalReason: result.reason });
   }
   const parsed = { data: result.data };
 
