@@ -72,6 +72,21 @@ export async function POST(req: NextRequest) {
 
   const kelasTarget = audiens.kategoriUtama === "reguler" && audiens.kelas ? audiens.kelas : null;
 
+  // Adaptive depth based on kelas target
+  const depthGuide = !kelasTarget
+    ? "USAHAKAN 3-5 level kedalaman."
+    : kelasTarget <= 2
+    ? "Untuk kelas SD bawah ini, peta CUKUP DANGKAL: 1-3 level total. Konsep sangat dasar (counting, recognition). Boleh peta cuma punya 1 level (root saja) kalau memang konsep paling fundamental tanpa prasyarat formal."
+    : kelasTarget <= 6
+    ? "USAHAKAN 2-4 level kedalaman. Konsep SD masih dekat dengan kemampuan dasar — jangan paksa peta dalam kalau memang prasyaratnya pendek."
+    : "USAHAKAN 3-5 level kedalaman untuk SMP/SMA — konsep biasanya butuh banyak prasyarat dari kelas-kelas sebelumnya.";
+
+  const kelasGuide = !kelasTarget
+    ? ""
+    : kelasTarget <= 2
+    ? `Untuk target kelas ${kelasTarget}, kelasEstimasi level 0 = ${kelasTarget}. Level 1+ boleh tetap kelas ${kelasTarget} (kalau berupa sub-konsep prasyarat dalam materi yang sama, e.g., counting 1-5 sebelum 1-10) ATAU di-skip kalau memang tidak ada prasyarat formal.`
+    : `Untuk target kelas ${kelasTarget}: kelasEstimasi level 0 = ${kelasTarget}. Level 1 typically ≤ ${kelasTarget - 1}. Level 2 lebih rendah lagi. WAJIB MENURUN saat level naik (kecuali sub-konsep dari materi yang sama di kelas yang sama).`;
+
   const prompt = `Kamu adalah guru matematika Indonesia yang mengajar ${audiensPrompt(audiens)}.
 Buat PETA PRASYARAT untuk konsep berikut. PRASYARAT ARTINYA: konsep dari kelas/materi SEBELUMNYA yang harus dikuasai DULU sebelum bisa pelajari konsep di level atasnya.
 
@@ -80,34 +95,32 @@ ${soalTarget ? `Soal contoh:\n${soalTarget}` : ""}
 
 ⚠️ ATURAN SEMANTIK PRASYARAT (PALING PENTING):
 - "Prasyarat" BUKAN "sub-bab dari materi target". Misal kalau target = "Bilangan Bulat (kelas 7)", JANGAN bikin level 1 = "Operasi Bilangan Bulat", "Konsep Bilangan Bulat", "Sifat Operasi Bilangan Bulat" — semua itu sub-bab DARI MATERI TARGET ITU SENDIRI, BUKAN prasyarat.
-- "Prasyarat" = konsep dari MATERI/KELAS LEBIH RENDAH yang harus dikuasai dulu.
+- "Prasyarat" = konsep dari MATERI/KELAS LEBIH RENDAH yang harus dikuasai dulu (atau konsep mendasar yang sama di materi serupa di kelas sebelumnya).
   Contoh BENAR untuk "Bilangan Bulat (kelas 7)":
     L1 = ["Bilangan Cacah & Operasinya (kelas 6)", "Bilangan Negatif & Garis Bilangan (kelas 6)"]
-    L2 = prasyarat L1 — "Penjumlahan Pengurangan ≤1000 (kelas 4)", "Pengenalan Bilangan Negatif (kelas 6 awal)"
-    L3 = "Penjumlahan dasar (kelas 2-3)", "Konsep Bilangan Cacah (kelas 1-2)"
-    L4 = "Berhitung 1-20 (kelas 1)"
+    L2 = "Penjumlahan Pengurangan ≤1000 (kelas 4)"
+    L3 = "Penjumlahan dasar (kelas 2-3)"
 
 Aturan struktur:
-- Level 0 (root) = konsep target ITU SENDIRI (kelas N). HANYA 1 node level 0.
-- Level 1 = konsep prasyarat LANGSUNG, BIASANYA dari kelas N-1 atau N-2. WAJIB level 1 nodes punya kelasEstimasi LEBIH KECIL dari kelas target.
-- Level 2 = prasyarat dari level 1, dari kelas LEBIH RENDAH lagi.
-- Lanjutkan turun sampai konsep paling dasar di SD kelas 1.
-- WAJIB minimal 4-5 level kedalaman untuk materi SMP/SMA, 3 level untuk SD kelas atas, 2 level untuk SD kelas bawah.
-- Setiap node punya path turun sampai konsep paling dasar.
-- 15-25 nodes total.
+- Level 0 (root) = konsep target ITU SENDIRI. HANYA 1 node level 0.
+- Level 1+ = prasyarat — dari materi/kelas yang lebih dasar.
+- ${depthGuide}
+- ${kelasGuide}
+- Untuk konsep PALING DASAR (e.g., kelas 1 counting 1-10), boleh peta cuma 1 node (root saja, tanpa prasyarat). Jangan paksa generate prasyarat artificial.
+- Maksimal 25 nodes total.
 - Output HANYA JSON murni (TANPA code fence/backtick, TANPA teks tambahan).
 
-DAFTAR BAB DI SISTEM (untuk soft-link, semua kelas yang lebih rendah dari target):
+DAFTAR BAB DI SISTEM (untuk soft-link, semua kelas yang relevan):
 ${babList}
 
 Per node:
 - "id": unik kebab-case
-- "topik": deskripsi konsep (tegas — sebut konteks kelas-nya kalau perlu)
+- "topik": deskripsi konsep (sebut konteks kelas-nya kalau perlu)
 - "level": int 0,1,2,...
-- "prasyarat": daftar id node yang HARUS dikuasai dulu sebelum konsep ini
-- "subKonsep": 2-4 sub-konsep testable di dalam topik ini
-- "linkedSlug": kalau topik node match SALAH SATU bab di daftar di atas, isi slug-nya. Kalau konseptual general, kosongkan.
-- "kelasEstimasi" (1-12): kelas tempat konsep ini pertama kali diajarkan. WAJIB MENURUN saat level naik.${kelasTarget ? ` Untuk target ini (kelas ${kelasTarget}), kelasEstimasi level 0 = ${kelasTarget}, level 1 ≤ ${kelasTarget - 1}, level 2 ≤ ${kelasTarget - 2}, dst.` : ""}
+- "prasyarat": daftar id node yang HARUS dikuasai dulu (boleh empty array untuk node terdasar)
+- "subKonsep": 2-4 sub-konsep testable di dalam topik
+- "linkedSlug": optional, kalau match bab di daftar
+- "kelasEstimasi" (1-12): kelas tempat konsep diajarkan
 
 Schema:
 {
@@ -126,28 +139,45 @@ Schema:
 }`;
 
   const claude = getClaude();
-  const msg = await claude.messages.create({
-    model: pilihModel("peta"),
-    max_tokens: 6000,
-    messages: [{ role: "user", content: prompt }],
-  });
 
-  const text = msg.content
-    .filter((c) => c.type === "text")
-    .map((c) => (c as { text: string }).text)
-    .join("\n");
-
-  let obj: unknown;
-  try {
-    obj = extractJson(text);
-  } catch {
-    return NextResponse.json({ error: "Claude tidak return JSON valid", raw: text }, { status: 502 });
+  /** Generate sekali — return parsed atau null kalau fail. */
+  async function generateOnce(extraHint?: string): Promise<{ ok: true; data: z.infer<typeof ResponSchema> } | { ok: false; rawSnippet: string; reason: string }> {
+    try {
+      const msg = await claude.messages.create({
+        model: pilihModel("peta"),
+        max_tokens: 6000,
+        messages: [{ role: "user", content: prompt + (extraHint ? `\n\n${extraHint}` : "") }],
+      });
+      const text = msg.content
+        .filter((c) => c.type === "text")
+        .map((c) => (c as { text: string }).text)
+        .join("\n");
+      let obj: unknown;
+      try {
+        obj = extractJson(text);
+      } catch {
+        return { ok: false, rawSnippet: text.slice(0, 300), reason: "JSON tidak valid" };
+      }
+      const parsed = ResponSchema.safeParse(obj);
+      if (!parsed.success) {
+        return { ok: false, rawSnippet: JSON.stringify(parsed.error.issues).slice(0, 300), reason: "Schema invalid" };
+      }
+      return { ok: true, data: parsed.data };
+    } catch (e) {
+      return { ok: false, rawSnippet: e instanceof Error ? e.message : String(e), reason: "Exception" };
+    }
   }
 
-  const parsed = ResponSchema.safeParse(obj);
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Schema tidak valid", issues: parsed.error.issues }, { status: 502 });
+  // Coba generate, retry sekali kalau fail
+  let result = await generateOnce();
+  if (!result.ok) {
+    console.warn("peta gen pertama fail:", result.reason, result.rawSnippet);
+    result = await generateOnce(`SEBELUMNYA gagal: ${result.reason}. Pastikan output adalah JSON valid persis sesuai schema. Kalau konsep terlalu dasar (kelas 1-2) dan tidak ada prasyarat formal, BOLEH return cuma 1 node (root saja) dengan prasyarat kosong.`);
   }
+  if (!result.ok) {
+    return NextResponse.json({ error: result.reason, raw: result.rawSnippet }, { status: 502 });
+  }
+  const parsed = { data: result.data };
 
   // ── Save to cache (best-effort, don't block response) ──
   try {
