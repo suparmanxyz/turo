@@ -145,26 +145,40 @@ Schema:
     try {
       const msg = await claude.messages.create({
         model: pilihModel("peta"),
-        max_tokens: 6000,
+        max_tokens: 12000,
         messages: [{ role: "user", content: prompt + (extraHint ? `\n\n${extraHint}` : "") }],
       });
       const text = msg.content
         .filter((c) => c.type === "text")
         .map((c) => (c as { text: string }).text)
         .join("\n");
+      const truncated = msg.stop_reason === "max_tokens";
       let obj: unknown;
       try {
         obj = extractJson(text);
       } catch {
-        return { ok: false, rawSnippet: text.slice(0, 300), reason: "JSON tidak valid" };
+        return {
+          ok: false,
+          rawSnippet: text.slice(0, 500),
+          reason: truncated ? "Response Claude terpotong (max_tokens). Topik mungkin terlalu kompleks." : "JSON tidak valid",
+        };
       }
       const parsed = ResponSchema.safeParse(obj);
       if (!parsed.success) {
-        return { ok: false, rawSnippet: JSON.stringify(parsed.error.issues).slice(0, 300), reason: "Schema invalid" };
+        return {
+          ok: false,
+          rawSnippet: JSON.stringify(parsed.error.issues).slice(0, 500),
+          reason: truncated ? "Response terpotong + Schema invalid" : "Schema invalid",
+        };
       }
       return { ok: true, data: parsed.data };
     } catch (e) {
-      return { ok: false, rawSnippet: e instanceof Error ? e.message : String(e), reason: "Exception" };
+      const m = e instanceof Error ? e.message : String(e);
+      let reason = "Exception";
+      if (m.includes("credit balance is too low")) reason = "Kredit Anthropic habis";
+      else if (m.includes("rate_limit") || m.includes("429")) reason = "Rate limit Anthropic";
+      else if (m.includes("overloaded")) reason = "Server Anthropic overload";
+      return { ok: false, rawSnippet: m.slice(0, 500), reason };
     }
   }
 
@@ -172,10 +186,10 @@ Schema:
   let result = await generateOnce();
   if (!result.ok) {
     console.warn("peta gen pertama fail:", result.reason, result.rawSnippet);
-    result = await generateOnce(`SEBELUMNYA gagal: ${result.reason}. Pastikan output adalah JSON valid persis sesuai schema. Kalau konsep terlalu dasar (kelas 1-2) dan tidak ada prasyarat formal, BOLEH return cuma 1 node (root saja) dengan prasyarat kosong.`);
+    result = await generateOnce(`SEBELUMNYA gagal (${result.reason}). Pastikan output JSON valid sesuai schema, dan SINGKAT (max 15 nodes total, prasyarat & subKonsep ringkas). Kalau konsep dasar (kelas 1-2) tanpa prasyarat formal, BOLEH return 1 node saja.`);
   }
   if (!result.ok) {
-    return NextResponse.json({ error: result.reason, raw: result.rawSnippet }, { status: 502 });
+    return NextResponse.json({ error: result.reason, detail: result.rawSnippet }, { status: 502 });
   }
   const parsed = { data: result.data };
 
