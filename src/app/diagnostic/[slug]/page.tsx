@@ -346,6 +346,56 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
 
   const semuaTerjawab = soalTahap.length > 0 && soalTahap.every((s) => jawaban[s.id] !== undefined);
 
+  // Keyboard shortcuts saat fase menjawab
+  useEffect(() => {
+    if (fase !== "menjawab") return;
+    function handler(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null;
+      // Skip kalau user sedang ngetik di input/textarea
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
+
+      if (lihatRingkasan) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          kembaliKeSoal(idxSoal);
+        } else if (e.key === "Enter" && semuaTerjawab) {
+          e.preventDefault();
+          submitTahap();
+        }
+        return;
+      }
+
+      const sAktif = soalTahap[idxSoal];
+      if (!sAktif) return;
+
+      // 1-4 atau A-D pilih opsi
+      if (/^[1-4]$/.test(e.key)) {
+        e.preventDefault();
+        pilihJawaban(sAktif.id, parseInt(e.key) - 1);
+        return;
+      }
+      if (/^[a-dA-D]$/.test(e.key)) {
+        e.preventDefault();
+        pilihJawaban(sAktif.id, e.key.toLowerCase().charCodeAt(0) - 97);
+        return;
+      }
+      if (e.key === "ArrowRight" || e.key === "Enter") {
+        e.preventDefault();
+        if (idxSoal < soalTahap.length - 1) gotoSoal(idxSoal + 1);
+        else gotoRingkasan();
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (idxSoal > 0) gotoSoal(idxSoal - 1);
+        return;
+      }
+    }
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fase, lihatRingkasan, idxSoal, soalTahap, semuaTerjawab]);
+
   function submitTahap() {
     if (!peta || !semuaTerjawab) return;
     // Catat waktu untuk soal terakhir yang dilihat
@@ -378,28 +428,38 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
     );
   }
 
-  return (
-    <main className="mx-auto max-w-3xl p-6 sm:p-10">
-      <Link
-        href={`/materi/${materi.slug}`}
-        className="text-sm text-slate-500 hover:text-brand inline-flex items-center gap-1 transition"
-      >
-        ← {materi.nama}
-      </Link>
+  // Mode menjawab: layout fit-viewport (no scroll halaman). Lainnya: layout normal.
+  const fitViewport = fase === "menjawab";
 
-      <div className="mt-3 mb-6 animate-rise">
-        <span className={`inline-flex items-center gap-1.5 rounded-full ${t.badge} px-2.5 py-1 text-xs font-medium`}>
-          🎯 Cek Kesiapan
-        </span>
-        <h1 className="text-2xl sm:text-3xl font-extrabold mt-3">
-          Apakah kamu siap mempelajari{" "}
-          <span className={t.text}>{materi.nama}</span>?
-        </h1>
-        <p className="text-slate-600 mt-2">
-          Kami akan mengetes prasyarat materi ini secara adaptif.
-          Kalau kamu kesulitan di satu konsep, soal akan turun ke prasyarat yang lebih dasar.
-        </p>
-      </div>
+  return (
+    <main className={fitViewport
+      ? "flex-1 flex flex-col h-[calc(100dvh-3.5rem)] overflow-hidden"
+      : "mx-auto max-w-3xl p-6 sm:p-10"}
+    >
+      {!fitViewport && (
+        <>
+          <Link
+            href={`/materi/${materi.slug}`}
+            className="text-sm text-slate-500 hover:text-brand inline-flex items-center gap-1 transition"
+          >
+            ← {materi.nama}
+          </Link>
+
+          <div className="mt-3 mb-6 animate-rise">
+            <span className={`inline-flex items-center gap-1.5 rounded-full ${t.badge} px-2.5 py-1 text-xs font-medium`}>
+              🎯 Cek Kesiapan
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-extrabold mt-3">
+              Apakah kamu siap mempelajari{" "}
+              <span className={t.text}>{materi.nama}</span>?
+            </h1>
+            <p className="text-slate-600 mt-2">
+              Kami akan mengetes prasyarat materi ini secara adaptif.
+              Kalau kamu kesulitan di satu konsep, soal akan turun ke prasyarat yang lebih dasar.
+            </p>
+          </div>
+        </>
+      )}
 
       {error && (
         <div className="mb-4 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">
@@ -447,137 +507,149 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
         const persen = soalTahap.length > 0 ? Math.round((terjawabCount / soalTahap.length) * 100) : 0;
 
         return (
-          <div className="pb-24">
-            <div className={`mb-5 p-3 rounded-xl ${t.bgSoft} border ${t.border} text-sm`}>
-              <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
-                <div>
-                  <strong className={t.textStrong}>Tahap {tahapNo}</strong>
-                  {semuaKonfirmasi && <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs">🔁 konfirmasi</span>}
-                  {adaKonfirmasi && !semuaKonfirmasi && <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs">campuran</span>}
+          <>
+            {/* Header compact (shrink-0) */}
+            <div className={`shrink-0 px-4 sm:px-6 py-2.5 ${t.bgSoft} border-b ${t.border} text-sm`}>
+              <div className="mx-auto max-w-3xl">
+                <div className="flex items-center justify-between flex-wrap gap-2 mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <Link href={`/materi/${materi.slug}`} className="text-xs text-slate-500 hover:text-brand">
+                      ← keluar
+                    </Link>
+                    <span className="text-slate-300">·</span>
+                    <strong className={t.textStrong}>Tahap {tahapNo}</strong>
+                    {semuaKonfirmasi && <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[10px]">🔁 konfirmasi</span>}
+                    {adaKonfirmasi && !semuaKonfirmasi && <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[10px]">campuran</span>}
+                  </div>
+                  <div className="text-xs text-slate-600">
+                    Soal <strong>{idxSoal + 1}</strong>/{soalTahap.length} · {terjawabCount} terjawab
+                  </div>
                 </div>
-                <div className="text-xs text-slate-600">
-                  Soal <strong>{idxSoal + 1}</strong> dari {soalTahap.length} · {terjawabCount}/{soalTahap.length} terjawab
+                <div className="h-1 w-full bg-slate-200 rounded-full overflow-hidden">
+                  <div className={`h-full ${t.gradient} transition-all duration-300`} style={{ width: `${persen}%` }} />
                 </div>
               </div>
-              <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                <div className={`h-full ${t.gradient} transition-all duration-300`} style={{ width: `${persen}%` }} />
-              </div>
-              {soalTahap.length + riwayatSoal.length >= MAX_SOAL_DIAGNOSTIK && (
-                <p className="text-xs text-rose-600 mt-2">(tahap terakhir — cap {MAX_SOAL_DIAGNOSTIK} soal)</p>
-              )}
             </div>
 
-            {!lihatRingkasan && sAktif && (
-              <div key={sAktif.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm animate-rise">
-                <div className="flex items-center gap-2 mb-3 text-xs">
-                  <span className={`px-2 py-0.5 ${t.badge} rounded-full font-medium`}>#{idxSoal + 1}</span>
-                  <span className="text-slate-500">{nodeById(peta!, sAktif.nodeId)?.topik ?? sAktif.nodeId}</span>
-                  {sAktif.jenisTahap === "konfirmasi" && (
-                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[10px]">🔁 konfirmasi</span>
-                  )}
-                </div>
-                <div className="mb-4 leading-relaxed text-lg">
-                  <MathText>{sAktif.pertanyaan}</MathText>
-                </div>
-                {sAktif.svg && (
-                  <div
-                    className="mb-4 flex justify-center bg-slate-50 rounded-lg p-3 [&_svg]:max-w-full [&_svg]:h-auto"
-                    dangerouslySetInnerHTML={{ __html: sAktif.svg }}
-                  />
+            {/* Body soal — flex-1, scroll internal kalau perlu */}
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
+              <div className="mx-auto max-w-3xl">
+                {!lihatRingkasan && sAktif && (
+                  <div key={sAktif.id} className="animate-rise">
+                    <div className="flex items-center gap-2 mb-2 text-xs">
+                      <span className={`px-2 py-0.5 ${t.badge} rounded-full font-medium`}>#{idxSoal + 1}</span>
+                      <span className="text-slate-500 truncate">{nodeById(peta!, sAktif.nodeId)?.topik ?? sAktif.nodeId}</span>
+                      {sAktif.jenisTahap === "konfirmasi" && (
+                        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[10px] shrink-0">🔁 konfirmasi</span>
+                      )}
+                    </div>
+                    <div className="mb-3 leading-relaxed">
+                      <MathText>{sAktif.pertanyaan}</MathText>
+                    </div>
+                    {sAktif.svg && (
+                      <div
+                        className="mb-3 flex justify-center bg-slate-50 rounded-lg p-2 [&_svg]:max-w-full [&_svg]:max-h-[35vh] [&_svg]:h-auto"
+                        dangerouslySetInnerHTML={{ __html: sAktif.svg }}
+                      />
+                    )}
+                    <ul className="space-y-1.5">
+                      {sAktif.opsi.map((o, idx) => {
+                        const dipilih = jawaban[sAktif.id] === idx;
+                        return (
+                          <li key={idx}>
+                            <button
+                              onClick={() => pilihJawaban(sAktif.id, idx)}
+                              className={`group w-full text-left rounded-xl border-2 px-3 py-2.5 transition ${
+                                dipilih
+                                  ? `${t.border} ${t.bgSoft} ${t.textStrong} font-semibold`
+                                  : "border-slate-200 hover:border-slate-300 bg-white"
+                              }`}
+                            >
+                              <span className="inline-flex items-center gap-2.5">
+                                <span className={`grid h-6 w-6 place-items-center rounded-md text-xs font-bold shrink-0 ${
+                                  dipilih ? `${t.bgSoftStrong} ${t.text}` : "bg-slate-100 text-slate-600"
+                                }`}>
+                                  {String.fromCharCode(65 + idx)}
+                                </span>
+                                <MathText>{o.teks}</MathText>
+                              </span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 )}
-                <ul className="space-y-2">
-                  {sAktif.opsi.map((o, idx) => {
-                    const dipilih = jawaban[sAktif.id] === idx;
-                    return (
-                      <li key={idx}>
-                        <button
-                          onClick={() => pilihJawaban(sAktif.id, idx)}
-                          className={`group w-full text-left rounded-xl border-2 px-4 py-3 transition ${
-                            dipilih
-                              ? `${t.border} ${t.bgSoft} ${t.textStrong} font-semibold`
-                              : "border-slate-200 hover:border-slate-300 bg-white"
-                          }`}
-                        >
-                          <span className="inline-flex items-center gap-3">
-                            <span className={`grid h-7 w-7 place-items-center rounded-md text-xs font-bold ${
-                              dipilih ? `${t.bgSoftStrong} ${t.text}` : "bg-slate-100 text-slate-600"
-                            }`}>
-                              {String.fromCharCode(65 + idx)}
-                            </span>
-                            <MathText>{o.teks}</MathText>
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
 
-            {lihatRingkasan && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm animate-rise">
-                <h3 className="font-bold text-lg mb-3">Ringkasan Jawaban</h3>
-                <p className="text-sm text-slate-600 mb-4">
-                  Periksa jawaban kamu sebelum submit. Klik nomor untuk koreksi.
-                </p>
-                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-5">
-                  {soalTahap.map((s, i) => {
-                    const sudahJawab = jawaban[s.id] !== undefined;
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => kembaliKeSoal(i)}
-                        className={`rounded-lg p-2 text-sm font-medium border transition ${
-                          sudahJawab
-                            ? `${t.bgSoftStrong} ${t.text} border-transparent hover:opacity-80`
-                            : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
-                        }`}
-                        title={sudahJawab ? "Terjawab" : "Belum dijawab — klik untuk jawab"}
-                      >
-                        #{i + 1} {sudahJawab ? "✓" : "○"}
-                      </button>
-                    );
-                  })}
-                </div>
-                {!semuaTerjawab && (
-                  <p className="text-sm text-rose-600 mb-3">
-                    ⚠ Masih ada {soalTahap.length - terjawabCount} soal belum dijawab.
-                  </p>
+                {lihatRingkasan && (
+                  <div className="animate-rise">
+                    <h3 className="font-bold text-lg mb-2">Ringkasan Jawaban</h3>
+                    <p className="text-sm text-slate-600 mb-3">
+                      Periksa jawaban kamu sebelum submit. Klik nomor untuk koreksi.
+                    </p>
+                    <div className="grid grid-cols-5 sm:grid-cols-8 gap-2 mb-4">
+                      {soalTahap.map((s, i) => {
+                        const sudahJawab = jawaban[s.id] !== undefined;
+                        return (
+                          <button
+                            key={s.id}
+                            onClick={() => kembaliKeSoal(i)}
+                            className={`rounded-lg p-2 text-sm font-medium border transition ${
+                              sudahJawab
+                                ? `${t.bgSoftStrong} ${t.text} border-transparent hover:opacity-80`
+                                : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                            }`}
+                            title={sudahJawab ? "Terjawab" : "Belum dijawab — klik untuk jawab"}
+                          >
+                            #{i + 1} {sudahJawab ? "✓" : "○"}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {!semuaTerjawab && (
+                      <p className="text-sm text-rose-600 mb-2">
+                        ⚠ Masih ada {soalTahap.length - terjawabCount} soal belum dijawab.
+                      </p>
+                    )}
+                    <p className="text-xs text-slate-500">
+                      💡 Keyboard: <kbd className="px-1 py-0.5 bg-slate-100 rounded text-[10px]">Enter</kbd> untuk submit, <kbd className="px-1 py-0.5 bg-slate-100 rounded text-[10px]">Esc</kbd> untuk kembali.
+                    </p>
+                  </div>
                 )}
               </div>
-            )}
+            </div>
 
-            {/* Sticky bottom navigation */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg p-3 z-20">
+            {/* Sticky bottom navigation (shrink-0) */}
+            <div className="shrink-0 bg-white border-t border-slate-200 shadow-lg px-3 py-2.5">
               <div className="mx-auto max-w-3xl flex items-center gap-2">
                 {!lihatRingkasan ? (
                   <>
                     <button
                       onClick={() => gotoSoal(idxSoal - 1)}
                       disabled={idxSoal === 0}
-                      className="rounded-xl bg-white border border-slate-200 text-slate-700 px-4 py-2.5 font-medium hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      className="rounded-xl bg-white border border-slate-200 text-slate-700 px-3 py-2 text-sm font-medium hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
                     >
-                      ← Sebelumnya
+                      ← <span className="hidden sm:inline">Sebelumnya</span>
                     </button>
-                    <div className="flex-1 text-center text-xs text-slate-500">
-                      {idxSoal + 1} / {soalTahap.length}
+                    <div className="flex-1 text-center text-[11px] text-slate-500">
+                      <kbd className="px-1 bg-slate-100 rounded text-[9px]">1-4</kbd>/<kbd className="px-1 bg-slate-100 rounded text-[9px]">A-D</kbd> pilih · <kbd className="px-1 bg-slate-100 rounded text-[9px]">←/→</kbd> nav
                       {jawaban[sAktif?.id ?? ""] === undefined && (
-                        <span className="ml-2 text-amber-600">belum dijawab</span>
+                        <div className="text-amber-600">belum dijawab</div>
                       )}
                     </div>
                     {idxSoal < soalTahap.length - 1 ? (
                       <button
                         onClick={() => gotoSoal(idxSoal + 1)}
-                        className={`rounded-xl ${t.gradient} text-white px-5 py-2.5 font-semibold shadow-md hover:shadow-lg active:scale-[0.98] transition-all`}
+                        className={`rounded-xl ${t.gradient} text-white px-4 py-2 text-sm font-semibold shadow-md hover:shadow-lg active:scale-[0.98] transition-all`}
                       >
-                        Berikutnya →
+                        <span className="hidden sm:inline">Berikutnya </span>→
                       </button>
                     ) : (
                       <button
                         onClick={gotoRingkasan}
-                        className={`rounded-xl ${t.gradient} text-white px-5 py-2.5 font-semibold shadow-md hover:shadow-lg active:scale-[0.98] transition-all`}
+                        className={`rounded-xl ${t.gradient} text-white px-4 py-2 text-sm font-semibold shadow-md hover:shadow-lg active:scale-[0.98] transition-all`}
                       >
-                        Lihat Ringkasan →
+                        Ringkasan →
                       </button>
                     )}
                   </>
@@ -585,7 +657,7 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
                   <>
                     <button
                       onClick={() => kembaliKeSoal(idxSoal)}
-                      className="rounded-xl bg-white border border-slate-200 text-slate-700 px-4 py-2.5 font-medium hover:bg-slate-50 transition"
+                      className="rounded-xl bg-white border border-slate-200 text-slate-700 px-3 py-2 text-sm font-medium hover:bg-slate-50 transition"
                     >
                       ← Kembali
                     </button>
@@ -593,7 +665,7 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
                     <button
                       onClick={submitTahap}
                       disabled={!semuaTerjawab}
-                      className={`rounded-xl ${t.gradient} text-white px-6 py-2.5 font-semibold shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-all`}
+                      className={`rounded-xl ${t.gradient} text-white px-5 py-2 text-sm font-semibold shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-all`}
                     >
                       Submit Tahap {tahapNo}
                     </button>
@@ -601,7 +673,7 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
                 )}
               </div>
             </div>
-          </div>
+          </>
         );
       })()}
 
