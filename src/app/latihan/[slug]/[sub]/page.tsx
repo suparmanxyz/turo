@@ -243,7 +243,8 @@ function LatihanInner({ params }: { params: Promise<{ slug: string; sub: string 
       setError("Peta prasyarat belum siap, tunggu sebentar...");
       return;
     }
-    const next = pilihSkipBerikutnya(peta, soal?.nodeId ?? "root", nodesSelesai, mode);
+    const nodeIdSekarang = soal?.nodeId === "root" ? peta.rootId : (soal?.nodeId ?? peta.rootId);
+    const next = pilihSkipBerikutnya(peta, nodeIdSekarang, nodesSelesai, mode);
     if (!next) {
       setError("Tidak ada prasyarat tersisa.");
       return;
@@ -254,12 +255,16 @@ function LatihanInner({ params }: { params: Promise<{ slug: string; sub: string 
 
   async function lanjutSetelahBenar() {
     if (!peta) {
-      await mulaiLatihan();
+      // Peta belum siap — info ke user, jangan restart latihan
+      setError("Peta prasyarat masih di-generate, tunggu sebentar lalu klik lagi…");
       return;
     }
-    const berikut = pilihBerikutnya(peta, soal?.nodeId ?? "root", new Set(nodesSelesai).add(soal!.nodeId), mode);
+    // Soal pertama hardcode nodeId="root", tapi peta.rootId beda (e.g. "kpk-fpb-aplikasi").
+    // Map "root" ke peta.rootId supaya pilihBerikutnya bisa find nodeSekarang.
+    const nodeIdSekarang = soal?.nodeId === "root" ? peta.rootId : (soal?.nodeId ?? peta.rootId);
+    const berikut = pilihBerikutnya(peta, nodeIdSekarang, new Set(nodesSelesai).add(nodeIdSekarang), mode);
     if (!berikut) {
-      alert("🎉 Semua node selesai!");
+      alert("🎉 Semua node prasyarat selesai!");
       return;
     }
     setNodeAktif(berikut.id);

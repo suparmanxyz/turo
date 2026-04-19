@@ -597,18 +597,18 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
                           <li key={idx}>
                             <button
                               onClick={() => pilihJawaban(sAktif.id, idx)}
-                              className={`group w-full text-left rounded-xl border-2 px-3 py-2.5 transition ${
+                              className={`group w-full text-left rounded-xl border-2 px-3 py-2.5 transition flex items-start gap-2.5 ${
                                 dipilih
                                   ? `${t.border} ${t.bgSoft} ${t.textStrong} font-semibold`
                                   : "border-slate-200 hover:border-slate-300 bg-white"
                               }`}
                             >
-                              <span className="inline-flex items-center gap-2.5">
-                                <span className={`grid h-6 w-6 place-items-center rounded-md text-xs font-bold shrink-0 ${
-                                  dipilih ? `${t.bgSoftStrong} ${t.text}` : "bg-slate-100 text-slate-600"
-                                }`}>
-                                  {String.fromCharCode(65 + idx)}
-                                </span>
+                              <span className={`grid h-6 w-6 place-items-center rounded-md text-xs font-bold shrink-0 mt-0.5 ${
+                                dipilih ? `${t.bgSoftStrong} ${t.text}` : "bg-slate-100 text-slate-600"
+                              }`}>
+                                {String.fromCharCode(65 + idx)}
+                              </span>
+                              <span className="flex-1 min-w-0 leading-relaxed">
                                 <MathText>{o.teks}</MathText>
                               </span>
                             </button>
@@ -831,6 +831,42 @@ function DiagnostikHasil({
           </p>
         )}
       </div>
+
+      {/* Flow ringkasan per pohon — debug "kenapa berhenti di level X" */}
+      <details className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">
+        <summary className="cursor-pointer font-medium text-slate-600">📊 Flow per pohon (debug)</summary>
+        <ul className="mt-2 space-y-1.5">
+          {pohonStates.map((p) => {
+            const node = nodeById(peta, p.nodeAktifId);
+            const labelStatus = p.status === "selesai-ok"
+              ? "✓ dikuasai"
+              : p.status === "selesai-perlu-belajar"
+              ? "✗ perlu pelajari"
+              : p.status === "aktif-konfirmasi"
+              ? "⏸ konfirmasi"
+              : "⏸ initial";
+            return (
+              <li key={p.pohonId} className="flex items-start gap-2">
+                <span className={p.status === "selesai-ok" ? "text-emerald-700" : "text-rose-700"}>
+                  {labelStatus}
+                </span>
+                <span className="text-slate-600">
+                  <strong>{p.rootTopik}</strong>
+                  {p.nodeAktifId !== p.pohonId && (
+                    <> → terakhir di <em>{node?.topik ?? p.nodeAktifId}</em> (L{node?.level})</>
+                  )}
+                  {p.nodeGagalIds.length > 0 && (
+                    <span className="text-slate-500"> · gagal di: {p.nodeGagalIds.join(", ")}</span>
+                  )}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="text-slate-500 mt-2 italic">
+          Catatan: pohon dengan cuma 1 level prasyarat tidak bisa turun lebih dalam — peta perlu di-regenerate dengan tree yang lebih dalam.
+        </p>
+      </details>
 
       {perluBelajarNodes.length > 0 ? (
         <section>

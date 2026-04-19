@@ -80,7 +80,9 @@ Aturan:
 - Level 0 = kemampuan menyelesaikan soal target di atas (root).
 - Level 1 = prasyarat konsep langsung yang dibutuhkan untuk menyelesaikan soal target.
 - Level 2 = prasyarat dari level 1.
-- Lanjutkan sampai konsep paling dasar yang pasti sudah dikuasai audiens di awal jenjang (${jenjangSingkat(audiens)}).
+- WAJIB minimal 3-4 level kedalaman (root + 3 level prasyarat). Pohon dangkal (cuma 1-2 level) TIDAK BERGUNA untuk diagnostik adaptif yang turun ke prasyarat.
+- Lanjutkan sampai konsep paling dasar yang pasti sudah dikuasai audiens di awal jenjang ${audiens.kategoriUtama === "reguler" && audiens.jenjang === "sd" ? "SD kelas 1" : `(${jenjangSingkat(audiens)})`}.
+- Setiap node level >0 HARUS punya MINIMAL 1 prasyarat (kecuali node level paling dasar). Cek: sebelum return, pastikan tiap node punya path turun sampai ke konsep paling dasar.
 - Setiap node: id unik (kebab-case), topik spesifik, level (int), daftar id prasyarat, dan subKonsep (2-4 sub-konsep yang testable dalam topik tsb).
 - Maksimal 25 node.
 - Output HANYA JSON murni (TANPA code fence/backtick, TANPA teks tambahan).
