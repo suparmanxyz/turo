@@ -55,10 +55,13 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
   const [riwayatJawaban, setRiwayatJawaban] = useState<Record<string, number>>({});
   const [tersimpan, setTersimpan] = useState(false);
 
-  // Timing: waktu mulai tahap, timestamp tiap klik per soal, waktu per soal akumulasi
-  const [tahapMulaiMs, setTahapMulaiMs] = useState<number>(0);
-  const [klikTimestamp, setKlikTimestamp] = useState<Record<string, number>>({});
+  // Navigation: 1 soal per layar
+  const [idxSoal, setIdxSoal] = useState(0);
+  const [lihatRingkasan, setLihatRingkasan] = useState(false);
+
+  // Timing per soal: track waktu masuk vs keluar untuk akumulasi (mendukung back-and-forth)
   const [waktuPerSoal, setWaktuPerSoal] = useState<Record<string, number>>({});
+  const [soalEnterMs, setSoalEnterMs] = useState<number>(0);
   const [tesMulaiMs] = useState<number>(() => Date.now());
 
   // ============================================================
@@ -243,8 +246,9 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
     setSoalTahap(hasil);
     setTahapNo((n) => n + 1);
     setFase("menjawab");
-    setTahapMulaiMs(Date.now());
-    setKlikTimestamp({});
+    setIdxSoal(0);
+    setLihatRingkasan(false);
+    setSoalEnterMs(Date.now());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [peta, pohonStates]);
 
@@ -313,31 +317,46 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
   // ============================================================
   function pilihJawaban(soalId: string, idx: number) {
     setJawaban((j) => ({ ...j, [soalId]: idx }));
-    setKlikTimestamp((k) => ({ ...k, [soalId]: Date.now() }));
+  }
+
+  /** Catat akumulasi waktu di soal saat ini sebelum pindah. */
+  function catatWaktuSoalAktif() {
+    const s = soalTahap[idxSoal];
+    if (!s || soalEnterMs === 0) return;
+    const delta = Math.max(0, Date.now() - soalEnterMs);
+    setWaktuPerSoal((w) => ({ ...w, [s.id]: (w[s.id] ?? 0) + delta }));
+  }
+
+  function gotoSoal(idx: number) {
+    catatWaktuSoalAktif();
+    setIdxSoal(idx);
+    setSoalEnterMs(Date.now());
+  }
+
+  function gotoRingkasan() {
+    catatWaktuSoalAktif();
+    setLihatRingkasan(true);
+  }
+
+  function kembaliKeSoal(idx: number) {
+    setLihatRingkasan(false);
+    setIdxSoal(idx);
+    setSoalEnterMs(Date.now());
   }
 
   const semuaTerjawab = soalTahap.length > 0 && soalTahap.every((s) => jawaban[s.id] !== undefined);
 
   function submitTahap() {
     if (!peta || !semuaTerjawab) return;
+    // Catat waktu untuk soal terakhir yang dilihat
+    catatWaktuSoalAktif();
     setFase("evaluasi");
     const jawabanArr: JawabanUser[] = Object.entries(jawaban).map(([soalId, pilihIdx]) => ({ soalId, pilihIdx }));
     const stateBaru = evaluasiTahap(peta, pohonStates, soalTahap, jawabanArr);
     setPohonStates(stateBaru);
-    // Hitung waktu per soal di tahap ini berdasar urutan klik
-    const klikSorted = soalTahap
-      .map((s) => ({ id: s.id, ts: klikTimestamp[s.id] ?? Date.now() }))
-      .sort((a, b) => a.ts - b.ts);
-    const waktuTahap: Record<string, number> = {};
-    let prev = tahapMulaiMs;
-    for (const k of klikSorted) {
-      waktuTahap[k.id] = Math.max(0, k.ts - prev);
-      prev = k.ts;
-    }
     // Akumulasi riwayat
     setRiwayatSoal((r) => [...r, ...soalTahap]);
     setRiwayatJawaban((r) => ({ ...r, ...jawaban }));
-    setWaktuPerSoal((w) => ({ ...w, ...waktuTahap }));
     if (semuaPohonSelesai(stateBaru)) {
       setFase("hasil");
     } else {
@@ -420,47 +439,59 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
         </div>
       )}
 
-      {fase === "menjawab" && (
-        <div>
-          {(() => {
-            const adaKonfirmasi = soalTahap.some((s) => s.jenisTahap === "konfirmasi");
-            const semuaKonfirmasi = soalTahap.every((s) => s.jenisTahap === "konfirmasi");
-            return (
-              <div className={`mb-5 p-3 rounded-xl ${t.bgSoft} border ${t.border} text-sm`}>
-                <strong className={t.textStrong}>Tahap {tahapNo}</strong>
-                {semuaKonfirmasi && <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs">🔁 konfirmasi</span>}
-                {adaKonfirmasi && !semuaKonfirmasi && <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs">campuran</span>}
-                {" · "}{soalTahap.length} soal · jawab semua lalu Submit
-                {soalTahap.length + riwayatSoal.length >= MAX_SOAL_DIAGNOSTIK && (
-                  <span className="ml-2 text-xs text-rose-600">(tahap terakhir — cap {MAX_SOAL_DIAGNOSTIK} soal)</span>
-                )}
-              </div>
-            );
-          })()}
+      {fase === "menjawab" && (() => {
+        const adaKonfirmasi = soalTahap.some((s) => s.jenisTahap === "konfirmasi");
+        const semuaKonfirmasi = soalTahap.every((s) => s.jenisTahap === "konfirmasi");
+        const sAktif = soalTahap[idxSoal];
+        const terjawabCount = soalTahap.filter((s) => jawaban[s.id] !== undefined).length;
+        const persen = soalTahap.length > 0 ? Math.round((terjawabCount / soalTahap.length) * 100) : 0;
 
-          <div className="space-y-5">
-            {soalTahap.map((s, i) => (
-              <div key={s.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        return (
+          <div className="pb-24">
+            <div className={`mb-5 p-3 rounded-xl ${t.bgSoft} border ${t.border} text-sm`}>
+              <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+                <div>
+                  <strong className={t.textStrong}>Tahap {tahapNo}</strong>
+                  {semuaKonfirmasi && <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs">🔁 konfirmasi</span>}
+                  {adaKonfirmasi && !semuaKonfirmasi && <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs">campuran</span>}
+                </div>
+                <div className="text-xs text-slate-600">
+                  Soal <strong>{idxSoal + 1}</strong> dari {soalTahap.length} · {terjawabCount}/{soalTahap.length} terjawab
+                </div>
+              </div>
+              <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                <div className={`h-full ${t.gradient} transition-all duration-300`} style={{ width: `${persen}%` }} />
+              </div>
+              {soalTahap.length + riwayatSoal.length >= MAX_SOAL_DIAGNOSTIK && (
+                <p className="text-xs text-rose-600 mt-2">(tahap terakhir — cap {MAX_SOAL_DIAGNOSTIK} soal)</p>
+              )}
+            </div>
+
+            {!lihatRingkasan && sAktif && (
+              <div key={sAktif.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm animate-rise">
                 <div className="flex items-center gap-2 mb-3 text-xs">
-                  <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-full font-medium">#{i + 1}</span>
-                  <span className="text-slate-500">{nodeById(peta!, s.nodeId)?.topik ?? s.nodeId}</span>
+                  <span className={`px-2 py-0.5 ${t.badge} rounded-full font-medium`}>#{idxSoal + 1}</span>
+                  <span className="text-slate-500">{nodeById(peta!, sAktif.nodeId)?.topik ?? sAktif.nodeId}</span>
+                  {sAktif.jenisTahap === "konfirmasi" && (
+                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[10px]">🔁 konfirmasi</span>
+                  )}
                 </div>
-                <div className="mb-4 leading-relaxed">
-                  <MathText>{s.pertanyaan}</MathText>
+                <div className="mb-4 leading-relaxed text-lg">
+                  <MathText>{sAktif.pertanyaan}</MathText>
                 </div>
-                {s.svg && (
+                {sAktif.svg && (
                   <div
                     className="mb-4 flex justify-center bg-slate-50 rounded-lg p-3 [&_svg]:max-w-full [&_svg]:h-auto"
-                    dangerouslySetInnerHTML={{ __html: s.svg }}
+                    dangerouslySetInnerHTML={{ __html: sAktif.svg }}
                   />
                 )}
                 <ul className="space-y-2">
-                  {s.opsi.map((o, idx) => {
-                    const dipilih = jawaban[s.id] === idx;
+                  {sAktif.opsi.map((o, idx) => {
+                    const dipilih = jawaban[sAktif.id] === idx;
                     return (
                       <li key={idx}>
                         <button
-                          onClick={() => pilihJawaban(s.id, idx)}
+                          onClick={() => pilihJawaban(sAktif.id, idx)}
                           className={`group w-full text-left rounded-xl border-2 px-4 py-3 transition ${
                             dipilih
                               ? `${t.border} ${t.bgSoft} ${t.textStrong} font-semibold`
@@ -481,22 +512,98 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
                   })}
                 </ul>
               </div>
-            ))}
-          </div>
+            )}
 
-          <div className="sticky bottom-4 mt-6">
-            <button
-              onClick={submitTahap}
-              disabled={!semuaTerjawab}
-              className={`w-full inline-flex items-center justify-center gap-2 rounded-xl ${t.gradient} text-white px-6 py-3 font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl active:scale-[0.98] transition-all`}
-            >
-              {semuaTerjawab
-                ? `Submit Tahap ${tahapNo}`
-                : `Jawab semua dulu (${Object.keys(jawaban).length}/${soalTahap.length})`}
-            </button>
+            {lihatRingkasan && (
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm animate-rise">
+                <h3 className="font-bold text-lg mb-3">Ringkasan Jawaban</h3>
+                <p className="text-sm text-slate-600 mb-4">
+                  Periksa jawaban kamu sebelum submit. Klik nomor untuk koreksi.
+                </p>
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-5">
+                  {soalTahap.map((s, i) => {
+                    const sudahJawab = jawaban[s.id] !== undefined;
+                    return (
+                      <button
+                        key={s.id}
+                        onClick={() => kembaliKeSoal(i)}
+                        className={`rounded-lg p-2 text-sm font-medium border transition ${
+                          sudahJawab
+                            ? `${t.bgSoftStrong} ${t.text} border-transparent hover:opacity-80`
+                            : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                        }`}
+                        title={sudahJawab ? "Terjawab" : "Belum dijawab — klik untuk jawab"}
+                      >
+                        #{i + 1} {sudahJawab ? "✓" : "○"}
+                      </button>
+                    );
+                  })}
+                </div>
+                {!semuaTerjawab && (
+                  <p className="text-sm text-rose-600 mb-3">
+                    ⚠ Masih ada {soalTahap.length - terjawabCount} soal belum dijawab.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Sticky bottom navigation */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg p-3 z-20">
+              <div className="mx-auto max-w-3xl flex items-center gap-2">
+                {!lihatRingkasan ? (
+                  <>
+                    <button
+                      onClick={() => gotoSoal(idxSoal - 1)}
+                      disabled={idxSoal === 0}
+                      className="rounded-xl bg-white border border-slate-200 text-slate-700 px-4 py-2.5 font-medium hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                    >
+                      ← Sebelumnya
+                    </button>
+                    <div className="flex-1 text-center text-xs text-slate-500">
+                      {idxSoal + 1} / {soalTahap.length}
+                      {jawaban[sAktif?.id ?? ""] === undefined && (
+                        <span className="ml-2 text-amber-600">belum dijawab</span>
+                      )}
+                    </div>
+                    {idxSoal < soalTahap.length - 1 ? (
+                      <button
+                        onClick={() => gotoSoal(idxSoal + 1)}
+                        className={`rounded-xl ${t.gradient} text-white px-5 py-2.5 font-semibold shadow-md hover:shadow-lg active:scale-[0.98] transition-all`}
+                      >
+                        Berikutnya →
+                      </button>
+                    ) : (
+                      <button
+                        onClick={gotoRingkasan}
+                        className={`rounded-xl ${t.gradient} text-white px-5 py-2.5 font-semibold shadow-md hover:shadow-lg active:scale-[0.98] transition-all`}
+                      >
+                        Lihat Ringkasan →
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => kembaliKeSoal(idxSoal)}
+                      className="rounded-xl bg-white border border-slate-200 text-slate-700 px-4 py-2.5 font-medium hover:bg-slate-50 transition"
+                    >
+                      ← Kembali
+                    </button>
+                    <div className="flex-1" />
+                    <button
+                      onClick={submitTahap}
+                      disabled={!semuaTerjawab}
+                      className={`rounded-xl ${t.gradient} text-white px-6 py-2.5 font-semibold shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-all`}
+                    >
+                      Submit Tahap {tahapNo}
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {fase === "evaluasi" && (
         <div className={`rounded-2xl border ${t.border} ${t.bgSoft} p-6 text-center`}>
