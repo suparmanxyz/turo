@@ -81,11 +81,15 @@ export async function saveDiagnostik(
   uid: string,
   key: string,
   data: Omit<LaporanDiagnostik, "createdAt">,
-): Promise<void> {
+): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    await setDoc(diagnostikRef(uid, key), { ...data, createdAt: serverTimestamp() });
+    // merge:true supaya bisa update partial (incremental save tiap tahap)
+    await setDoc(diagnostikRef(uid, key), { ...data, createdAt: serverTimestamp() }, { merge: true });
+    return { ok: true };
   } catch (e) {
-    console.warn("saveDiagnostik gagal:", e);
+    const msg = e instanceof Error ? e.message : String(e);
+    console.warn("saveDiagnostik gagal:", msg);
+    return { ok: false, error: msg };
   }
 }
 

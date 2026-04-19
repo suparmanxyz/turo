@@ -7,7 +7,7 @@ import { DAFTAR_MATERI } from "@/data/materi";
 import { temaUntukMateri, TEMA_KATEGORI_UTAMA } from "@/lib/kategori-tema";
 import { MathText } from "@/components/MathText";
 import { useAuth } from "@/contexts/AuthContext";
-import { buatKeyDiagnostik, saveDiagnostik, type LaporanDiagnostik } from "@/lib/laporan";
+import { saveDiagnostik, type LaporanDiagnostik } from "@/lib/laporan";
 import { cekMasteryBab, sudahMastery, MASTERY_THRESHOLD } from "@/lib/mastery";
 import {
   evaluasiTahap,
@@ -54,6 +54,11 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
   const [riwayatSoal, setRiwayatSoal] = useState<SoalDiagnostik[]>([]);
   const [riwayatJawaban, setRiwayatJawaban] = useState<Record<string, number>>({});
   const [tersimpan, setTersimpan] = useState(false);
+  const [statusSimpan, setStatusSimpan] = useState<"belum" | "menyimpan" | "ok" | "gagal">("belum");
+  const [errorSimpan, setErrorSimpan] = useState<string | null>(null);
+  // Key diagnostik konsisten antar save (incremental update sama doc).
+  // Generate sekali di awal (di-set ulang saat user materi baru via slug change).
+  const [keyAktif] = useState(() => `${slug}__diagnostik__${Date.now()}`);
 
   // Navigation: 1 soal per layar
   const [idxSoal, setIdxSoal] = useState(0);
@@ -260,61 +265,83 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fase]);
 
-  // Save hasil diagnostik ke Firestore saat fase=hasil (sekali saja)
-  useEffect(() => {
-    if (fase !== "hasil" || !user || !materi || !peta || tersimpan) return;
-    const perluBelajarIds = nodeIdsPerluBelajar(pohonStates);
-    const perluBelajar = perluBelajarIds
-      .map((id) => nodeById(peta, id))
-      .filter((n): n is NonNullable<typeof n> => !!n)
-      .map((n) => {
-        const linkedNama = n.linkedSlug
-          ? DAFTAR_MATERI.find((m) => m.slug === n.linkedSlug)?.nama
-          : undefined;
-        return {
-          nodeId: n.id,
-          topik: n.topik,
-          level: n.level,
-          subKonsep: n.subKonsep,
-          linkedSlug: n.linkedSlug,
-          linkedNama,
-        };
-      });
-    const totalSoal = riwayatSoal.length;
-    const totalBenar = riwayatSoal.filter((s) => s.opsi[riwayatJawaban[s.id]]?.benar).length;
-    const okPohon = pohonStates.filter((p) => p.status === "selesai-ok").length;
-    const data: Omit<LaporanDiagnostik, "createdAt"> = {
-      jenis: "diagnostik",
-      materiSlug: materi.slug,
-      materiNama: materi.nama,
-      audiens,
-      skorBenar: totalBenar,
-      skorTotal: totalSoal,
-      pohonOk: okPohon,
-      waktuTotalMs: Date.now() - tesMulaiMs,
-      perluBelajar,
-      jawabanRiwayat: riwayatSoal.map((s) => {
-        const jw = riwayatJawaban[s.id] ?? -1;
-        const node = nodeById(peta, s.nodeId);
-        return {
-          pertanyaan: s.pertanyaan,
-          opsi: s.opsi,
-          jawabanIdx: jw,
-          benar: jw >= 0 ? !!s.opsi[jw]?.benar : false,
-          nodeTopik: node?.topik,
-          nodeId: s.nodeId,
-          nodeLevel: node?.level,
-          subKonsep: s.subKonsep,
-          jenisTahap: s.jenisTahap,
-          waktuMs: waktuPerSoal[s.id],
-          ...(s.svg ? { svg: s.svg } : {}),
-        };
-      }),
-    };
-    const key = buatKeyDiagnostik(materi.slug, "diagnostik");
-    saveDiagnostik(user.uid, key, data).then(() => setTersimpan(true));
+  /**
+   * Save snapshot diagnostik ke Firestore (incremental, merge:true).
+   * Dipanggil setiap akhir tahap + saat fase=hasil.
+   * Pakai keyAktif yang konsisten supaya update doc yang sama.
+   */
+  const simpanSnapshot = useCallback(
+    async (riwayatSoalArg: SoalDiagnostik[], riwayatJawabanArg: Record<string, number>, statesArg: PohonState[]) => {
+      if (!user || !materi || !peta) return;
+      setStatusSimpan("menyimpan");
+      const perluBelajarIds = nodeIdsPerluBelajar(statesArg);
+      const perluBelajar = perluBelajarIds
+        .map((id) => nodeById(peta, id))
+        .filter((n): n is NonNullable<typeof n> => !!n)
+        .map((n) => {
+          const linkedNama = n.linkedSlug
+            ? DAFTAR_MATERI.find((m) => m.slug === n.linkedSlug)?.nama
+            : undefined;
+          return {
+            nodeId: n.id,
+            topik: n.topik,
+            level: n.level,
+            subKonsep: n.subKonsep,
+            linkedSlug: n.linkedSlug,
+            linkedNama,
+          };
+        });
+      const totalSoal = riwayatSoalArg.length;
+      const totalBenar = riwayatSoalArg.filter((s) => s.opsi[riwayatJawabanArg[s.id]]?.benar).length;
+      const okPohon = statesArg.filter((p) => p.status === "selesai-ok").length;
+      const data: Omit<LaporanDiagnostik, "createdAt"> = {
+        jenis: "diagnostik",
+        materiSlug: materi.slug,
+        materiNama: materi.nama,
+        audiens,
+        skorBenar: totalBenar,
+        skorTotal: totalSoal,
+        pohonOk: okPohon,
+        waktuTotalMs: Date.now() - tesMulaiMs,
+        perluBelajar,
+        jawabanRiwayat: riwayatSoalArg.map((s) => {
+          const jw = riwayatJawabanArg[s.id] ?? -1;
+          const node = nodeById(peta, s.nodeId);
+          return {
+            pertanyaan: s.pertanyaan,
+            opsi: s.opsi,
+            jawabanIdx: jw,
+            benar: jw >= 0 ? !!s.opsi[jw]?.benar : false,
+            nodeTopik: node?.topik,
+            nodeId: s.nodeId,
+            nodeLevel: node?.level,
+            subKonsep: s.subKonsep,
+            jenisTahap: s.jenisTahap,
+            waktuMs: waktuPerSoal[s.id],
+            ...(s.svg ? { svg: s.svg } : {}),
+          };
+        }),
+      };
+      const r = await saveDiagnostik(user.uid, keyAktif, data);
+      if (r.ok) {
+        setStatusSimpan("ok");
+        setErrorSimpan(null);
+        setTersimpan(true);
+      } else {
+        setStatusSimpan("gagal");
+        setErrorSimpan(r.error);
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fase, user, materi, peta, tersimpan]);
+    [user, materi, peta, audiens, keyAktif, tesMulaiMs],
+  );
+
+  // Trigger save final saat fase=hasil
+  useEffect(() => {
+    if (fase !== "hasil") return;
+    simpanSnapshot(riwayatSoal, riwayatJawaban, pohonStates);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fase]);
 
   // ============================================================
   // 3. Submit jawaban tahap → evaluasi → loop atau hasil
@@ -409,8 +436,12 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
     const stateBaru = evaluasiTahap(peta, pohonStates, soalTahap, jawabanArr);
     setPohonStates(stateBaru);
     // Akumulasi riwayat
-    setRiwayatSoal((r) => [...r, ...soalTahap]);
-    setRiwayatJawaban((r) => ({ ...r, ...jawaban }));
+    const riwayatSoalBaru = [...riwayatSoal, ...soalTahap];
+    const riwayatJawabanBaru = { ...riwayatJawaban, ...jawaban };
+    setRiwayatSoal(riwayatSoalBaru);
+    setRiwayatJawaban(riwayatJawabanBaru);
+    // Save inkremental setiap akhir tahap (biar kalau user exit di tengah, data tidak hilang)
+    simpanSnapshot(riwayatSoalBaru, riwayatJawabanBaru, stateBaru);
     if (semuaPohonSelesai(stateBaru)) {
       setFase("hasil");
     } else {
@@ -688,6 +719,29 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
       )}
 
       {fase === "hasil" && peta && (
+        <>
+          {statusSimpan === "menyimpan" && (
+            <div className="mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-800">
+              💾 Menyimpan ke laporan…
+            </div>
+          )}
+          {statusSimpan === "ok" && (
+            <div className="mb-3 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-sm text-emerald-700">
+              ✓ Tersimpan di laporan.
+            </div>
+          )}
+          {statusSimpan === "gagal" && (
+            <div className="mb-3 p-3 rounded-lg bg-rose-50 border border-rose-200 text-sm text-rose-700">
+              <strong>⚠ Gagal menyimpan ke laporan:</strong>
+              <div className="mt-1 text-xs font-mono">{errorSimpan}</div>
+              <button
+                onClick={() => simpanSnapshot(riwayatSoal, riwayatJawaban, pohonStates)}
+                className="mt-2 text-xs px-2 py-1 bg-white border border-rose-300 rounded hover:bg-rose-50"
+              >
+                Coba simpan lagi
+              </button>
+            </div>
+          )}
         <DiagnostikHasil
           peta={peta}
           pohonStates={pohonStates}
@@ -701,6 +755,7 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
           temaBgSoft={t.bgSoft}
           temaBorder={t.border}
         />
+        </>
       )}
     </main>
   );
