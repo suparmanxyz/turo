@@ -123,7 +123,7 @@ export default function AdminDiagnostikDetailPage(props: { params: Promise<{ uid
                           <div><MathText>{o.teks}</MathText></div>
                           {o.alasan && (
                             <div className="text-xs italic mt-1 text-slate-600">
-                              {o.benar ? "✓ " : "⚠ "} {o.alasan}
+                              {o.benar ? "✓ " : "⚠ "} <MathText>{o.alasan}</MathText>
                             </div>
                           )}
                         </div>

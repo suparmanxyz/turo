@@ -192,12 +192,16 @@ export default function DetailDiagnostikPage(props: { params: Promise<{ key: str
                     <div className="rounded-lg bg-rose-50 border border-rose-200 p-2.5">
                       <strong className="text-rose-700">Pilihan kamu ({String.fromCharCode(65 + s.jawabanIdx)}):</strong>{" "}
                       <MathText>{dipilih?.teks ?? ""}</MathText>
-                      {dipilih?.alasan && <p className="text-xs text-rose-600 mt-1 italic">⚠ {dipilih.alasan}</p>}
+                      {dipilih?.alasan && (
+                        <div className="text-xs text-rose-600 mt-1 italic">⚠ <MathText>{dipilih.alasan}</MathText></div>
+                      )}
                     </div>
                     <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2.5">
                       <strong className="text-emerald-700">Jawaban benar:</strong>{" "}
                       <MathText>{benar?.teks ?? ""}</MathText>
-                      {benar?.alasan && <p className="text-xs text-emerald-700 mt-1">{benar.alasan}</p>}
+                      {benar?.alasan && (
+                        <div className="text-xs text-emerald-700 mt-1"><MathText>{benar.alasan}</MathText></div>
+                      )}
                     </div>
                   </div>
                 </details>
