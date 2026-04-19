@@ -12,6 +12,7 @@ import { cekMasteryBab, sudahMastery, MASTERY_THRESHOLD } from "@/lib/mastery";
 import {
   evaluasiTahap,
   initPohonState,
+  MAX_SOAL_DIAGNOSTIK,
   nodeById,
   nodeIdsPerluBelajar,
   semuaPohonSelesai,
@@ -143,23 +144,38 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
     setError(null);
     setJawaban({});
 
-    type SoalGenJob = { nodeId: string; subKonsep: string; level: number; topik: string };
-    // Dedup: 1 job per (nodeId, subKonsep) — batch generate 2 soal beda di 1 panggilan.
-    // Pohon kembar yang share nodeAktif tetap pakai job yang sama.
+    type SoalGenJob = {
+      nodeId: string;
+      subKonsep: string;
+      level: number;
+      topik: string;
+      jenisTahap: "initial" | "konfirmasi";
+    };
+    // Dedup per (nodeId, sub, jenisTahap). Pohon kembar yang share nodeAktif share soal.
     const jobMap = new Map<string, SoalGenJob>();
     for (const p of pohonStates) {
-      if (p.status !== "aktif") continue;
+      if (p.status !== "aktif-initial" && p.status !== "aktif-konfirmasi") continue;
       const node = nodeById(peta, p.nodeAktifId);
       if (!node) continue;
-      const subs = subKonsepUntuk(node);
+      const subs =
+        p.status === "aktif-konfirmasi"
+          ? p.subKonsepPerluKonfirmasi
+          : subKonsepUntuk(node);
+      const jenis: "initial" | "konfirmasi" = p.status === "aktif-konfirmasi" ? "konfirmasi" : "initial";
       for (const sk of subs) {
-        const key = `${node.id}__${sk}`;
+        const key = `${node.id}__${sk}__${jenis}`;
         if (!jobMap.has(key)) {
-          jobMap.set(key, { nodeId: node.id, subKonsep: sk, level: node.level, topik: node.topik });
+          jobMap.set(key, {
+            nodeId: node.id,
+            subKonsep: sk,
+            level: node.level,
+            topik: node.topik,
+            jenisTahap: jenis,
+          });
         }
       }
     }
-    const jobs = Array.from(jobMap.values());
+    let jobs = Array.from(jobMap.values());
 
     if (jobs.length === 0) {
       // Tidak ada pohon aktif lagi → langsung hasil
@@ -167,9 +183,21 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
       return;
     }
 
+    // Cap total soal: jangan generate kalau riwayat + jobs > MAX
+    const totalSudah = riwayatSoal.length;
+    if (totalSudah >= MAX_SOAL_DIAGNOSTIK) {
+      setFase("hasil");
+      return;
+    }
+    const sisaBudget = MAX_SOAL_DIAGNOSTIK - totalSudah;
+    if (jobs.length > sisaBudget) {
+      jobs = jobs.slice(0, sisaBudget);
+    }
+
     try {
-      const hasilNested = await Promise.all(
-        jobs.map(async (job): Promise<SoalDiagnostik[]> => {
+      // 1 soal per job (BUKAN n=2). Confirmation pattern menggantikan kebutuhan duplikasi.
+      const hasil = await Promise.all(
+        jobs.map(async (job): Promise<SoalDiagnostik> => {
           const r = await fetch("/api/generate-soal-mc", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -177,21 +205,22 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
               topik: job.topik,
               subKonsep: job.subKonsep,
               level: job.level,
-              n: 2,
+              n: 1,
               ...audiens,
             }),
           });
           if (!r.ok) throw new Error(`HTTP ${r.status}: ${(await r.text()).slice(0, 200)}`);
           const data: { soal: SoalMc[] } = await r.json();
-          return data.soal.map((mc) => ({
+          const mc = data.soal[0];
+          return {
             id: crypto.randomUUID(),
             nodeId: job.nodeId,
             subKonsep: job.subKonsep,
+            jenisTahap: job.jenisTahap,
             ...mc,
-          }));
+          };
         }),
       );
-      const hasil = hasilNested.flat();
       setSoalTahap(hasil);
       setTahapNo((n) => n + 1);
       setFase("menjawab");
@@ -255,6 +284,7 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
           benar: jw >= 0 ? !!s.opsi[jw]?.benar : false,
           nodeTopik: node?.topik,
           waktuMs: waktuPerSoal[s.id],
+          ...(s.svg ? { svg: s.svg } : {}),
         };
       }),
     };
@@ -364,7 +394,7 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
         <div className={`rounded-2xl border ${t.border} ${t.bgSoft} p-6`}>
           <p className={`font-semibold ${t.textStrong} mb-2`}>🧩 Menyusun soal Tahap {tahapNo + 1}…</p>
           <p className="text-sm text-slate-600">
-            {pohonStates.filter((p) => p.status === "aktif").length} cabang materi aktif, sedang
+            {pohonStates.filter((p) => p.status === "aktif-initial" || p.status === "aktif-konfirmasi").length} cabang materi aktif, sedang
             di-generate soal pilihan ganda dengan distractor analitis.
           </p>
           <div className="mt-3 flex items-center gap-1.5">
@@ -377,9 +407,21 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
 
       {fase === "menjawab" && (
         <div>
-          <div className={`mb-5 p-3 rounded-xl ${t.bgSoft} border ${t.border} text-sm`}>
-            <strong className={t.textStrong}>Tahap {tahapNo}</strong> · {soalTahap.length} soal · jawab semua lalu Submit
-          </div>
+          {(() => {
+            const adaKonfirmasi = soalTahap.some((s) => s.jenisTahap === "konfirmasi");
+            const semuaKonfirmasi = soalTahap.every((s) => s.jenisTahap === "konfirmasi");
+            return (
+              <div className={`mb-5 p-3 rounded-xl ${t.bgSoft} border ${t.border} text-sm`}>
+                <strong className={t.textStrong}>Tahap {tahapNo}</strong>
+                {semuaKonfirmasi && <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs">🔁 konfirmasi</span>}
+                {adaKonfirmasi && !semuaKonfirmasi && <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs">campuran</span>}
+                {" · "}{soalTahap.length} soal · jawab semua lalu Submit
+                {soalTahap.length + riwayatSoal.length >= MAX_SOAL_DIAGNOSTIK && (
+                  <span className="ml-2 text-xs text-rose-600">(tahap terakhir — cap {MAX_SOAL_DIAGNOSTIK} soal)</span>
+                )}
+              </div>
+            );
+          })()}
 
           <div className="space-y-5">
             {soalTahap.map((s, i) => (
@@ -391,6 +433,12 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
                 <div className="mb-4 leading-relaxed">
                   <MathText>{s.pertanyaan}</MathText>
                 </div>
+                {s.svg && (
+                  <div
+                    className="mb-4 flex justify-center bg-slate-50 rounded-lg p-3 [&_svg]:max-w-full [&_svg]:h-auto"
+                    dangerouslySetInnerHTML={{ __html: s.svg }}
+                  />
+                )}
                 <ul className="space-y-2">
                   {s.opsi.map((o, idx) => {
                     const dipilih = jawaban[s.id] === idx;

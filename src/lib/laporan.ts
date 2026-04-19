@@ -43,6 +43,8 @@ export type LaporanDiagnostik = {
     nodeTopik?: string;
     /** Estimasi waktu user mengerjakan soal ini (ms). */
     waktuMs?: number;
+    /** SVG inline kalau soal butuh visual. */
+    svg?: string;
   }[];
   createdAt?: Timestamp | null;
 };

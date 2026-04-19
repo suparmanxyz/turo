@@ -3,6 +3,8 @@ import type { NodePrasyarat, PetaPrasyarat } from "@/types";
 export type SoalMc = {
   pertanyaan: string;
   opsi: { teks: string; benar: boolean; alasan?: string }[];
+  /** SVG inline opsional untuk soal yang butuh visual (geometri, grafik). */
+  svg?: string;
 };
 
 /** Soal MC + identitas node/sub-konsep yang dia uji.
@@ -12,6 +14,8 @@ export type SoalDiagnostik = SoalMc & {
   id: string;             // unik per soal (uuid)
   nodeId: string;         // node yang di-uji
   subKonsep: string;      // sub-konsep spesifik
+  /** "initial" = soal awal (1 per sub). "konfirmasi" = soal kedua untuk sub yang salah di initial. */
+  jenisTahap: "initial" | "konfirmasi";
 };
 
 export type JawabanUser = {
@@ -23,9 +27,11 @@ export type JawabanUser = {
 export type PohonState = {
   pohonId: string;        // id node level 1
   rootTopik: string;
-  status: "aktif" | "selesai-ok" | "selesai-perlu-belajar";
+  status: "aktif-initial" | "aktif-konfirmasi" | "selesai-ok" | "selesai-perlu-belajar";
   /** Node yang saat ini sedang diuji (mulai dari node level 1, turun saat user salah). */
   nodeAktifId: string;
+  /** Sub-konsep di nodeAktif yang user salah di tahap initial — perlu konfirmasi. */
+  subKonsepPerluKonfirmasi: string[];
   /** Riwayat node yang user gagal (jadi area "perlu dipelajari"). */
   nodeGagalIds: string[];
   /** Riwayat node yang user benar (sudah dikuasai). */
@@ -51,8 +57,9 @@ export function initPohonState(peta: PetaPrasyarat): PohonState[] {
   return pohonLevel1(peta).map((n) => ({
     pohonId: n.id,
     rootTopik: n.topik,
-    status: "aktif",
+    status: "aktif-initial",
     nodeAktifId: n.id,
+    subKonsepPerluKonfirmasi: [],
     nodeGagalIds: [],
     nodeBenarIds: [],
   }));
@@ -69,17 +76,13 @@ export function subKonsepUntuk(node: NodePrasyarat): string[] {
   return [node.topik];
 }
 
-/** Total soal yang akan di-generate untuk node ini = 2 × jumlah sub-konsep. */
-export function jumlahSoalUntukNode(node: NodePrasyarat): number {
-  return subKonsepUntuk(node).length * 2;
-}
-
 /**
- * Setelah user submit jawaban tahap, evaluate per pohon:
- * - Semua jawaban di nodeAktif benar → STATUS = selesai-ok
- * - Ada salah:
- *    - Kalau nodeAktif punya prasyarat (bisa turun) → nodeAktifId = prasyarat pertama, STATUS = aktif (lanjut tahap berikut)
- *    - Kalau tidak ada prasyarat (sudah dasar) → STATUS = selesai-perlu-belajar
+ * Evaluasi 1 tahap:
+ * - aktif-initial: 1 soal per sub-konsep. Sub yang salah → masuk konfirmasi tahap berikut.
+ *   Kalau semua sub benar → selesai-ok.
+ * - aktif-konfirmasi: 1 soal per sub yang perlu konfirmasi.
+ *   Kalau semua benar → selesai-ok (eliminate luck).
+ *   Kalau ada salah → turun ke prasyarat (status aktif-initial dengan node baru).
  */
 export function evaluasiTahap(
   peta: PetaPrasyarat,
@@ -87,32 +90,54 @@ export function evaluasiTahap(
   soalTahap: SoalDiagnostik[],
   jawaban: JawabanUser[],
 ): PohonState[] {
-  // Index jawaban by soalId untuk lookup cepat
   const byId = new Map(jawaban.map((j) => [j.soalId, j]));
 
   return pohonStates.map((p) => {
-    if (p.status !== "aktif") return p;
+    if (p.status !== "aktif-initial" && p.status !== "aktif-konfirmasi") return p;
 
-    // Filter soal di tahap ini yang nodeId = nodeAktif pohon ini
-    // (beberapa pohon bisa share node yang sama → share soal)
-    const soalNode = soalTahap.filter((s) => s.nodeId === p.nodeAktifId);
-    if (soalNode.length === 0) return p; // node ini tidak punya soal di tahap ini, skip
+    // Filter soal yang nodeId = nodeAktif pohon ini DAN jenisTahap sesuai status pohon
+    const targetJenis = p.status === "aktif-initial" ? "initial" : "konfirmasi";
+    const soalNode = soalTahap.filter((s) => s.nodeId === p.nodeAktifId && s.jenisTahap === targetJenis);
+    if (soalNode.length === 0) return p; // belum di-generate untuk pohon ini di tahap ini, skip
 
-    const adaSalah = soalNode.some((s) => {
+    // Per soal cek benar/salah, group by subKonsep
+    const subSalah: string[] = [];
+    for (const s of soalNode) {
       const jw = byId.get(s.id);
-      if (!jw) return true; // belum jawab = anggap salah
-      return !s.opsi[jw.pilihIdx]?.benar;
-    });
+      const benar = jw ? !!s.opsi[jw.pilihIdx]?.benar : false;
+      if (!benar && !subSalah.includes(s.subKonsep)) {
+        subSalah.push(s.subKonsep);
+      }
+    }
 
-    if (!adaSalah) {
+    if (p.status === "aktif-initial") {
+      if (subSalah.length === 0) {
+        // Semua benar di initial → langsung mahir
+        return {
+          ...p,
+          status: "selesai-ok",
+          nodeBenarIds: [...p.nodeBenarIds, p.nodeAktifId],
+        };
+      }
+      // Ada salah → masuk konfirmasi tahap berikut
       return {
         ...p,
-        status: "selesai-ok",
-        nodeBenarIds: [...p.nodeBenarIds, p.nodeAktifId],
+        status: "aktif-konfirmasi",
+        subKonsepPerluKonfirmasi: subSalah,
       };
     }
 
-    // Ada salah — turun ke prasyarat
+    // p.status === "aktif-konfirmasi"
+    if (subSalah.length === 0) {
+      // Konfirmasi semua benar → eliminate luck, anggap mahir
+      return {
+        ...p,
+        status: "selesai-ok",
+        subKonsepPerluKonfirmasi: [],
+        nodeBenarIds: [...p.nodeBenarIds, p.nodeAktifId],
+      };
+    }
+    // Konfirmasi ada salah → benar-benar tidak paham, turun ke prasyarat
     const node = nodeById(peta, p.nodeAktifId);
     const anak = node ? turunkanPohon(peta, node.id) : [];
     if (anak.length === 0) {
@@ -120,14 +145,15 @@ export function evaluasiTahap(
       return {
         ...p,
         status: "selesai-perlu-belajar",
+        subKonsepPerluKonfirmasi: [],
         nodeGagalIds: [...p.nodeGagalIds, p.nodeAktifId],
       };
     }
-    // Lanjut ke prasyarat pertama (single-path turun untuk simplisitas)
     return {
       ...p,
-      status: "aktif",
+      status: "aktif-initial",
       nodeAktifId: anak[0]!.id,
+      subKonsepPerluKonfirmasi: [],
       nodeGagalIds: [...p.nodeGagalIds, p.nodeAktifId],
     };
   });
@@ -135,13 +161,15 @@ export function evaluasiTahap(
 
 /** True kalau semua pohon sudah selesai (tidak ada yang aktif). */
 export function semuaPohonSelesai(states: PohonState[]): boolean {
-  return states.every((p) => p.status !== "aktif");
+  return states.every((p) => p.status === "selesai-ok" || p.status === "selesai-perlu-belajar");
 }
 
-/** Daftar node UNIK yang user GAGAL (perlu dipelajari) dari semua pohon.
- * Dedup karena beberapa pohon bisa share node prasyarat yang sama. */
+/** Daftar node UNIK yang user GAGAL (perlu dipelajari) dari semua pohon. */
 export function nodeIdsPerluBelajar(states: PohonState[]): string[] {
   const set = new Set<string>();
   for (const p of states) for (const id of p.nodeGagalIds) set.add(id);
   return Array.from(set);
 }
+
+/** Cap maksimum soal per diagnostik. Kalau hit, force ke hasil walau ada pohon belum tuntas. */
+export const MAX_SOAL_DIAGNOSTIK = 25;

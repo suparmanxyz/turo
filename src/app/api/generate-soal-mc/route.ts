@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClaude, pilihModel } from "@/lib/claude";
 import { extractJson } from "@/lib/extract-json";
-import { audiensPrompt, levelKesulitanPanduan, audiensDariBody } from "@/lib/kategori-prompt";
+import { audiensPrompt, gayaBahasaPanduan, levelKesulitanPanduan, audiensDariBody } from "@/lib/kategori-prompt";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -15,6 +15,7 @@ const OpsiSchema = z.object({
 const SoalMcSchema = z.object({
   pertanyaan: z.string(),
   opsi: z.array(OpsiSchema).length(4),
+  svg: z.string().optional(),
 });
 
 const BatchSchema = z.object({
@@ -31,6 +32,37 @@ export async function POST(req: NextRequest) {
   const jumlah = Math.max(1, Math.min(5, Number(n) || 1));
 
   const fokusBaris = subKonsep ? `Fokus pada sub-konsep: "${subKonsep}".` : "";
+  const isSdBawah = audiens.kategoriUtama === "reguler" && audiens.jenjang === "sd" && (audiens.kelas ?? 0) <= 3;
+  const isSd = audiens.kategoriUtama === "reguler" && audiens.jenjang === "sd";
+
+  const gayaSvg = isSdBawah
+    ? `Gaya SVG untuk anak SD kelas 1-3: KONKRET (gambar benda yang bisa dihitung, balon, apel, kotak), warna terang & ceria, label nama (Andi, Sari) bukan huruf teknis (A, B, P).`
+    : isSd
+    ? `Gaya SVG untuk SD kelas atas: diagram matematis sederhana dengan label (sisi, sudut, satuan), bangun datar dengan ukuran tertulis.`
+    : `Gaya SVG: diagram matematis presisi & profesional, label notasi standar (titik A, B, sudut θ, sisi r), grid kalau perlu untuk koordinat.`;
+
+  const visualRules = `GAMBAR / VISUAL (WAJIB kalau soal butuh visual — terutama GEOMETRI):
+
+KAPAN WAJIB include "svg":
+1. Soal GEOMETRI apa pun yang melibatkan bentuk: lingkaran, segitiga, segiempat, segi-banyak, bangun ruang (kubus, balok, prisma, tabung, kerucut, bola), sudut, garis sejajar/transversal, transformasi (refleksi/rotasi/translasi/dilatasi), kongruensi/kesebangunan.
+2. Soal yang menyebut "pada gambar...", "perhatikan diagram...", "lihat grafik..." — kalimat seperti itu HARUS disertai SVG, bukan hanya teks.
+3. Grafik fungsi (linear, kuadrat, eksponensial), parabola, garis, plot titik, koordinat Kartesius.
+4. Statistik visual: diagram batang, diagram lingkaran (pie), diagram garis, histogram, box plot, scatter plot, piktogram, tabel frekuensi.
+5. ${isSd ? "Untuk SD: visualisasi pembagian/perkalian (kelompok benda, array), pecahan (bagian dari lingkaran/persegi), garis bilangan, jam analog." : "Pola visual, jaring-jaring bangun ruang, irisan bidang."}
+
+KAPAN BOLEH skip SVG:
+- Soal aritmatika murni tanpa konteks visual (hitung 12 + 47).
+- Soal aljabar simbolik tanpa grafik (selesaikan persamaan).
+- Soal teori (kapan suatu fungsi disebut linear).
+
+ATURAN TEKNIS SVG:
+- Self-contained (tanpa <script>, tanpa external image/font).
+- viewBox proporsional dengan konten (lebar max 400, tinggi sesuai). Jangan terlalu kecil.
+- Stroke 2-3px, warna kontras tinggi. Font 14-22px.
+- Label angka/titik penting dengan <text>.
+- Untuk geometri: WAJIB cantumkan ukuran/satuan yang relevan (jari-jari, panjang sisi, sudut) sebagai label.
+
+${gayaSvg}`;
 
   const prompt = `Buat ${jumlah} soal pilihan ganda matematika untuk diagnosa kesiapan ${audiensPrompt(audiens)}.
 
@@ -38,6 +70,9 @@ Topik: "${topik}"
 ${fokusBaris}
 Level kesulitan: ${level ?? 1} (0=paling sulit, makin besar makin dasar/mudah).
 ${hindari?.length ? `Hindari soal yang mirip dengan: ${hindari.join(" | ")}` : ""}
+
+GAYA BAHASA (PENTING):
+${gayaBahasaPanduan(audiens)}
 
 ATURAN KETAT untuk soal diagnostic:
 - Soal harus realistis untuk audiens di atas.
@@ -48,8 +83,11 @@ ${levelKesulitanPanduan(audiens)}
 - Untuk setiap opsi, sertakan field "alasan":
   * Opsi BENAR: alasan = ringkas mengapa benar (1 kalimat).
   * Opsi SALAH: alasan = miskonsepsi spesifik yang menyebabkan siswa memilih opsi ini (1 kalimat). Contoh: "Lupa membalik tanda saat dikalikan negatif".
-- Pakai LaTeX $...$ untuk rumus.
+- Pakai LaTeX $...$ untuk rumus${isSdBawah ? " (HINDARI LaTeX kompleks untuk SD kelas 1-3 — pakai angka biasa)" : ""}.
 - PENTING: di dalam JSON string, escape backslash LaTeX jadi DOUBLE backslash. Contoh tulis "$\\\\times$" untuk $\\times$, "$\\\\frac{1}{2}$" untuk pecahan. JANGAN pakai single backslash di JSON.
+
+${visualRules}
+
 - Output HANYA JSON murni (TANPA code fence/backtick).
 
 Schema:
@@ -62,7 +100,8 @@ Schema:
         { "teks": "...", "benar": true,  "alasan": "..." },
         { "teks": "...", "benar": false, "alasan": "miskonsepsi: ..." },
         { "teks": "...", "benar": false, "alasan": "miskonsepsi: ..." }
-      ]
+      ],
+      "svg": "<svg ...>...</svg>  // OPSIONAL, hanya kalau visual BENAR-BENAR perlu. Hilangkan field ini kalau tidak ada gambar."
     }${jumlah > 1 ? ",\n    { ... soal kedua dengan angka & konteks BEDA ... }" : ""}
   ]
 }`;

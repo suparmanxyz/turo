@@ -183,6 +183,12 @@ export default function DetailDiagnostikPage(props: { params: Promise<{ key: str
                     {s.nodeTopik && (
                       <p className="text-xs text-slate-500">Topik: {s.nodeTopik}</p>
                     )}
+                    {s.svg && (
+                      <div
+                        className="flex justify-center bg-slate-50 rounded-lg p-2 [&_svg]:max-w-full [&_svg]:h-auto"
+                        dangerouslySetInnerHTML={{ __html: s.svg }}
+                      />
+                    )}
                     <div className="rounded-lg bg-rose-50 border border-rose-200 p-2.5">
                       <strong className="text-rose-700">Pilihan kamu ({String.fromCharCode(65 + s.jawabanIdx)}):</strong>{" "}
                       <MathText>{dipilih?.teks ?? ""}</MathText>

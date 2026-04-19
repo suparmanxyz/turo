@@ -15,6 +15,7 @@ type JawabanRiwayat = {
   benar: boolean;
   nodeTopik?: string;
   waktuMs?: number;
+  svg?: string;
 };
 
 type Detail = {
@@ -96,6 +97,12 @@ export default function AdminDiagnostikDetailPage(props: { params: Promise<{ uid
               <div className="font-medium mb-3 leading-relaxed">
                 <MathText>{s.pertanyaan}</MathText>
               </div>
+              {s.svg && (
+                <div
+                  className="mb-3 flex justify-center bg-slate-50 rounded-lg p-3 [&_svg]:max-w-full [&_svg]:h-auto"
+                  dangerouslySetInnerHTML={{ __html: s.svg }}
+                />
+              )}
               <ul className="space-y-2 text-sm">
                 {s.opsi.map((o, idx) => {
                   const userPilih = idx === s.jawabanIdx;

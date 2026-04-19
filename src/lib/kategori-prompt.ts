@@ -44,7 +44,15 @@ export function audiensPrompt(a: Audiens): string {
 
   // reguler
   if (a.jenjang && a.kelas) {
-    return `siswa ${jenjangFull(a.jenjang)} kelas ${a.kelas} Indonesia (umur ${UMUR_KELAS[a.kelas]})`;
+    const usiaCue =
+      a.kelas <= 3
+        ? " — anak yang masih belajar membaca, butuh bahasa SANGAT sederhana"
+        : a.kelas <= 6
+        ? " — sudah lancar baca, suka konteks sehari-hari"
+        : a.kelas <= 9
+        ? " — remaja awal"
+        : "";
+    return `siswa ${jenjangFull(a.jenjang)} kelas ${a.kelas} Indonesia (umur ${UMUR_KELAS[a.kelas]})${usiaCue}`;
   }
   if (a.jenjang === "sd") return "siswa SD/MI Indonesia (kelas 4-6, umur 9-12 tahun)";
   if (a.jenjang === "smp") return "siswa SMP/MTs Indonesia (kelas 7-9, umur 12-15 tahun)";
@@ -62,6 +70,49 @@ export function jenjangSingkat(a: Audiens): string {
     return a.kelas ? `${a.jenjang.toUpperCase()} kelas ${a.kelas}` : a.jenjang.toUpperCase();
   }
   return "umum";
+}
+
+/**
+ * Panduan gaya bahasa per jenjang & kelas. Diinjeksi ke prompt soal/hint biar
+ * Claude pakai diksi yang sesuai usia anak — bukan bahasa baku formal.
+ */
+export function gayaBahasaPanduan(a: Audiens): string {
+  if (a.kategoriUtama === "snbt") {
+    return `- Bahasa formal-ringan ala soal SNBT, tidak terlalu kaku.
+- Boleh konteks dunia nyata (data ekonomi, kependudukan, sains populer).`;
+  }
+  if (a.kategoriUtama === "olimpiade") {
+    return `- Bahasa formal matematis, padat & presisi (gaya soal olimpiade).
+- Boleh pakai notasi standar matematika.`;
+  }
+
+  // Reguler
+  if (a.jenjang === "sd" && a.kelas && a.kelas <= 3) {
+    return `- WAJIB pakai BAHASA ANAK SD KELAS BAWAH:
+  * Kalimat PENDEK (max 15 kata per kalimat).
+  * Kata sederhana: "tambah" bukan "operasi penjumlahan", "berapa" bukan "tentukan hasil dari", "ambil" bukan "mengurangi".
+  * Konteks bermain & sehari-hari: mainan, kelereng, kue, hewan, buah, mobil-mobilan. JANGAN konteks dewasa (uang besar, bisnis, statistik).
+  * 1-2 kalimat per soal MAX. Tidak boleh paragraf panjang.
+  * Boleh pakai nama anak Indonesia (Andi, Sari, Budi).
+- HINDARI istilah teknis/akademis. Anak SD kelas 1-3 belum kenal kata "bilangan", "operasi", "satuan", "estimasi" — pakai "angka", "hitung", dll.`;
+  }
+  if (a.jenjang === "sd") {
+    // SD kelas 4-6
+    return `- Bahasa anak SD kelas atas: ringan tapi mulai pakai istilah matematika dasar (bilangan, pecahan, kelipatan).
+- Konteks: sekolah, rumah, hobi, sains sederhana. Boleh konteks uang kecil (saku, harga jajan).
+- Kalimat max 25 kata. Soal cerita boleh 2-3 kalimat tapi tetap ringkas.`;
+  }
+  if (a.jenjang === "smp") {
+    return `- Bahasa siswa SMP: semi-formal, mulai pakai notasi matematika ($x$, $f(x)$, dll).
+- Konteks: kehidupan remaja, sains, ekonomi rumah tangga, olahraga.
+- Soal cerita 2-4 kalimat OK.`;
+  }
+  if (a.jenjang === "sma") {
+    return `- Bahasa siswa SMA: formal, pakai notasi matematika lengkap.
+- Konteks aplikatif: sains, ekonomi, teknik, kehidupan sosial.
+- Boleh kalimat panjang & multi-step.`;
+  }
+  return "";
 }
 
 export function levelKesulitanPanduan(a: Audiens): string {
