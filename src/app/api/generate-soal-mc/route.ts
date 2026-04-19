@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getClaude, pilihModel } from "@/lib/claude";
 import { extractJson } from "@/lib/extract-json";
 import { audiensPrompt, gayaBahasaPanduan, levelKesulitanPanduan, audiensDariBody } from "@/lib/kategori-prompt";
+import {
+  incrementUsed,
+  isPoolValid,
+  loadPool,
+  pickRandom,
+  POOL_SIZE,
+  savePool,
+  soalPoolKey,
+} from "@/lib/soal-pool";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -24,12 +33,27 @@ const BatchSchema = z.object({
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { topik, subKonsep, level, hindari, n } = body;
+  const { topik, subKonsep, level, hindari, n, force } = body;
   const audiens = audiensDariBody(body);
   if (!topik) {
     return NextResponse.json({ error: "topik wajib diisi" }, { status: 400 });
   }
-  const jumlah = Math.max(1, Math.min(5, Number(n) || 1));
+  const jumlah = Math.max(1, Math.min(POOL_SIZE, Number(n) || 1));
+
+  // ── Cek pool dulu ──
+  const poolKey = soalPoolKey({ topik, subKonsep, level: level ?? 1, audiens });
+  if (!force) {
+    const existing = await loadPool(poolKey);
+    if (isPoolValid(existing) && existing.pool.length >= jumlah) {
+      const picked = pickRandom(existing.pool, jumlah);
+      // Increment usedCount async (don't block response)
+      incrementUsed(poolKey, jumlah).catch((e) => console.warn(e));
+      return NextResponse.json({ soal: picked, _fromPool: true, _poolUsed: existing.usedCount });
+    }
+  }
+
+  // ── Pool miss/expired → generate batch POOL_SIZE biar sekali fill bisa serve banyak request ──
+  const jumlahGenerate = POOL_SIZE;
 
   const fokusBaris = subKonsep ? `Fokus pada sub-konsep: "${subKonsep}".` : "";
   const isSdBawah = audiens.kategoriUtama === "reguler" && audiens.jenjang === "sd" && (audiens.kelas ?? 0) <= 3;
@@ -69,7 +93,7 @@ ATURAN TEKNIS SVG:
 
 ${gayaSvg}`;
 
-  const prompt = `Buat ${jumlah} soal pilihan ganda matematika untuk diagnosa kesiapan ${audiensPrompt(audiens)}.
+  const prompt = `Buat ${jumlahGenerate} soal pilihan ganda matematika untuk diagnosa kesiapan ${audiensPrompt(audiens)}. Soal akan disimpan di pool dan random-pick untuk banyak siswa.
 
 Topik: "${topik}"
 ${fokusBaris}
@@ -82,7 +106,7 @@ ${gayaBahasaPanduan(audiens)}
 ATURAN KETAT untuk soal diagnostic:
 - Soal harus realistis untuk audiens di atas.
 ${levelKesulitanPanduan(audiens)}
-- Buat ${jumlah} soal yang ${jumlah > 1 ? "BERBEDA satu sama lain — beda angka, beda konteks, beda opsi jawaban. JANGAN sekedar ganti kata, harus benar-benar variasi yang berbeda." : "valid"}.
+- Buat ${jumlahGenerate} soal yang BENAR-BENAR berbeda satu sama lain — beda angka, beda konteks (cerita/situasi), beda opsi jawaban, beda strategi solusi kalau memungkinkan. JANGAN sekedar ganti kata atau angka kecil. Harus variasi MENYELURUH supaya pool 10 soal terasa seperti 10 soal berbeda untuk siswa.
 - Per soal: 4 opsi (A, B, C, D). PERSIS 1 opsi dengan "benar": true, sisanya "benar": false. SEBELUM return JSON, hitung jumlah opsi benar — kalau bukan 1, ULANGI soal sampai exact 1.
 - DISTRACTOR (3 opsi salah) WAJIB merepresentasikan miskonsepsi/salah-langkah yang UMUM dilakukan siswa pada topik ini, BUKAN angka acak.
 - Untuk setiap opsi, sertakan field "alasan":
@@ -107,7 +131,10 @@ Schema:
         { "teks": "...", "benar": false, "alasan": "miskonsepsi: ..." }
       ],
       "svg": "<svg ...>...</svg>  // OPSIONAL, hanya kalau visual BENAR-BENAR perlu. Hilangkan field ini kalau tidak ada gambar."
-    }${jumlah > 1 ? ",\n    { ... soal kedua dengan angka & konteks BEDA ... }" : ""}
+    },
+    { ... soal ke-2 dengan angka & konteks BEDA ... },
+    { ... soal ke-3 ... },
+    "... total ${jumlahGenerate} soal ..."
   ]
 }`;
 
@@ -118,7 +145,8 @@ Schema:
       model: pilihModel("soal", level),
       // Per soal MC dengan 4 distractor + alasan + LaTeX bisa 1500-3000 tokens.
       // Beri budget besar supaya tidak truncated mid-JSON.
-      max_tokens: 4000 * jumlah + 1000,
+      // Pool size 10 dengan 4 distractor + alasan + kemungkinan SVG perlu budget besar
+      max_tokens: Math.min(60000, 3500 * jumlahGenerate + 2000),
       messages: [{ role: "user", content: prompt }],
     });
   } catch (e) {
@@ -203,8 +231,26 @@ Schema:
     );
   }
 
+  // ── Save batch ke pool (best-effort, jangan block response) ──
+  // Pool stores all valid (bisa < POOL_SIZE kalau ada drop). Pool serve banyak request berikut.
+  savePool(poolKey, {
+    pool: valid,
+    usedCount: jumlah, // sudah ada `jumlah` yang akan dipakai response ini
+    topik,
+    subKonsep,
+    level: level ?? 1,
+    kategoriUtama: audiens.kategoriUtama,
+    jenjang: audiens.jenjang,
+    kelas: audiens.kelas,
+  }).catch((e) => console.warn("savePool gagal:", e));
+
+  // Pick `jumlah` random dari batch untuk response sekarang
+  const picked = pickRandom(valid, jumlah);
   return NextResponse.json({
-    soal: valid,
+    soal: picked,
+    _fromPool: false,
+    _justFilled: true,
+    _poolSize: valid.length,
     ...(dropped > 0 ? { _dropped: dropped } : {}),
     ...(autoFixed > 0 ? { _autoFixed: autoFixed } : {}),
   });
