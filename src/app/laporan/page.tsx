@@ -34,9 +34,15 @@ export default function LaporanPage() {
 
   useEffect(() => {
     if (!user) return;
+    // Reset state SEBELUM fetch — biar tidak ada residu data dari user sebelumnya
+    setDiagnostik([]);
+    setSesi([]);
     setMemuat(true);
     setError(null);
-    Promise.allSettled([listDiagnostik(user.uid), listSesiLatihan(user.uid)]).then((results) => {
+    const uidSnapshot = user.uid; // capture untuk validasi race condition
+    Promise.allSettled([listDiagnostik(uidSnapshot), listSesiLatihan(uidSnapshot)]).then((results) => {
+      // Kalau user sudah ganti sebelum fetch selesai, abaikan hasilnya
+      if (uidSnapshot !== user.uid) return;
       const errors: string[] = [];
       if (results[0].status === "fulfilled") setDiagnostik(results[0].value);
       else errors.push(`Diagnostik: ${results[0].reason instanceof Error ? results[0].reason.message : results[0].reason}`);

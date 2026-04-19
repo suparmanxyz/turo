@@ -14,6 +14,10 @@ type JawabanRiwayat = {
   jawabanIdx: number;
   benar: boolean;
   nodeTopik?: string;
+  nodeId?: string;
+  nodeLevel?: number;
+  subKonsep?: string;
+  jenisTahap?: "initial" | "konfirmasi";
   waktuMs?: number;
   svg?: string;
 };
@@ -76,10 +80,41 @@ export default function AdminDiagnostikDetailPage(props: { params: Promise<{ uid
         {data.jenis} · skor {data.skorBenar}/{data.skorTotal} · {data.jawabanRiwayat.length} soal · ⏱ total {formatDurasi(data.waktuTotalMs)} · UID <code className="text-[10px]">{uid.slice(0, 12)}…</code>
       </p>
 
-      <h2 className="text-xl font-bold mb-3">Soal-soal Hasil Generate AI</h2>
+      <h2 className="text-xl font-bold mb-3">Soal-soal Hasil Generate AI ({data.jawabanRiwayat.length})</h2>
       <p className="text-sm text-slate-600 mb-4">
         Periksa validitas tiap soal: pertanyaan, jawaban benar, dan distractor analitis (miskonsepsi).
+        Soal di-group berdasar pohon prasyarat (level dalam = prasyarat dasar).
       </p>
+
+      {/* Statistik per node + level */}
+      {(() => {
+        const byNode = new Map<string, { topik: string; level: number; soal: typeof data.jawabanRiwayat }>();
+        for (const s of data.jawabanRiwayat) {
+          const key = s.nodeId ?? s.nodeTopik ?? "_unknown_";
+          if (!byNode.has(key)) {
+            byNode.set(key, { topik: s.nodeTopik ?? key, level: s.nodeLevel ?? 0, soal: [] });
+          }
+          byNode.get(key)!.soal.push(s);
+        }
+        return (
+          <div className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">
+            <strong className="text-slate-700">Distribusi: {byNode.size} node prasyarat</strong>
+            <ul className="mt-1 space-y-0.5">
+              {Array.from(byNode.entries())
+                .sort(([, a], [, b]) => a.level - b.level)
+                .map(([k, info]) => {
+                  const benar = info.soal.filter((x) => x.benar).length;
+                  return (
+                    <li key={k} className="text-slate-600">
+                      <span className="inline-block w-12 text-[10px] font-mono text-slate-400">L{info.level}</span>
+                      <strong>{info.topik}</strong> · {info.soal.length} soal · {benar}/{info.soal.length} benar
+                    </li>
+                  );
+                })}
+            </ul>
+          </div>
+        );
+      })()}
 
       <div className="space-y-4">
         {data.jawabanRiwayat.map((s, i) => {
@@ -90,7 +125,14 @@ export default function AdminDiagnostikDetailPage(props: { params: Promise<{ uid
                 <span className={`px-2 py-0.5 rounded-full font-medium ${s.benar ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
                   {s.benar ? "✓ User benar" : "✗ User salah"}
                 </span>
+                {s.nodeLevel !== undefined && (
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded font-mono">L{s.nodeLevel}</span>
+                )}
                 {s.nodeTopik && <span className="text-slate-500">{s.nodeTopik}</span>}
+                {s.subKonsep && <span className="text-slate-400 italic">· {s.subKonsep}</span>}
+                {s.jenisTahap === "konfirmasi" && (
+                  <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-[10px]">🔁 konfirmasi</span>
+                )}
                 {s.waktuMs !== undefined && <span className="text-slate-500">⏱ {formatDurasi(s.waktuMs)}</span>}
                 <span className="text-slate-400 ml-auto">#{i + 1}</span>
               </div>

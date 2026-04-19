@@ -302,6 +302,10 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
           jawabanIdx: jw,
           benar: jw >= 0 ? !!s.opsi[jw]?.benar : false,
           nodeTopik: node?.topik,
+          nodeId: s.nodeId,
+          nodeLevel: node?.level,
+          subKonsep: s.subKonsep,
+          jenisTahap: s.jenisTahap,
           waktuMs: waktuPerSoal[s.id],
           ...(s.svg ? { svg: s.svg } : {}),
         };

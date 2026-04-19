@@ -41,6 +41,10 @@ export type LaporanDiagnostik = {
     jawabanIdx: number;
     benar: boolean;
     nodeTopik?: string;
+    nodeId?: string;
+    nodeLevel?: number;
+    subKonsep?: string;
+    jenisTahap?: "initial" | "konfirmasi";
     /** Estimasi waktu user mengerjakan soal ini (ms). */
     waktuMs?: number;
     /** SVG inline kalau soal butuh visual. */
