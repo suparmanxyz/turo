@@ -173,8 +173,9 @@ export function nodeIdsPerluBelajar(states: PohonState[]): string[] {
   return Array.from(set);
 }
 
-/** Cap maksimum soal per diagnostik. Kalau hit, force ke hasil walau ada pohon belum tuntas. */
-export const MAX_SOAL_DIAGNOSTIK = 40;
+/** Cap maksimum soal per diagnostik. Sangat tinggi = praktis no-cap (biar tes selalu tuntas).
+ * Tetap ada cap buat safety guard supaya tidak infinite loop di edge case. */
+export const MAX_SOAL_DIAGNOSTIK = 200;
 
 /** Daftar nodeId yang user "kemungkinan belum kuasai" — gabungan: nodeGagal + nodeAktif (kalau pohon belum selesai). */
 export function nodeIdsKemungkinanBelumKuasai(states: PohonState[]): { id: string; tuntas: boolean }[] {

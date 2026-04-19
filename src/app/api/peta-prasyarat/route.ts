@@ -70,29 +70,44 @@ export async function POST(req: NextRequest) {
     .map((b) => `  - ${b.slug}${b.kelas ? ` (kelas ${b.kelas})` : ""}: ${b.nama}`)
     .join("\n");
 
+  const kelasTarget = audiens.kategoriUtama === "reguler" && audiens.kelas ? audiens.kelas : null;
+
   const prompt = `Kamu adalah guru matematika Indonesia yang mengajar ${audiensPrompt(audiens)}.
-Buat peta prasyarat untuk menyelesaikan SOAL SPESIFIK berikut (bukan peta umum topik).
+Buat PETA PRASYARAT untuk konsep berikut. PRASYARAT ARTINYA: konsep dari kelas/materi SEBELUMNYA yang harus dikuasai DULU sebelum bisa pelajari konsep di level atasnya.
 
-Sub-materi: "${subMateri}"
-${soalTarget ? `Soal target (level 0):\n${soalTarget}` : ""}
+Konsep target: "${subMateri}"${kelasTarget ? ` (kelas ${kelasTarget})` : ""}
+${soalTarget ? `Soal contoh:\n${soalTarget}` : ""}
 
-Aturan:
-- Level 0 = kemampuan menyelesaikan soal target di atas (root).
-- Level 1 = prasyarat konsep langsung yang dibutuhkan untuk menyelesaikan soal target.
-- Level 2 = prasyarat dari level 1.
-- WAJIB minimal 3-4 level kedalaman (root + 3 level prasyarat). Pohon dangkal (cuma 1-2 level) TIDAK BERGUNA untuk diagnostik adaptif yang turun ke prasyarat.
-- Lanjutkan sampai konsep paling dasar yang pasti sudah dikuasai audiens di awal jenjang ${audiens.kategoriUtama === "reguler" && audiens.jenjang === "sd" ? "SD kelas 1" : `(${jenjangSingkat(audiens)})`}.
-- Setiap node level >0 HARUS punya MINIMAL 1 prasyarat (kecuali node level paling dasar). Cek: sebelum return, pastikan tiap node punya path turun sampai ke konsep paling dasar.
-- Setiap node: id unik (kebab-case), topik spesifik, level (int), daftar id prasyarat, dan subKonsep (2-4 sub-konsep yang testable dalam topik tsb).
-- Maksimal 25 node.
+⚠️ ATURAN SEMANTIK PRASYARAT (PALING PENTING):
+- "Prasyarat" BUKAN "sub-bab dari materi target". Misal kalau target = "Bilangan Bulat (kelas 7)", JANGAN bikin level 1 = "Operasi Bilangan Bulat", "Konsep Bilangan Bulat", "Sifat Operasi Bilangan Bulat" — semua itu sub-bab DARI MATERI TARGET ITU SENDIRI, BUKAN prasyarat.
+- "Prasyarat" = konsep dari MATERI/KELAS LEBIH RENDAH yang harus dikuasai dulu.
+  Contoh BENAR untuk "Bilangan Bulat (kelas 7)":
+    L1 = ["Bilangan Cacah & Operasinya (kelas 6)", "Bilangan Negatif & Garis Bilangan (kelas 6)"]
+    L2 = prasyarat L1 — "Penjumlahan Pengurangan ≤1000 (kelas 4)", "Pengenalan Bilangan Negatif (kelas 6 awal)"
+    L3 = "Penjumlahan dasar (kelas 2-3)", "Konsep Bilangan Cacah (kelas 1-2)"
+    L4 = "Berhitung 1-20 (kelas 1)"
+
+Aturan struktur:
+- Level 0 (root) = konsep target ITU SENDIRI (kelas N). HANYA 1 node level 0.
+- Level 1 = konsep prasyarat LANGSUNG, BIASANYA dari kelas N-1 atau N-2. WAJIB level 1 nodes punya kelasEstimasi LEBIH KECIL dari kelas target.
+- Level 2 = prasyarat dari level 1, dari kelas LEBIH RENDAH lagi.
+- Lanjutkan turun sampai konsep paling dasar di SD kelas 1.
+- WAJIB minimal 4-5 level kedalaman untuk materi SMP/SMA, 3 level untuk SD kelas atas, 2 level untuk SD kelas bawah.
+- Setiap node punya path turun sampai konsep paling dasar.
+- 15-25 nodes total.
 - Output HANYA JSON murni (TANPA code fence/backtick, TANPA teks tambahan).
 
-DAFTAR BAB DI SISTEM (untuk soft-link):
+DAFTAR BAB DI SISTEM (untuk soft-link, semua kelas yang lebih rendah dari target):
 ${babList}
 
-Untuk setiap node, kalau topik node BENAR-BENAR cocok dengan salah satu bab di daftar di atas (bukan sekedar mirip nama), isi field "linkedSlug" dengan slug bab tsb. Kalau tidak yakin/konseptual general, JANGAN isi linkedSlug (biarkan kosong).
-
-Untuk setiap node, isi "kelasEstimasi" (1-12) — perkiraan kelas tempat konsep itu pertama kali dipelajari di sekolah Indonesia. Misal "penjumlahan 1-10" = kelas 1, "perkalian dasar" = kelas 2, "faktorisasi prima" = kelas 4-5, "Pythagoras" = kelas 8, "trigonometri" = kelas 10. Berguna untuk traceability admin.
+Per node:
+- "id": unik kebab-case
+- "topik": deskripsi konsep (tegas — sebut konteks kelas-nya kalau perlu)
+- "level": int 0,1,2,...
+- "prasyarat": daftar id node yang HARUS dikuasai dulu sebelum konsep ini
+- "subKonsep": 2-4 sub-konsep testable di dalam topik ini
+- "linkedSlug": kalau topik node match SALAH SATU bab di daftar di atas, isi slug-nya. Kalau konseptual general, kosongkan.
+- "kelasEstimasi" (1-12): kelas tempat konsep ini pertama kali diajarkan. WAJIB MENURUN saat level naik.${kelasTarget ? ` Untuk target ini (kelas ${kelasTarget}), kelasEstimasi level 0 = ${kelasTarget}, level 1 ≤ ${kelasTarget - 1}, level 2 ≤ ${kelasTarget - 2}, dst.` : ""}
 
 Schema:
 {
