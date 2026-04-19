@@ -99,14 +99,10 @@ export async function loadDiagnostik(uid: string, key: string): Promise<LaporanD
 export type DiagnostikRingkas = LaporanDiagnostik & { key: string };
 
 export async function listDiagnostik(uid: string, max = 50): Promise<DiagnostikRingkas[]> {
-  try {
-    const q = query(diagnostikCol(uid), orderBy("createdAt", "desc"), limit(max));
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ key: d.id, ...(d.data() as LaporanDiagnostik) }));
-  } catch (e) {
-    console.warn("listDiagnostik gagal:", e);
-    return [];
-  }
+  // Tidak try-catch supaya error bubble up ke caller (biar visible di UI)
+  const q = query(diagnostikCol(uid), orderBy("createdAt", "desc"), limit(max));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ key: d.id, ...(d.data() as LaporanDiagnostik) }));
 }
 
 // ── Sesi latihan ──
@@ -123,24 +119,19 @@ export type SesiLatihanRingkas = {
 };
 
 export async function listSesiLatihan(uid: string, max = 50): Promise<SesiLatihanRingkas[]> {
-  try {
-    const q = query(collection(db, "progress", uid, "sesi"), orderBy("updatedAt", "desc"), limit(max));
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => {
-      const data = d.data();
-      return {
-        key: d.id,
-        materiSlug: data.materiSlug,
-        subMateriSlug: data.subMateriSlug,
-        mode: data.mode,
-        jumlahDijawab: data.jumlahDijawab ?? 0,
-        jumlahBenar: data.jumlahBenar ?? 0,
-        jumlahNodesSelesai: Array.isArray(data.nodeIdsBenar) ? data.nodeIdsBenar.length : 0,
-        updatedAt: data.updatedAt ?? null,
-      };
-    });
-  } catch (e) {
-    console.warn("listSesiLatihan gagal:", e);
-    return [];
-  }
+  const q = query(collection(db, "progress", uid, "sesi"), orderBy("updatedAt", "desc"), limit(max));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return {
+      key: d.id,
+      materiSlug: data.materiSlug,
+      subMateriSlug: data.subMateriSlug,
+      mode: data.mode,
+      jumlahDijawab: data.jumlahDijawab ?? 0,
+      jumlahBenar: data.jumlahBenar ?? 0,
+      jumlahNodesSelesai: Array.isArray(data.nodeIdsBenar) ? data.nodeIdsBenar.length : 0,
+      updatedAt: data.updatedAt ?? null,
+    };
+  });
 }

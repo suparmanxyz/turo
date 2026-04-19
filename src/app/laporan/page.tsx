@@ -30,13 +30,19 @@ export default function LaporanPage() {
   const [diagnostik, setDiagnostik] = useState<DiagnostikRingkas[]>([]);
   const [sesi, setSesi] = useState<SesiLatihanRingkas[]>([]);
   const [memuat, setMemuat] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     setMemuat(true);
-    Promise.all([listDiagnostik(user.uid), listSesiLatihan(user.uid)]).then(([d, s]) => {
-      setDiagnostik(d);
-      setSesi(s);
+    setError(null);
+    Promise.allSettled([listDiagnostik(user.uid), listSesiLatihan(user.uid)]).then((results) => {
+      const errors: string[] = [];
+      if (results[0].status === "fulfilled") setDiagnostik(results[0].value);
+      else errors.push(`Diagnostik: ${results[0].reason instanceof Error ? results[0].reason.message : results[0].reason}`);
+      if (results[1].status === "fulfilled") setSesi(results[1].value);
+      else errors.push(`Sesi latihan: ${results[1].reason instanceof Error ? results[1].reason.message : results[1].reason}`);
+      if (errors.length > 0) setError(errors.join("\n"));
       setMemuat(false);
     });
   }, [user]);
@@ -74,7 +80,18 @@ export default function LaporanPage() {
         <p className="text-muted mt-2 max-w-xl">
           Ringkasan diagnostik, latihan, dan post-test kamu.
         </p>
+        <p className="text-[10px] text-slate-400 mt-1 font-mono">
+          akun: {user.email} · uid: {user.uid.slice(0, 12)}…
+        </p>
       </div>
+
+      {error && (
+        <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700 whitespace-pre-wrap">
+          <strong>Gagal memuat data:</strong>
+          <div className="mt-1 font-mono text-xs">{error}</div>
+          <p className="mt-2 text-xs">Kemungkinan: missing index Firestore atau permission rules. Cek browser console untuk detail.</p>
+        </div>
+      )}
 
       {/* ── Statistik ringkas ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
