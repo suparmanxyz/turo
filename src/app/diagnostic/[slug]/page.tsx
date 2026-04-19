@@ -194,42 +194,57 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
       jobs = jobs.slice(0, sisaBudget);
     }
 
-    try {
-      // 1 soal per job (BUKAN n=2). Confirmation pattern menggantikan kebutuhan duplikasi.
-      const hasil = await Promise.all(
-        jobs.map(async (job): Promise<SoalDiagnostik> => {
-          const r = await fetch("/api/generate-soal-mc", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              topik: job.topik,
-              subKonsep: job.subKonsep,
-              level: job.level,
-              n: 1,
-              ...audiens,
-            }),
-          });
-          if (!r.ok) throw new Error(`HTTP ${r.status}: ${(await r.text()).slice(0, 200)}`);
-          const data: { soal: SoalMc[] } = await r.json();
-          const mc = data.soal[0];
-          return {
-            id: crypto.randomUUID(),
-            nodeId: job.nodeId,
+    // 1 soal per job (BUKAN n=2). Confirmation pattern menggantikan kebutuhan duplikasi.
+    // Pakai allSettled biar 1 fail tidak gagal seluruh tahap — drop yang fail.
+    const settled = await Promise.allSettled(
+      jobs.map(async (job): Promise<SoalDiagnostik> => {
+        const r = await fetch("/api/generate-soal-mc", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topik: job.topik,
             subKonsep: job.subKonsep,
-            jenisTahap: job.jenisTahap,
-            ...mc,
-          };
-        }),
-      );
-      setSoalTahap(hasil);
-      setTahapNo((n) => n + 1);
-      setFase("menjawab");
-      setTahapMulaiMs(Date.now());
-      setKlikTimestamp({});
-    } catch (e) {
-      setError(`Gagal generate soal: ${e instanceof Error ? e.message : e}`);
-      setFase("error");
+            level: job.level,
+            n: 1,
+            ...audiens,
+          }),
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}: ${(await r.text()).slice(0, 200)}`);
+        const data: { soal: SoalMc[] } = await r.json();
+        const mc = data.soal[0];
+        if (!mc) throw new Error("response kosong");
+        return {
+          id: crypto.randomUUID(),
+          nodeId: job.nodeId,
+          subKonsep: job.subKonsep,
+          jenisTahap: job.jenisTahap,
+          ...mc,
+        };
+      }),
+    );
+    const hasil: SoalDiagnostik[] = [];
+    const gagal: string[] = [];
+    for (let i = 0; i < settled.length; i++) {
+      const res = settled[i];
+      if (res.status === "fulfilled") hasil.push(res.value);
+      else gagal.push(`${jobs[i].topik}/${jobs[i].subKonsep}: ${res.reason instanceof Error ? res.reason.message : res.reason}`);
     }
+
+    if (hasil.length === 0) {
+      // Semua fail — fatal
+      setError(`Gagal generate semua soal di tahap ini:\n${gagal.slice(0, 3).join("\n")}`);
+      setFase("error");
+      return;
+    }
+    if (gagal.length > 0) {
+      // Sebagian fail — log warning tapi lanjut
+      console.warn(`Tahap berikut gagal: ${gagal.length}/${jobs.length} soal`, gagal);
+    }
+    setSoalTahap(hasil);
+    setTahapNo((n) => n + 1);
+    setFase("menjawab");
+    setTahapMulaiMs(Date.now());
+    setKlikTimestamp({});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [peta, pohonStates]);
 

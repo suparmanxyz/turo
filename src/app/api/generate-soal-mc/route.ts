@@ -78,7 +78,7 @@ ATURAN KETAT untuk soal diagnostic:
 - Soal harus realistis untuk audiens di atas.
 ${levelKesulitanPanduan(audiens)}
 - Buat ${jumlah} soal yang ${jumlah > 1 ? "BERBEDA satu sama lain — beda angka, beda konteks, beda opsi jawaban. JANGAN sekedar ganti kata, harus benar-benar variasi yang berbeda." : "valid"}.
-- Per soal: 4 opsi (A, B, C, D). PERSIS 1 opsi dengan "benar": true, sisanya "benar": false. JANGAN ada soal dengan 0 atau >1 opsi benar.
+- Per soal: 4 opsi (A, B, C, D). PERSIS 1 opsi dengan "benar": true, sisanya "benar": false. SEBELUM return JSON, hitung jumlah opsi benar — kalau bukan 1, ULANGI soal sampai exact 1.
 - DISTRACTOR (3 opsi salah) WAJIB merepresentasikan miskonsepsi/salah-langkah yang UMUM dilakukan siswa pada topik ini, BUKAN angka acak.
 - Untuk setiap opsi, sertakan field "alasan":
   * Opsi BENAR: alasan = ringkas mengapa benar (1 kalimat).
@@ -161,16 +161,46 @@ Schema:
     return NextResponse.json({ error: "Schema tidak valid", issues: parsed.error.issues, raw: obj }, { status: 502 });
   }
 
-  // Filter soal yang valid (tepat 1 opsi benar). Skip yang invalid biar tidak gagal seluruh batch.
-  const valid = parsed.data.soal.filter((s) => s.opsi.filter((o) => o.benar).length === 1);
-  const dropped = parsed.data.soal.length - valid.length;
+  // Auto-fix soal dengan jumlah opsi benar tidak tepat 1.
+  // - >1 opsi benar: keep yang pertama, sisanya jadikan false (lossy fix, soal masih usable).
+  // - 0 opsi benar: drop soal (tidak ada cara reliable menebak yang benar).
+  let autoFixed = 0;
+  let dropped = 0;
+  const valid: typeof parsed.data.soal = [];
+  for (const s of parsed.data.soal) {
+    const benarCount = s.opsi.filter((o) => o.benar).length;
+    if (benarCount === 1) {
+      valid.push(s);
+    } else if (benarCount > 1) {
+      // Keep first true, set others false
+      let sudahKetemu = false;
+      const opsiFix = s.opsi.map((o) => {
+        if (o.benar && !sudahKetemu) {
+          sudahKetemu = true;
+          return o;
+        }
+        return { ...o, benar: false };
+      });
+      valid.push({ ...s, opsi: opsiFix });
+      autoFixed++;
+    } else {
+      dropped++;
+    }
+  }
 
   if (valid.length === 0) {
     return NextResponse.json(
-      { error: "Semua soal yang di-generate AI invalid (jumlah opsi benar bukan 1)", raw: parsed.data },
+      {
+        error: "Semua soal yang di-generate AI invalid (0 opsi benar). Coba lagi.",
+        detail: `dropped=${dropped}, autoFixed=${autoFixed}`,
+      },
       { status: 502 },
     );
   }
 
-  return NextResponse.json({ soal: valid, ...(dropped > 0 ? { _dropped: dropped } : {}) });
+  return NextResponse.json({
+    soal: valid,
+    ...(dropped > 0 ? { _dropped: dropped } : {}),
+    ...(autoFixed > 0 ? { _autoFixed: autoFixed } : {}),
+  });
 }
