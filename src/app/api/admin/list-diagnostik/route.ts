@@ -38,6 +38,17 @@ export async function GET(req: NextRequest) {
     });
     return NextResponse.json({ items });
   } catch (e) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : "gagal" }, { status: 500 });
+    const m = e instanceof Error ? e.message : String(e);
+    // Firestore FAILED_PRECONDITION = missing index, biasanya kasih link auto-create
+    if (m.includes("FAILED_PRECONDITION") || m.includes("requires an index")) {
+      return NextResponse.json(
+        {
+          error: "Firestore butuh composite index untuk query ini. Deploy: `firebase deploy --only firestore:indexes` atau klik link di pesan error untuk auto-create.",
+          detail: m,
+        },
+        { status: 500 },
+      );
+    }
+    return NextResponse.json({ error: m }, { status: 500 });
   }
 }
