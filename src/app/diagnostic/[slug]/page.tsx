@@ -82,14 +82,19 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
     let cancelled = false;
     (async () => {
       try {
+        // Root pohon = sub-materi pertama di bab (kode resmi e.g. "SMP.8.B5.01")
+        const rootKode = materi.subMateri[0]?.slug;
+        if (!rootKode) {
+          if (!cancelled) {
+            setError("Materi belum punya sub-materi terdefinisi.");
+            setFase("error");
+          }
+          return;
+        }
         const r = await fetch("/api/peta-prasyarat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            subMateri: materi.nama,
-            // Tidak kirim soalTarget → peta general untuk seluruh bab
-            ...audiens,
-          }),
+          body: JSON.stringify({ kode: rootKode }),
         });
         if (!r.ok) throw new Error(`HTTP ${r.status}: ${(await r.text()).slice(0, 200)}`);
         const data: PetaPrasyarat = await r.json();

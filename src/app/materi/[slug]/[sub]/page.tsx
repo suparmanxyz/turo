@@ -4,7 +4,6 @@ import { DAFTAR_MATERI, cariSubMateri } from "@/data/materi";
 import { TombolJelaskanVisual } from "@/components/TombolJelaskanVisual";
 import { DaftarSoal } from "@/components/DaftarSoal";
 import { temaUntukMateri } from "@/lib/kategori-tema";
-import { cariSubTopikDariCache } from "@/lib/sub-topik";
 import { ELEMEN_LABEL, type Audiens, type SubMateri } from "@/types";
 
 export default async function SubMateriPage({
@@ -12,28 +11,12 @@ export default async function SubMateriPage({
 }: {
   params: Promise<{ slug: string; sub: string }>;
 }) {
-  const { slug, sub } = await params;
+  const { slug, sub: subRaw } = await params;
+  const sub = decodeURIComponent(subRaw);
   const materi = DAFTAR_MATERI.find((m) => m.slug === slug);
   if (!materi) notFound();
 
-  // Coba lookup di kode statis dulu
-  let subMateri: SubMateri | undefined = cariSubMateri(slug, sub);
-
-  // Fallback: lookup di Firestore subTopikCache (untuk sub-topik AI generated)
-  if (!subMateri) {
-    const cached = await cariSubTopikDariCache(slug, sub);
-    if (cached) {
-      subMateri = {
-        slug: cached.slug,
-        nama: cached.nama,
-        ringkasan: cached.ringkasan,
-        konten: cached.ringkasan,
-        elemen: materi.elemen,
-        contohSoal: [],
-      };
-    }
-  }
-
+  const subMateri: SubMateri | undefined = cariSubMateri(slug, sub);
   if (!subMateri) notFound();
 
   const t = temaUntukMateri(materi);
@@ -69,7 +52,7 @@ export default async function SubMateriPage({
 
       <div className="mb-8 flex flex-wrap gap-2">
         <Link
-          href={`/latihan/${slug}/${sub}`}
+          href={`/latihan/${slug}/${encodeURIComponent(sub)}`}
           className={`inline-flex items-center gap-2 rounded-xl ${t.gradient} ${t.shadow} text-white px-5 py-2.5 font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all`}
         >
           ▶ Mulai latihan

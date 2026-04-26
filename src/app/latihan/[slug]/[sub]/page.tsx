@@ -114,17 +114,16 @@ function LatihanInner({ params }: { params: Promise<{ slug: string; sub: string 
   const topikAwal = sub.replace(/-/g, " ");
 
   const generatePeta = useCallback(
-    async (soalTarget: string) => {
+    async (_soalTarget: string) => {
       setPetaLoading(true);
       try {
+        // Root pohon = kode sub-materi yang dilatih (sub = kode resmi e.g. SMP.8.B5.01)
         const data: PetaPrasyarat = await fetchJson("/api/peta-prasyarat", {
-          subMateri: topikAwal,
-          soalTarget,
-          ...audiens,
+          kode: sub,
         });
         setPeta(data);
       } catch (e) {
-        setError(`Gagal generate peta: ${e instanceof Error ? e.message : e}`);
+        setError(`Gagal load peta: ${e instanceof Error ? e.message : e}`);
       } finally {
         setPetaLoading(false);
       }
