@@ -43,10 +43,16 @@ debug-response.txt
 # Claude Code local settings
 .claude/settings.local.json
 
-# Screenshots/uji coba
+# Screenshots/uji coba (root)
 /del.png
 /da.png
 /err.png
+/error.jpeg
+/ersyn.jpeg
+/ersyn1.jpeg
+
+# Folder screenshot debug
+/image/
 
 # Reference docs (besar, jangan commit) — pak ustadz simpan lokal
 /docs/

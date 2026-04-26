@@ -135,3 +135,103 @@ export type ProgressUser = {
   nodeIdsBenar: string[];
   nodeIdSekarang: string;
 };
+
+// ============================================================
+// Peta Prasyarat resmi (dari konsepbaru/data — 472 sub-materi terkurasi)
+// Kode: SD.1.B1.01 / SMP.8.B5.01 / SMA.12.B3.04
+// ============================================================
+
+export type JenjangResmi = "SD" | "SMP" | "SMA";
+
+export type AreaMatematika =
+  | "bilangan"
+  | "aljabar"
+  | "geometri"
+  | "statistik"
+  | "kalkulus"
+  | "trigonometri"
+  | "logika"
+  | "lain";
+
+export type RelationType = "STRICT" | "SOFT" | "ALTERNATIVE";
+
+export type WeightPrereq = "CRITICAL" | "IMPORTANT" | "HELPER";
+
+export interface PrereqRelation {
+  /** Kode sub-materi yang menjadi prasyarat */
+  kode: string;
+  relation: RelationType;
+  weight: WeightPrereq;
+  reason: string;
+}
+
+export interface SubMateriResmi {
+  /** Format: {JENJANG}.{KELAS}.B{NOMOR_BAB}.{NOMOR_URUT} */
+  kode: string;
+  nama: string;
+  jenjang: JenjangResmi;
+  kelas: number;
+  bab_kode: string;
+  bab_nama: string;
+  area: AreaMatematika;
+  is_maku: boolean;
+  is_entry_point: boolean;
+  durasi_estimasi: string;
+  penjelasan: string;
+  depth: number;
+  dependents_count: number;
+  prereq: PrereqRelation[];
+}
+
+export interface PetaPrasyaratResmi {
+  $schema: string;
+  version: string;
+  tanggal_update: string;
+  deskripsi: string;
+  schema_relation_types: Record<RelationType, string>;
+  schema_weights: Record<WeightPrereq, string>;
+  schema_areas: AreaMatematika[];
+  stats: {
+    total_submateri: number;
+    total_relations: number;
+    submateri_dengan_multi_prereq: number;
+    entry_points: number;
+    submateri_maku: number;
+  };
+  submateri: SubMateriResmi[];
+}
+
+export interface PetaPrasyaratIndex {
+  by_jenjang_kelas: Record<string, string[]>;
+  by_area: Record<AreaMatematika, string[]>;
+  by_bab: Record<string, string[]>;
+  entry_points: string[];
+  maku_codes: string[];
+  dependents: Record<
+    string,
+    Array<{
+      kode: string;
+      relation: RelationType;
+      weight: WeightPrereq;
+    }>
+  >;
+}
+
+/** Mastery status user terhadap sub-materi (Phase B+ data model). */
+export type MasteryStatus = "siap" | "review" | "remediasi" | "unknown";
+
+export interface SubMateriMastery {
+  kode: string;
+  status: MasteryStatus;
+  /** Confidence 0-1 */
+  confidence: number;
+  /** Timestamp last assessment (ms) */
+  lastAssessedAt: number;
+  source: "diagnostic" | "latihan" | "post_test" | "cek_kesiapan";
+}
+
+export interface BlindSpot {
+  kode: string;
+  weight: WeightPrereq;
+  reason: string;
+}

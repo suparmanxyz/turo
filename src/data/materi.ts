@@ -1,22 +1,29 @@
-import type { Materi, SubMateri, Jenjang, Kelas } from "@/types";
-import { BAB_PER_KELAS, type Bab } from "./bab-reguler";
+import type { AreaMatematika, Elemen, Jenjang, Kelas, Materi, SubMateri } from "@/types";
+import { babsPerKelas } from "./peta-resmi";
 
 /**
- * Sumber konten reguler:
- * - Daftar bab per kelas: `bab-reguler.ts` (draft pola Kurikulum Merdeka, perlu cross-check buku Kemdikbud).
- * - Konten CP: Lampiran II Kepka BSKAP No. 046/H/KR/2025 (`docs/cp046.pdf`).
+ * Sumber konten reguler (Phase A1 migrasi):
+ * - Daftar bab + sub-materi: `peta-resmi.ts` → `peta-prasyarat.json` v2.0.0 (472 sub-materi terkurasi)
+ * - Spec: `konsepbaru/docs/SRS-Turo-Diagnostik.md` & `peta-prasyarat.md`
  *
- * Struktur navigasi UI:
+ * Struktur navigasi UI (TIDAK berubah):
  *   reguler   : Jenjang → Kelas → Materi(Bab) → SubMateri
  *   olimpiade : Jenjang → Materi(Elemen) → SubMateri
  *   snbt      : Materi(Elemen) → SubMateri
  *
- * Elemen di SubMateri = metadata tag (untuk laporan & filter).
+ * Catatan: `peta-resmi` adalah single source of truth — Materi/SubMateri lama di-derive dari sini.
+ * Slug stabil: `mat-{jenjang}-k{kelas}-b{babNum}` untuk Materi, `kode` resmi (e.g. SMP.8.B5.01) untuk SubMateri.
  */
 
 // ============================================================
-// REGULER — 12 kelas (SD 1-6, SMP 7-9, SMA 10-12) × bab buku
+// REGULER — derive dari peta resmi (472 sub-materi)
 // ============================================================
+
+const JENJANG_LOWER: Record<Jenjang, "SD" | "SMP" | "SMA"> = {
+  sd: "SD",
+  smp: "SMP",
+  sma: "SMA",
+};
 
 function jenjangDariKelas(k: Kelas): Jenjang {
   if (k <= 6) return "sd";
@@ -24,37 +31,57 @@ function jenjangDariKelas(k: Kelas): Jenjang {
   return "sma";
 }
 
-function bagianAwal(s: string): string {
-  // Ambil 1 kalimat pertama untuk ringkasan default sub-materi
-  const titik = s.indexOf(".");
-  return titik > 0 ? s.slice(0, titik + 1) : s;
+/** Map area peta resmi → Elemen UI (tag metadata, untuk styling). */
+function areaToElemen(area: AreaMatematika): Elemen | undefined {
+  switch (area) {
+    case "bilangan":
+      return "bilangan";
+    case "aljabar":
+      return "aljabar";
+    case "geometri":
+      return "geometri";
+    case "statistik":
+      return "analisis-data-peluang";
+    default:
+      return undefined; // kalkulus, trigonometri, logika, lain → no tag
+  }
 }
 
-function babKeMateri(bab: Bab, kelas: Kelas): Materi {
+function babNum(babKode: string): string {
+  return babKode.replace(/[^0-9]/g, "") || "x";
+}
+
+function buatMateriDariBab(
+  kelas: Kelas,
+  bab: { kode: string; nama: string; subMateri: ReturnType<typeof babsPerKelas>[number]["subMateri"] },
+): Materi {
   const jenjang = jenjangDariKelas(kelas);
-  const sub: SubMateri = {
-    slug: "konsep",
-    nama: bab.nama,
-    ringkasan: bagianAwal(bab.ringkasan),
-    konten: bab.ringkasan,
-    elemen: bab.elemen,
+  const elemenDominan = bab.subMateri[0] ? areaToElemen(bab.subMateri[0].area) : undefined;
+  const sub: SubMateri[] = bab.subMateri.map((s) => ({
+    // Slug = kode resmi (case-sensitive). Ini stable & global-unique.
+    slug: s.kode,
+    nama: s.nama,
+    ringkasan: s.penjelasan.length > 200 ? s.penjelasan.slice(0, 197) + "…" : s.penjelasan,
+    konten: s.penjelasan,
+    elemen: areaToElemen(s.area),
     contohSoal: [],
-  };
+  }));
   return {
-    slug: `mat-${jenjang}-k${kelas}-${bab.slug}`,
+    slug: `mat-${jenjang}-k${kelas}-b${babNum(bab.kode)}`,
     kategoriUtama: "reguler",
     jenjang,
     kelas,
-    elemen: bab.elemen,
+    elemen: elemenDominan,
     nama: bab.nama,
-    deskripsi: bab.ringkasan,
-    subMateri: [sub],
+    deskripsi: `${bab.subMateri.length} sub-materi · ${bab.subMateri.filter((s) => s.is_maku).length} MAKU`,
+    subMateri: sub,
   };
 }
 
-const REGULER: Materi[] = ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as Kelas[]).flatMap(
-  (k) => BAB_PER_KELAS[k].map((b) => babKeMateri(b, k)),
-);
+const REGULER: Materi[] = ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as Kelas[]).flatMap((k) => {
+  const jenjang = JENJANG_LOWER[jenjangDariKelas(k)];
+  return babsPerKelas(jenjang, k).map((bab) => buatMateriDariBab(k, bab));
+});
 
 // ============================================================
 // OLIMPIADE — per jenjang × elemen olimpiade
