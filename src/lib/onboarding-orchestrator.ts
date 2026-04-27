@@ -33,7 +33,7 @@ import {
   type DeepResult,
 } from "@/lib/diagnostic-deep";
 import type { ItemBankEntry, JalurDiagnostik } from "@/lib/item-bank";
-import type { JenjangResmi } from "@/types";
+import type { JenjangResmi, ModeKurikulum } from "@/types";
 import type { Response as IrtRespEngine } from "@/lib/irt-engine";
 
 export type OnboardingStage = "locator" | "coverage" | "deep" | "selesai";
@@ -42,6 +42,8 @@ export type OnboardingStage = "locator" | "coverage" | "deep" | "selesai";
 export type OnboardingState = {
   jalur: JalurDiagnostik;
   jenjang: JenjangResmi;
+  /** Mode kurikulum untuk filter item pool. Default "full". */
+  modeKurikulum: ModeKurikulum;
   stage: OnboardingStage;
   /** Semua response sejauh ini (cumulative). */
   responses: IrtRespEngine[];
@@ -85,7 +87,7 @@ const STAGE_LABEL: Record<OnboardingStage, string> = {
 // ============================================================
 
 async function rehydrateLocator(state: OnboardingState): Promise<LocatorState> {
-  let s = await initLocator(state.jalur);
+  let s = await initLocator(state.jalur, state.modeKurikulum);
   // Replay responses
   for (const r of state.responses) {
     s = submitLocatorResponse(s, r.itemId, r.correct, r.responseTimeMs);
@@ -94,7 +96,7 @@ async function rehydrateLocator(state: OnboardingState): Promise<LocatorState> {
 }
 
 async function rehydrateCoverage(state: OnboardingState): Promise<CoverageState> {
-  let s = await initCoverage(state.jalur, state.hasilLocator);
+  let s = await initCoverage(state.jalur, state.hasilLocator, state.modeKurikulum);
   // Filter responses yang BUKAN bagian dari Locator (carry-over sudah di-init)
   const carriedIds = new Set(state.hasilLocator?.responses.map((r) => r.itemId) ?? []);
   const newResponses = state.responses.filter((r) => !carriedIds.has(r.itemId));
@@ -127,10 +129,12 @@ async function rehydrateDeep(state: OnboardingState): Promise<DeepState> {
 export async function startOnboarding(
   jalur: JalurDiagnostik,
   jenjang: JenjangResmi,
+  modeKurikulum: ModeKurikulum = "full",
 ): Promise<OnboardingStep> {
   const state: OnboardingState = {
     jalur,
     jenjang,
+    modeKurikulum,
     stage: "locator",
     responses: [],
   };

@@ -242,6 +242,23 @@ function PilihKategoriUtama({ onPilih }: { onPilih: (k: KategoriUtama) => void }
         </Link>
       </div>
 
+      {/* CTA Onboarding — diagnostik adaptif */}
+      <Link
+        href="/onboarding"
+        className="block mb-8 rounded-2xl bg-gradient-to-r from-brand to-cyan-600 hover:from-brand-strong hover:to-cyan-700 text-white p-5 sm:p-6 shadow-lg shadow-brand/20 hover:shadow-xl transition-all hover:-translate-y-0.5 group"
+      >
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <div className="text-xs uppercase tracking-wider text-white/80 mb-1">🎯 Belum tau mulai dari mana?</div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold">Cek Kemampuan dulu</h2>
+            <p className="text-sm text-white/90 mt-1 max-w-md">
+              Diagnostik adaptif 3 tahap (~15-30 menit) — kita cari level kelas, area lemah, dan sub-materi yang perlu diperbaiki.
+            </p>
+          </div>
+          <div className="text-3xl group-hover:translate-x-1 transition-transform">→</div>
+        </div>
+      </Link>
+
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {KATEGORI_UTAMA_URUT.map((k, idx) => {
           const t = TEMA_KATEGORI_UTAMA[k];

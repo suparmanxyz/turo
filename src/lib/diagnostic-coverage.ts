@@ -81,8 +81,9 @@ const COVERAGE_MAX_ITEMS = 18;
 export async function initCoverage(
   jalur: JalurDiagnostik,
   prior?: LocatorResult,
+  modeKurikulum: "strict" | "full" = "full",
 ): Promise<CoverageState> {
-  const pool = await itemsForJalur(jalur);
+  const pool = await itemsForJalur(jalur, modeKurikulum);
   const initialEstimate: ThetaEstimate = prior
     ? { theta: prior.theta, se: prior.se, ci95: [prior.theta - 1.96 * prior.se, prior.theta + 1.96 * prior.se], n: 0 }
     : { theta: 0, se: Infinity, ci95: [-Infinity, Infinity], n: 0 };

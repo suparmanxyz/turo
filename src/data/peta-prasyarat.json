@@ -28,7 +28,15 @@
     "total_relations": 663,
     "submateri_dengan_multi_prereq": 165,
     "entry_points": 10,
-    "submateri_maku": 311
+    "submateri_maku": 311,
+    "strict_only": 438,
+    "full": 472,
+    "label_counts": {
+      "CP-2025": 444,
+      "Buku-2025": 16,
+      "UTBK": 3,
+      "Pengayaan": 9
+    }
   },
   "submateri": [
     {
@@ -45,7 +53,9 @@
       "depth": 0,
       "dependents_count": 1,
       "is_entry_point": true,
-      "prereq": []
+      "prereq": [],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B1.02",
@@ -68,7 +78,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B1.03",
@@ -91,7 +103,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B1.04",
@@ -114,7 +128,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B1.05",
@@ -137,7 +153,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B1.06",
@@ -160,7 +178,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B2.01",
@@ -183,7 +203,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B2.02",
@@ -206,7 +228,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B2.03",
@@ -229,7 +253,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B2.04",
@@ -258,7 +284,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B2.05",
@@ -281,7 +309,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B3.01",
@@ -304,7 +334,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B3.02",
@@ -327,7 +359,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B3.03",
@@ -356,7 +390,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B3.04",
@@ -379,7 +415,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B4.01",
@@ -395,7 +433,9 @@
       "depth": 0,
       "dependents_count": 4,
       "is_entry_point": true,
-      "prereq": []
+      "prereq": [],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B4.02",
@@ -418,7 +458,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B4.03",
@@ -441,7 +483,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B4.04",
@@ -457,7 +501,9 @@
       "depth": 0,
       "dependents_count": 1,
       "is_entry_point": true,
-      "prereq": []
+      "prereq": [],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B4.05",
@@ -473,7 +519,9 @@
       "depth": 0,
       "dependents_count": 0,
       "is_entry_point": true,
-      "prereq": []
+      "prereq": [],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B5.01",
@@ -496,7 +544,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B5.02",
@@ -519,7 +569,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B5.03",
@@ -542,7 +594,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B6.01",
@@ -571,7 +625,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B6.02",
@@ -594,7 +650,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B6.03",
@@ -623,7 +681,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B6.04",
@@ -646,7 +706,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B7.01",
@@ -662,7 +724,9 @@
       "depth": 0,
       "dependents_count": 1,
       "is_entry_point": true,
-      "prereq": []
+      "prereq": [],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B7.02",
@@ -685,7 +749,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B7.03",
@@ -701,7 +767,9 @@
       "depth": 0,
       "dependents_count": 0,
       "is_entry_point": true,
-      "prereq": []
+      "prereq": [],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B7.04",
@@ -717,7 +785,9 @@
       "depth": 0,
       "dependents_count": 0,
       "is_entry_point": true,
-      "prereq": []
+      "prereq": [],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B8.01",
@@ -740,7 +810,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B8.02",
@@ -763,7 +835,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B8.03",
@@ -786,7 +860,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B9.01",
@@ -802,7 +878,9 @@
       "depth": 0,
       "dependents_count": 1,
       "is_entry_point": true,
-      "prereq": []
+      "prereq": [],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B9.02",
@@ -825,7 +903,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.1.B9.03",
@@ -848,7 +928,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B1.01",
@@ -871,7 +953,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B1.02",
@@ -894,7 +978,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B1.03",
@@ -917,7 +1003,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B1.04",
@@ -940,7 +1028,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B1.05",
@@ -963,7 +1053,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B2.01",
@@ -992,7 +1084,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B2.02",
@@ -1015,7 +1109,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B2.03",
@@ -1038,7 +1134,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B2.04",
@@ -1061,7 +1159,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B2.05",
@@ -1084,7 +1184,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B3.01",
@@ -1107,7 +1209,9 @@
           "weight": "CRITICAL",
           "reason": "array adalah penjumlahan berulang yang divisualisasikan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B3.02",
@@ -1136,7 +1240,9 @@
           "weight": "CRITICAL",
           "reason": "perkalian adalah penjumlahan berulang"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B3.03",
@@ -1165,7 +1271,9 @@
           "weight": "CRITICAL",
           "reason": "perkalian adalah penjumlahan berulang"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B3.04",
@@ -1188,7 +1296,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B3.05",
@@ -1217,7 +1327,9 @@
           "weight": "CRITICAL",
           "reason": "perkalian adalah penjumlahan berulang"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B4.01",
@@ -1240,7 +1352,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B4.02",
@@ -1263,7 +1377,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B4.03",
@@ -1298,7 +1414,9 @@
           "weight": "CRITICAL",
           "reason": "pembagian adalah operasi invers dari perkalian"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B4.04",
@@ -1327,7 +1445,9 @@
           "weight": "CRITICAL",
           "reason": "pembagian adalah operasi invers dari perkalian"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B5.01",
@@ -1350,7 +1470,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B5.02",
@@ -1373,7 +1495,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B5.03",
@@ -1396,7 +1520,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B6.01",
@@ -1419,7 +1545,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B6.02",
@@ -1442,7 +1570,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B6.03",
@@ -1465,7 +1595,9 @@
           "weight": "IMPORTANT",
           "reason": "pengukuran berat dengan satuan tidak baku jadi fondasi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B6.04",
@@ -1488,7 +1620,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B7.01",
@@ -1511,7 +1645,9 @@
           "weight": "HELPER",
           "reason": "membaca angka 1-12 di muka jam"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B7.02",
@@ -1534,7 +1670,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B7.03",
@@ -1557,7 +1695,9 @@
           "weight": "HELPER",
           "reason": "butuh konsep urutan dan perhitungan dasar"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B7.04",
@@ -1580,7 +1720,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B8.01",
@@ -1603,7 +1745,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B8.02",
@@ -1626,7 +1770,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B8.03",
@@ -1649,7 +1795,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B8.04",
@@ -1672,7 +1820,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B9.01",
@@ -1695,7 +1845,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B9.02",
@@ -1718,7 +1870,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B9.03",
@@ -1741,7 +1895,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B1.01",
@@ -1770,7 +1926,9 @@
           "weight": "CRITICAL",
           "reason": "luas dihitung dari ukuran panjang dan lebar"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B1.02",
@@ -1793,7 +1951,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B1.03",
@@ -1816,7 +1976,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B1.04",
@@ -1839,7 +2001,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B1.05",
@@ -1862,7 +2026,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B2.01",
@@ -1885,7 +2051,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B2.02",
@@ -1914,7 +2082,9 @@
           "weight": "CRITICAL",
           "reason": "perkalian adalah penjumlahan berulang"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B2.03",
@@ -1943,7 +2113,9 @@
           "weight": "CRITICAL",
           "reason": "perkalian adalah penjumlahan berulang"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B2.04",
@@ -1972,7 +2144,9 @@
           "weight": "CRITICAL",
           "reason": "pembagian adalah operasi invers dari perkalian"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B2.05",
@@ -1995,7 +2169,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B3.01",
@@ -2024,7 +2200,9 @@
           "weight": "IMPORTANT",
           "reason": "pecahan menyatakan pembagian (a/b = a÷b)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B3.02",
@@ -2053,7 +2231,9 @@
           "weight": "IMPORTANT",
           "reason": "pecahan menyatakan pembagian (a/b = a÷b)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B3.03",
@@ -2082,7 +2262,9 @@
           "weight": "IMPORTANT",
           "reason": "pecahan menyatakan pembagian (a/b = a÷b)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B3.04",
@@ -2111,7 +2293,9 @@
           "weight": "IMPORTANT",
           "reason": "pecahan menyatakan pembagian (a/b = a÷b)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B4.01",
@@ -2140,7 +2324,9 @@
           "weight": "IMPORTANT",
           "reason": "pecahan menyatakan pembagian (a/b = a÷b)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B4.02",
@@ -2169,7 +2355,9 @@
           "weight": "IMPORTANT",
           "reason": "desimal adalah representasi pecahan persepuluh/perseratus"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B4.03",
@@ -2198,7 +2386,9 @@
           "weight": "IMPORTANT",
           "reason": "desimal adalah representasi pecahan persepuluh/perseratus"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B5.01",
@@ -2221,7 +2411,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B5.02",
@@ -2244,7 +2436,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B5.03",
@@ -2273,7 +2467,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B5.04",
@@ -2296,7 +2492,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B6.01",
@@ -2319,7 +2517,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B6.02",
@@ -2348,7 +2548,9 @@
           "weight": "IMPORTANT",
           "reason": "konversi satuan butuh perkalian/pembagian dengan 10/100/1000"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B6.03",
@@ -2371,7 +2573,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B6.04",
@@ -2400,7 +2604,9 @@
           "weight": "IMPORTANT",
           "reason": "konversi satuan butuh perkalian/pembagian dengan 10/100/1000"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B7.01",
@@ -2423,7 +2629,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B7.02",
@@ -2452,7 +2660,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B7.03",
@@ -2475,7 +2685,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B8.01",
@@ -2498,7 +2710,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B8.02",
@@ -2521,7 +2735,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B8.03",
@@ -2544,7 +2760,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B1.01",
@@ -2567,7 +2785,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B1.02",
@@ -2596,7 +2816,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B1.03",
@@ -2619,7 +2841,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B1.04",
@@ -2648,7 +2872,9 @@
           "weight": "IMPORTANT",
           "reason": "faktorisasi adalah dekomposisi perkalian"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B2.01",
@@ -2677,7 +2903,9 @@
           "weight": "CRITICAL",
           "reason": "FPB/KPK butuh konsep faktor dan kelipatan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B2.02",
@@ -2706,7 +2934,9 @@
           "weight": "CRITICAL",
           "reason": "FPB/KPK butuh konsep faktor dan kelipatan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B2.03",
@@ -2747,7 +2977,9 @@
           "weight": "IMPORTANT",
           "reason": "faktorisasi adalah dekomposisi perkalian"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B2.04",
@@ -2782,7 +3014,9 @@
           "weight": "CRITICAL",
           "reason": "FPB/KPK butuh konsep faktor dan kelipatan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B3.01",
@@ -2811,7 +3045,9 @@
           "weight": "IMPORTANT",
           "reason": "pecahan menyatakan pembagian (a/b = a÷b)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B3.02",
@@ -2846,7 +3082,9 @@
           "weight": "IMPORTANT",
           "reason": "pecahan menyatakan pembagian (a/b = a÷b)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B3.03",
@@ -2875,7 +3113,9 @@
           "weight": "CRITICAL",
           "reason": "luas dihitung dari ukuran panjang dan lebar"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B3.04",
@@ -2898,7 +3138,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B3.05",
@@ -2921,7 +3163,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B4.01",
@@ -2950,7 +3194,9 @@
           "weight": "IMPORTANT",
           "reason": "desimal adalah representasi pecahan persepuluh/perseratus"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B4.02",
@@ -2985,7 +3231,9 @@
           "weight": "IMPORTANT",
           "reason": "desimal adalah representasi pecahan persepuluh/perseratus"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B4.03",
@@ -3014,7 +3262,9 @@
           "weight": "IMPORTANT",
           "reason": "desimal adalah representasi pecahan persepuluh/perseratus"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B4.04",
@@ -3043,7 +3293,9 @@
           "weight": "IMPORTANT",
           "reason": "desimal adalah representasi pecahan persepuluh/perseratus"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B5.01",
@@ -3078,7 +3330,9 @@
           "weight": "CRITICAL",
           "reason": "persen adalah pecahan dengan penyebut 100"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B5.02",
@@ -3125,7 +3379,9 @@
           "weight": "IMPORTANT",
           "reason": "konversi persen ke desimal sering dipakai"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B5.03",
@@ -3160,7 +3416,9 @@
           "weight": "IMPORTANT",
           "reason": "konversi persen ke desimal sering dipakai"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B6.01",
@@ -3183,7 +3441,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B6.02",
@@ -3206,7 +3466,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B6.03",
@@ -3229,7 +3491,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B7.01",
@@ -3252,7 +3516,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B7.02",
@@ -3275,7 +3541,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B7.03",
@@ -3298,7 +3566,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B8.01",
@@ -3321,7 +3591,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B8.02",
@@ -3350,7 +3622,9 @@
           "weight": "CRITICAL",
           "reason": "luas dihitung dari ukuran panjang dan lebar"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B8.03",
@@ -3379,7 +3653,9 @@
           "weight": "CRITICAL",
           "reason": "luas dihitung dari ukuran panjang dan lebar"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B8.04",
@@ -3408,7 +3684,9 @@
           "weight": "CRITICAL",
           "reason": "luas dihitung dari ukuran panjang dan lebar"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B8.05",
@@ -3437,7 +3715,9 @@
           "weight": "CRITICAL",
           "reason": "luas dihitung dari ukuran panjang dan lebar"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B1.01",
@@ -3460,7 +3740,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B1.02",
@@ -3483,7 +3765,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B1.03",
@@ -3506,7 +3790,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B1.04",
@@ -3535,7 +3821,9 @@
           "weight": "CRITICAL",
           "reason": "perkalian adalah penjumlahan berulang"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B1.05",
@@ -3564,7 +3852,9 @@
           "weight": "CRITICAL",
           "reason": "pembagian adalah operasi invers dari perkalian"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B2.01",
@@ -3593,7 +3883,9 @@
           "weight": "IMPORTANT",
           "reason": "pecahan menyatakan pembagian (a/b = a÷b)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B2.02",
@@ -3628,7 +3920,9 @@
           "weight": "IMPORTANT",
           "reason": "pecahan menyatakan pembagian (a/b = a÷b)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B2.03",
@@ -3663,7 +3957,9 @@
           "weight": "IMPORTANT",
           "reason": "desimal adalah representasi pecahan persepuluh/perseratus"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B2.04",
@@ -3692,7 +3988,9 @@
           "weight": "IMPORTANT",
           "reason": "pecahan menyatakan pembagian (a/b = a÷b)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B3.01",
@@ -3721,7 +4019,9 @@
           "weight": "IMPORTANT",
           "reason": "desimal adalah representasi pecahan persepuluh/perseratus"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B3.02",
@@ -3750,7 +4050,9 @@
           "weight": "IMPORTANT",
           "reason": "desimal adalah representasi pecahan persepuluh/perseratus"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B3.03",
@@ -3779,7 +4081,9 @@
           "weight": "IMPORTANT",
           "reason": "desimal adalah representasi pecahan persepuluh/perseratus"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B3.04",
@@ -3808,7 +4112,9 @@
           "weight": "IMPORTANT",
           "reason": "desimal adalah representasi pecahan persepuluh/perseratus"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B4.01",
@@ -3831,7 +4137,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B4.02",
@@ -3854,7 +4162,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B4.03",
@@ -3877,7 +4187,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B5.01",
@@ -3906,7 +4218,9 @@
           "weight": "CRITICAL",
           "reason": "volume = luas alas × tinggi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B5.02",
@@ -3935,7 +4249,9 @@
           "weight": "CRITICAL",
           "reason": "volume = luas alas × tinggi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B5.03",
@@ -3964,7 +4280,9 @@
           "weight": "CRITICAL",
           "reason": "volume = luas alas × tinggi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B5.04",
@@ -3993,7 +4311,9 @@
           "weight": "CRITICAL",
           "reason": "volume = luas alas × tinggi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B5.05",
@@ -4016,7 +4336,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B5.06",
@@ -4039,7 +4361,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B6.01",
@@ -4068,7 +4392,9 @@
           "weight": "IMPORTANT",
           "reason": "rata-rata = jumlah data dibagi banyaknya data"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B6.02",
@@ -4097,7 +4423,9 @@
           "weight": "IMPORTANT",
           "reason": "median adalah nilai tengah data terurut"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B6.03",
@@ -4120,7 +4448,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B6.04",
@@ -4155,7 +4485,9 @@
           "weight": "IMPORTANT",
           "reason": "median adalah nilai tengah data terurut"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B7.01",
@@ -4178,7 +4510,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B7.02",
@@ -4201,7 +4535,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B7.03",
@@ -4224,7 +4560,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B8.01",
@@ -4247,7 +4585,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B8.02",
@@ -4276,7 +4616,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B9.01",
@@ -4299,7 +4641,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B9.02",
@@ -4322,7 +4666,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B9.03",
@@ -4351,7 +4697,9 @@
           "weight": "CRITICAL",
           "reason": "volume = luas alas × tinggi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B1.01",
@@ -4374,7 +4722,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SD.6.B1.02",
@@ -4397,7 +4747,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SD.6.B1.03",
@@ -4420,7 +4772,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SD.6.B1.04",
@@ -4443,7 +4797,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B2.01",
@@ -4472,7 +4828,9 @@
           "weight": "IMPORTANT",
           "reason": "rasio dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B2.02",
@@ -4501,7 +4859,9 @@
           "weight": "IMPORTANT",
           "reason": "rasio dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B2.03",
@@ -4530,7 +4890,9 @@
           "weight": "IMPORTANT",
           "reason": "rasio dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B3.01",
@@ -4553,7 +4915,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B3.02",
@@ -4576,7 +4940,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B3.03",
@@ -4599,7 +4965,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B3.04",
@@ -4622,7 +4990,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B4.01",
@@ -4651,7 +5021,9 @@
           "weight": "CRITICAL",
           "reason": "volume = luas alas × tinggi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B4.02",
@@ -4686,7 +5058,9 @@
           "weight": "CRITICAL",
           "reason": "volume = luas alas × tinggi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B4.03",
@@ -4709,7 +5083,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B4.04",
@@ -4732,7 +5108,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B5.01",
@@ -4755,7 +5133,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B5.02",
@@ -4778,7 +5158,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SD.6.B5.03",
@@ -4801,7 +5183,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B6.01",
@@ -4824,7 +5208,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B6.02",
@@ -4847,7 +5233,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B6.03",
@@ -4870,7 +5258,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SD.6.B6.04",
@@ -4893,7 +5283,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SD.6.B7.01",
@@ -4922,7 +5314,9 @@
           "weight": "CRITICAL",
           "reason": "peluang dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B7.02",
@@ -4951,7 +5345,9 @@
           "weight": "CRITICAL",
           "reason": "peluang dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B7.03",
@@ -4974,7 +5370,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B1.01",
@@ -4997,7 +5395,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B1.02",
@@ -5020,7 +5420,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B1.03",
@@ -5049,7 +5451,9 @@
           "weight": "CRITICAL",
           "reason": "perkalian adalah penjumlahan berulang"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B1.04",
@@ -5072,7 +5476,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B1.05",
@@ -5095,7 +5501,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B1.06",
@@ -5118,7 +5526,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B10.01",
@@ -5153,7 +5563,9 @@
           "weight": "IMPORTANT",
           "reason": "median adalah nilai tengah data terurut"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B10.02",
@@ -5176,7 +5588,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B10.03",
@@ -5199,7 +5613,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B10.04",
@@ -5222,7 +5638,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B2.01",
@@ -5251,7 +5669,9 @@
           "weight": "IMPORTANT",
           "reason": "rasio dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B2.02",
@@ -5274,7 +5694,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B2.03",
@@ -5303,7 +5725,9 @@
           "weight": "IMPORTANT",
           "reason": "rasio dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B2.04",
@@ -5338,7 +5762,9 @@
           "weight": "IMPORTANT",
           "reason": "rasio dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B3.01",
@@ -5354,7 +5780,9 @@
       "depth": 0,
       "dependents_count": 1,
       "is_entry_point": true,
-      "prereq": []
+      "prereq": [],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SMP.7.B3.02",
@@ -5377,7 +5805,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SMP.7.B3.03",
@@ -5400,7 +5830,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SMP.7.B3.04",
@@ -5423,7 +5855,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SMP.7.B4.01",
@@ -5446,7 +5880,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B4.02",
@@ -5469,7 +5905,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B4.03",
@@ -5492,7 +5930,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B4.04",
@@ -5515,7 +5955,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B4.05",
@@ -5538,7 +5980,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B4.06",
@@ -5561,7 +6005,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B5.01",
@@ -5584,7 +6030,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B5.02",
@@ -5619,7 +6067,9 @@
           "weight": "IMPORTANT",
           "reason": "manipulasi persamaan butuh operasi bilangan bulat"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B5.03",
@@ -5654,7 +6104,9 @@
           "weight": "IMPORTANT",
           "reason": "manipulasi persamaan butuh operasi bilangan bulat"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B5.04",
@@ -5689,7 +6141,9 @@
           "weight": "IMPORTANT",
           "reason": "manipulasi persamaan butuh operasi bilangan bulat"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B5.05",
@@ -5718,7 +6172,9 @@
           "weight": "CRITICAL",
           "reason": "pertidaksamaan = persamaan dengan tanda <, >, ≤, ≥"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B5.06",
@@ -5753,7 +6209,9 @@
           "weight": "IMPORTANT",
           "reason": "manipulasi persamaan butuh operasi bilangan bulat"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B6.01",
@@ -5782,7 +6240,9 @@
           "weight": "IMPORTANT",
           "reason": "rasio dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B6.02",
@@ -5811,7 +6271,9 @@
           "weight": "IMPORTANT",
           "reason": "rasio dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B6.03",
@@ -5834,7 +6296,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B6.04",
@@ -5857,7 +6321,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B7.01",
@@ -5880,7 +6346,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B7.02",
@@ -5921,7 +6389,9 @@
           "weight": "IMPORTANT",
           "reason": "konversi persen ke desimal sering dipakai"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B7.03",
@@ -5944,7 +6414,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B7.04",
@@ -5973,7 +6445,9 @@
           "weight": "CRITICAL",
           "reason": "aritmatika sosial dihitung dengan persen"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B8.01",
@@ -5996,7 +6470,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B8.02",
@@ -6019,7 +6495,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B8.03",
@@ -6042,7 +6520,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B8.04",
@@ -6065,7 +6545,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B9.01",
@@ -6088,7 +6570,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B9.02",
@@ -6117,7 +6601,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B9.03",
@@ -6140,7 +6626,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B9.04",
@@ -6163,7 +6651,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B9.05",
@@ -6186,7 +6676,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B1.01",
@@ -6209,7 +6701,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B1.02",
@@ -6232,7 +6726,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SMP.8.B1.03",
@@ -6255,7 +6751,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SMP.8.B1.04",
@@ -6278,7 +6776,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SMP.8.B1.05",
@@ -6301,7 +6801,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SMP.8.B1.06",
@@ -6324,7 +6826,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SMP.8.B10.01",
@@ -6347,7 +6851,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B10.02",
@@ -6370,7 +6876,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B10.03",
@@ -6393,7 +6901,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B10.04",
@@ -6422,7 +6932,9 @@
           "weight": "CRITICAL",
           "reason": "peluang dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B10.05",
@@ -6445,7 +6957,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B10.06",
@@ -6474,7 +6988,9 @@
           "weight": "CRITICAL",
           "reason": "peluang dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B2.01",
@@ -6497,7 +7013,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B2.02",
@@ -6520,7 +7038,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B2.03",
@@ -6543,7 +7063,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B3.01",
@@ -6566,7 +7088,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Buku-2025"
     },
     {
       "kode": "SMP.8.B3.02",
@@ -6589,7 +7113,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B3.03",
@@ -6612,7 +7138,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B3.04",
@@ -6635,7 +7163,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B3.05",
@@ -6664,7 +7194,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B4.01",
@@ -6687,7 +7219,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B4.02",
@@ -6710,7 +7244,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B4.03",
@@ -6733,7 +7269,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B4.04",
@@ -6756,7 +7294,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B5.01",
@@ -6791,7 +7331,9 @@
           "weight": "IMPORTANT",
           "reason": "metode grafik SPLDV butuh sistem koordinat kartesius"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B5.02",
@@ -6814,7 +7356,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B5.03",
@@ -6837,7 +7381,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B5.04",
@@ -6860,7 +7406,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B5.05",
@@ -6895,7 +7443,9 @@
           "weight": "IMPORTANT",
           "reason": "metode grafik SPLDV butuh sistem koordinat kartesius"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B6.01",
@@ -6924,7 +7474,9 @@
           "weight": "IMPORTANT",
           "reason": "pythagoras berlaku untuk segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B6.02",
@@ -6953,7 +7505,9 @@
           "weight": "IMPORTANT",
           "reason": "pythagoras berlaku untuk segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B6.03",
@@ -6982,7 +7536,9 @@
           "weight": "IMPORTANT",
           "reason": "pythagoras berlaku untuk segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B6.04",
@@ -7011,7 +7567,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B6.05",
@@ -7040,7 +7598,9 @@
           "weight": "IMPORTANT",
           "reason": "pythagoras berlaku untuk segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B7.01",
@@ -7063,7 +7623,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B7.02",
@@ -7086,7 +7648,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B7.03",
@@ -7109,7 +7673,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B7.04",
@@ -7132,7 +7698,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B8.01",
@@ -7155,7 +7723,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B8.02",
@@ -7178,7 +7748,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B8.03",
@@ -7201,7 +7773,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B8.04",
@@ -7224,7 +7798,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B9.01",
@@ -7253,7 +7829,9 @@
           "weight": "CRITICAL",
           "reason": "transformasi geometri direpresentasikan di sistem koordinat"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B9.02",
@@ -7282,7 +7860,9 @@
           "weight": "CRITICAL",
           "reason": "transformasi geometri direpresentasikan di sistem koordinat"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B9.03",
@@ -7311,7 +7891,9 @@
           "weight": "CRITICAL",
           "reason": "transformasi geometri direpresentasikan di sistem koordinat"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B9.04",
@@ -7340,7 +7922,9 @@
           "weight": "CRITICAL",
           "reason": "transformasi geometri direpresentasikan di sistem koordinat"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B9.05",
@@ -7369,7 +7953,9 @@
           "weight": "CRITICAL",
           "reason": "transformasi geometri direpresentasikan di sistem koordinat"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B1.01",
@@ -7392,7 +7978,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B1.02",
@@ -7415,7 +8003,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B1.03",
@@ -7438,7 +8028,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B1.04",
@@ -7461,7 +8053,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B1.05",
@@ -7484,7 +8078,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B1.06",
@@ -7507,7 +8103,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B2.01",
@@ -7530,7 +8128,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B2.02",
@@ -7553,7 +8153,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B2.03",
@@ -7576,7 +8178,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B2.04",
@@ -7599,7 +8203,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B2.05",
@@ -7622,7 +8228,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B2.06",
@@ -7651,7 +8259,9 @@
           "weight": "CRITICAL",
           "reason": "persamaan kuadrat butuh manipulasi bentuk aljabar"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B3.01",
@@ -7674,7 +8284,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B3.02",
@@ -7697,7 +8309,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B3.03",
@@ -7720,7 +8334,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B3.04",
@@ -7749,7 +8365,9 @@
           "weight": "CRITICAL",
           "reason": "fungsi kuadrat berakar dari persamaan kuadrat ax²+bx+c"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B3.05",
@@ -7778,7 +8396,9 @@
           "weight": "CRITICAL",
           "reason": "fungsi kuadrat berakar dari persamaan kuadrat ax²+bx+c"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B4.01",
@@ -7807,7 +8427,9 @@
           "weight": "CRITICAL",
           "reason": "kongruensi/kesebangunan butuh konsep sudut dan sisi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B4.02",
@@ -7836,7 +8458,9 @@
           "weight": "CRITICAL",
           "reason": "kongruensi/kesebangunan butuh konsep sudut dan sisi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B4.03",
@@ -7865,7 +8489,9 @@
           "weight": "CRITICAL",
           "reason": "kongruensi/kesebangunan butuh konsep sudut dan sisi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B4.04",
@@ -7894,7 +8520,9 @@
           "weight": "CRITICAL",
           "reason": "kongruensi/kesebangunan butuh konsep sudut dan sisi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B4.05",
@@ -7923,7 +8551,9 @@
           "weight": "CRITICAL",
           "reason": "kongruensi/kesebangunan butuh konsep sudut dan sisi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B4.06",
@@ -7946,7 +8576,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B5.01",
@@ -7975,7 +8607,9 @@
           "weight": "CRITICAL",
           "reason": "luas dihitung dari ukuran panjang dan lebar"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B5.02",
@@ -8004,7 +8638,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B5.03",
@@ -8027,7 +8663,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B5.04",
@@ -8050,7 +8688,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B5.05",
@@ -8073,7 +8713,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B5.06",
@@ -8096,7 +8738,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B6.01",
@@ -8119,7 +8763,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B6.02",
@@ -8148,7 +8794,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B6.03",
@@ -8171,7 +8819,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B6.04",
@@ -8194,7 +8844,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B7.01",
@@ -8217,7 +8869,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B7.02",
@@ -8246,7 +8900,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B7.03",
@@ -8269,7 +8925,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B1.01",
@@ -8292,7 +8950,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B1.02",
@@ -8315,7 +8975,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B1.03",
@@ -8338,7 +9000,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B1.04",
@@ -8361,7 +9025,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B1.05",
@@ -8390,7 +9056,9 @@
           "weight": "CRITICAL",
           "reason": "pertidaksamaan = persamaan dengan tanda <, >, ≤, ≥"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B1.06",
@@ -8413,7 +9081,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B2.01",
@@ -8442,7 +9112,9 @@
           "weight": "CRITICAL",
           "reason": "logaritma adalah operasi invers eksponen"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B2.02",
@@ -8471,7 +9143,9 @@
           "weight": "CRITICAL",
           "reason": "logaritma adalah operasi invers eksponen"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B2.03",
@@ -8500,7 +9174,9 @@
           "weight": "CRITICAL",
           "reason": "logaritma adalah operasi invers eksponen"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B2.04",
@@ -8535,7 +9211,9 @@
           "weight": "CRITICAL",
           "reason": "logaritma adalah operasi invers eksponen"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B2.05",
@@ -8564,7 +9242,9 @@
           "weight": "CRITICAL",
           "reason": "logaritma adalah operasi invers eksponen"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B3.01",
@@ -8587,7 +9267,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "UTBK"
     },
     {
       "kode": "SMA.10.B3.02",
@@ -8610,7 +9292,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "UTBK"
     },
     {
       "kode": "SMA.10.B3.03",
@@ -8633,7 +9317,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B3.04",
@@ -8656,7 +9342,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B3.05",
@@ -8685,7 +9373,9 @@
           "weight": "CRITICAL",
           "reason": "pertidaksamaan = persamaan dengan tanda <, >, ≤, ≥"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B4.01",
@@ -8708,7 +9398,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B4.02",
@@ -8731,7 +9423,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B4.03",
@@ -8754,7 +9448,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B4.04",
@@ -8777,7 +9473,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Pengayaan"
     },
     {
       "kode": "SMA.10.B4.05",
@@ -8806,7 +9504,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B4.06",
@@ -8829,7 +9529,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.01",
@@ -8864,7 +9566,9 @@
           "weight": "IMPORTANT",
           "reason": "panjang vektor dihitung dengan teorema Pythagoras"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.02",
@@ -8899,7 +9603,9 @@
           "weight": "IMPORTANT",
           "reason": "panjang vektor dihitung dengan teorema Pythagoras"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.03",
@@ -8934,7 +9640,9 @@
           "weight": "IMPORTANT",
           "reason": "panjang vektor dihitung dengan teorema Pythagoras"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.04",
@@ -8969,7 +9677,9 @@
           "weight": "IMPORTANT",
           "reason": "panjang vektor dihitung dengan teorema Pythagoras"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.05",
@@ -9004,7 +9714,9 @@
           "weight": "CRITICAL",
           "reason": "vektor butuh sistem koordinat untuk representasi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.06",
@@ -9039,7 +9751,9 @@
           "weight": "IMPORTANT",
           "reason": "panjang vektor dihitung dengan teorema Pythagoras"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.07",
@@ -9062,7 +9776,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B6.01",
@@ -9085,7 +9801,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B6.02",
@@ -9108,7 +9826,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B6.03",
@@ -9137,7 +9857,9 @@
           "weight": "CRITICAL",
           "reason": "pertidaksamaan = persamaan dengan tanda <, >, ≤, ≥"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B6.04",
@@ -9160,7 +9882,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B7.01",
@@ -9189,7 +9913,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B7.02",
@@ -9218,7 +9944,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B7.03",
@@ -9247,7 +9975,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B7.04",
@@ -9276,7 +10006,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B7.05",
@@ -9305,7 +10037,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B7.06",
@@ -9334,7 +10068,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B8.01",
@@ -9357,7 +10093,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B8.02",
@@ -9380,7 +10118,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B8.03",
@@ -9415,7 +10155,9 @@
           "weight": "IMPORTANT",
           "reason": "rata-rata = jumlah data dibagi banyaknya data"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B8.04",
@@ -9444,7 +10186,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B8.05",
@@ -9467,7 +10211,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B8.06",
@@ -9490,7 +10236,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B9.01",
@@ -9519,7 +10267,9 @@
           "weight": "CRITICAL",
           "reason": "peluang dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B9.02",
@@ -9542,7 +10292,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B9.03",
@@ -9565,7 +10317,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B9.04",
@@ -9588,7 +10342,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B9.05",
@@ -9611,7 +10367,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B1.01",
@@ -9634,7 +10392,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B1.02",
@@ -9657,7 +10417,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B1.03",
@@ -9680,7 +10442,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B1.04",
@@ -9703,7 +10467,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B1.05",
@@ -9726,7 +10492,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B10.01",
@@ -9749,7 +10517,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B10.02",
@@ -9784,7 +10554,9 @@
           "weight": "CRITICAL",
           "reason": "limit didefinisikan untuk fungsi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B10.03",
@@ -9807,7 +10579,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B10.04",
@@ -9830,7 +10604,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B10.05",
@@ -9853,7 +10629,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B10.06",
@@ -9882,7 +10660,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B11.01",
@@ -9905,7 +10685,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B11.02",
@@ -9934,7 +10716,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B11.03",
@@ -9957,7 +10741,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B11.04",
@@ -9980,7 +10766,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B11.05",
@@ -10003,7 +10791,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B2.01",
@@ -10026,7 +10816,9 @@
           "weight": "IMPORTANT",
           "reason": "matriks sering merepresentasikan SPLDV"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B2.02",
@@ -10049,7 +10841,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B2.03",
@@ -10072,7 +10866,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B2.04",
@@ -10095,7 +10891,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B2.05",
@@ -10118,7 +10916,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B2.06",
@@ -10141,7 +10941,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B2.07",
@@ -10170,7 +10972,9 @@
           "weight": "IMPORTANT",
           "reason": "metode grafik SPLDV butuh sistem koordinat kartesius"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "UTBK"
     },
     {
       "kode": "SMA.11.B3.01",
@@ -10199,7 +11003,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B3.02",
@@ -10222,7 +11028,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B3.03",
@@ -10245,7 +11053,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B3.04",
@@ -10268,7 +11078,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B4.01",
@@ -10297,7 +11109,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B4.02",
@@ -10326,7 +11140,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B4.03",
@@ -10355,7 +11171,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B4.04",
@@ -10384,7 +11202,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B4.05",
@@ -10413,7 +11233,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B4.06",
@@ -10442,7 +11264,9 @@
           "weight": "CRITICAL",
           "reason": "trigonometri dibangun atas segitiga siku-siku"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B5.01",
@@ -10471,7 +11295,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B5.02",
@@ -10494,7 +11320,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B5.03",
@@ -10517,7 +11345,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B5.04",
@@ -10546,7 +11376,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B5.05",
@@ -10569,7 +11401,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B6.01",
@@ -10585,7 +11419,9 @@
       "depth": 0,
       "dependents_count": 1,
       "is_entry_point": true,
-      "prereq": []
+      "prereq": [],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B6.02",
@@ -10608,7 +11444,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B6.03",
@@ -10631,7 +11469,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B6.04",
@@ -10654,7 +11494,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B6.05",
@@ -10677,7 +11519,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B7.01",
@@ -10700,7 +11544,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B7.02",
@@ -10723,7 +11569,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B7.03",
@@ -10746,7 +11594,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B7.04",
@@ -10769,7 +11619,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B8.01",
@@ -10792,7 +11644,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B8.02",
@@ -10815,7 +11669,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B8.03",
@@ -10838,7 +11694,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B8.04",
@@ -10861,7 +11719,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B8.05",
@@ -10884,7 +11744,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Pengayaan"
     },
     {
       "kode": "SMA.11.B8.06",
@@ -10907,7 +11769,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Pengayaan"
     },
     {
       "kode": "SMA.11.B9.01",
@@ -10936,7 +11800,9 @@
           "weight": "CRITICAL",
           "reason": "limit didefinisikan untuk fungsi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B9.02",
@@ -10965,7 +11831,9 @@
           "weight": "CRITICAL",
           "reason": "limit didefinisikan untuk fungsi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B9.03",
@@ -10994,7 +11862,9 @@
           "weight": "CRITICAL",
           "reason": "limit didefinisikan untuk fungsi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B9.04",
@@ -11023,7 +11893,9 @@
           "weight": "CRITICAL",
           "reason": "limit didefinisikan untuk fungsi"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B1.01",
@@ -11046,7 +11918,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B1.02",
@@ -11069,7 +11943,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B1.03",
@@ -11092,7 +11968,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B1.04",
@@ -11115,7 +11993,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B2.01",
@@ -11138,7 +12018,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B2.02",
@@ -11161,7 +12043,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B2.03",
@@ -11184,7 +12068,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B2.04",
@@ -11207,7 +12093,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B3.01",
@@ -11236,7 +12124,9 @@
           "weight": "CRITICAL",
           "reason": "turunan didefinisikan dari konsep limit"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B3.02",
@@ -11265,7 +12155,9 @@
           "weight": "CRITICAL",
           "reason": "integral adalah anti-turunan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B3.03",
@@ -11294,7 +12186,9 @@
           "weight": "CRITICAL",
           "reason": "integral adalah anti-turunan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B3.04",
@@ -11323,7 +12217,9 @@
           "weight": "CRITICAL",
           "reason": "integral adalah anti-turunan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B3.05",
@@ -11346,7 +12242,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B4.01",
@@ -11381,7 +12279,9 @@
           "weight": "CRITICAL",
           "reason": "integral adalah anti-turunan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B4.02",
@@ -11416,7 +12316,9 @@
           "weight": "CRITICAL",
           "reason": "integral adalah anti-turunan"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Pengayaan"
     },
     {
       "kode": "SMA.12.B4.03",
@@ -11445,7 +12347,9 @@
           "weight": "CRITICAL",
           "reason": "integral adalah anti-turunan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B5.01",
@@ -11468,7 +12372,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B5.02",
@@ -11491,7 +12397,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B5.03",
@@ -11514,7 +12422,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B5.04",
@@ -11537,7 +12447,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B6.01",
@@ -11560,7 +12472,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B6.02",
@@ -11589,7 +12503,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Pengayaan"
     },
     {
       "kode": "SMA.12.B6.03",
@@ -11612,7 +12528,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Pengayaan"
     },
     {
       "kode": "SMA.12.B6.04",
@@ -11635,7 +12553,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": false,
+      "label": "Pengayaan"
     },
     {
       "kode": "SMA.12.B6.05",
@@ -11658,7 +12578,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B7.01",
@@ -11681,7 +12603,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B7.02",
@@ -11710,7 +12634,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "Pengayaan"
     },
     {
       "kode": "SMA.12.B7.03",
@@ -11733,7 +12659,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B7.04",
@@ -11756,7 +12684,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "Pengayaan"
     },
     {
       "kode": "SMA.12.B8.01",
@@ -11779,7 +12709,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B8.02",
@@ -11802,7 +12734,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B8.03",
@@ -11825,7 +12759,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B8.04",
@@ -11848,7 +12784,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B8.05",
@@ -11871,7 +12809,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B9.01",
@@ -11900,7 +12840,9 @@
           "weight": "CRITICAL",
           "reason": "peluang dinyatakan dalam bentuk pecahan"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B9.02",
@@ -11923,7 +12865,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B9.03",
@@ -11946,7 +12890,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B9.04",
@@ -11975,7 +12921,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B9.05",
@@ -11998,7 +12946,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B9.06",
@@ -12021,7 +12971,9 @@
           "weight": "CRITICAL",
           "reason": "prasyarat utama dari kurikulum (existing)"
         }
-      ]
+      ],
+      "strict": true,
+      "label": "CP-2025"
     }
   ]
 }

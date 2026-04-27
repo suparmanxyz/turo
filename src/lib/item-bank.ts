@@ -154,6 +154,16 @@ export function seedItemFromSoalMc(
     .slice(0, 24);
 
   const now = Date.now();
+  // Build konten tanpa undefined fields (Firestore reject undefined)
+  const konten: ItemBankEntry["konten"] = {
+    pertanyaan: soal.pertanyaan,
+    opsi: soal.opsi.map((o) =>
+      o.alasan !== undefined ? { teks: o.teks, benar: o.benar, alasan: o.alasan } : { teks: o.teks, benar: o.benar },
+    ),
+    kunci: kunciIdx,
+  };
+  if (soal.svg) konten.svg = soal.svg;
+
   return {
     id,
     subMateriKode: sub.kode,
@@ -170,12 +180,7 @@ export function seedItemFromSoalMc(
     calibrationN: 0,
     isMilestone: sub.is_entry_point || sub.dependents_count >= 3,
     isMaku: sub.is_maku,
-    konten: {
-      pertanyaan: soal.pertanyaan,
-      opsi: soal.opsi,
-      kunci: kunciIdx,
-      svg: soal.svg,
-    },
+    konten,
     source: opts.source ?? "ai-generated",
     createdAt: now,
     updatedAt: now,
@@ -254,13 +259,20 @@ export async function itemsForSubMateri(kode: string): Promise<ItemBankEntry[]> 
   return snap.docs.map((d) => d.data() as ItemBankEntry);
 }
 
-/** Items per jalur (e.g. "smp"). */
-export async function itemsForJalur(jalur: JalurDiagnostik): Promise<ItemBankEntry[]> {
+/** Items per jalur (e.g. "smp"). Optional filter mode kurikulum strict vs full. */
+export async function itemsForJalur(
+  jalur: JalurDiagnostik,
+  modeKurikulum: "strict" | "full" = "full",
+): Promise<ItemBankEntry[]> {
   const snap = await getAdminDb()
     .collection(COLLECTION)
     .where("jalur", "array-contains", jalur)
     .get();
-  return snap.docs.map((d) => d.data() as ItemBankEntry);
+  const items = snap.docs.map((d) => d.data() as ItemBankEntry);
+  if (modeKurikulum === "full") return items;
+  // Filter strict via peta resmi (item bank gak punya field strict per item — sub-level)
+  const { isStrict } = await import("@/data/peta-resmi");
+  return items.filter((it) => isStrict(it.subMateriKode));
 }
 
 /** Items per (jenjang, kelas) — untuk locator stage. */

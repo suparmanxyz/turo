@@ -100,11 +100,19 @@ import type { NodePrasyarat, PetaPrasyarat } from "@/types";
  *
  * Output kompatibel dengan engine diagnostik & latihan existing.
  */
-export function petaUntukSubMateri(rootKode: string, opts?: { maxDepth?: number; includeNonStrict?: boolean }): PetaPrasyarat | null {
+export function petaUntukSubMateri(
+  rootKode: string,
+  opts?: { maxDepth?: number; includeNonStrict?: boolean; modeKurikulum?: "strict" | "full" },
+): PetaPrasyarat | null {
   const root = byKode.get(rootKode);
   if (!root) return null;
   const maxDepth = opts?.maxDepth ?? 8;
   const includeNonStrict = opts?.includeNonStrict ?? false;
+  const modeKurikulum = opts?.modeKurikulum ?? "full";
+
+  // Gate: kalau mode strict & root tidak masuk strict, fallback ke full untuk root
+  // (root materi user pilih, gak boleh blokir; tapi tree node turunan akan di-filter)
+  const passKurikulum = (s: SubMateriResmi) => modeKurikulum === "full" || s.strict;
 
   const visited = new Map<string, { sub: SubMateriResmi; level: number }>();
   visited.set(root.kode, { sub: root, level: 0 });
@@ -126,6 +134,8 @@ export function petaUntukSubMateri(rootKode: string, opts?: { maxDepth?: number;
       }
       const psub = byKode.get(p.kode);
       if (!psub) continue;
+      // Filter mode kurikulum — skip non-strict prereq saat mode strict
+      if (!passKurikulum(psub)) continue;
       visited.set(p.kode, { sub: psub, level: cur.level + 1 });
       queue.push({ kode: p.kode, level: cur.level + 1 });
     }
@@ -152,4 +162,23 @@ export function petaUntukSubMateri(rootKode: string, opts?: { maxDepth?: number;
     rootId: root.kode,
     nodes,
   };
+}
+
+// ============================================================
+// Dual-track helpers
+// ============================================================
+
+/** Filter sub-materi by mode kurikulum. */
+export function filterByMode<T extends { kode: string }>(
+  items: T[],
+  mode: "strict" | "full",
+): T[] {
+  if (mode === "full") return items;
+  const strictSet = new Set(INDEX.strict_kodes ?? []);
+  return items.filter((it) => strictSet.has(it.kode));
+}
+
+/** Apakah sub-materi masuk Jalur Strict. */
+export function isStrict(kode: string): boolean {
+  return (INDEX.strict_kodes ?? []).includes(kode);
 }

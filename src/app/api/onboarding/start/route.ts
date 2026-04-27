@@ -3,7 +3,7 @@ import { startOnboarding } from "@/lib/onboarding-orchestrator";
 import { pilihJalur } from "@/lib/diagnostic-routing";
 import { upsertUserProfile, createDiagnosticSession } from "@/lib/firestore-schema";
 import { getAdminAuth } from "@/lib/firebase-admin";
-import type { Jenjang, Kelas, KategoriUtama } from "@/types";
+import type { Jenjang, Kelas, KategoriUtama, ModeKurikulum } from "@/types";
 import type { JenjangResmi } from "@/types";
 
 export const runtime = "nodejs";
@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
   const kelas = body.kelas as Kelas | undefined;
   const kategoriUtama = (body.kategoriUtama ?? "reguler") as KategoriUtama;
   const modePersiapan = body.modePersiapan as "sekolah" | "utbk" | "olimpiade" | undefined;
+  const modeKurikulum: ModeKurikulum = body.modeKurikulum === "strict" ? "strict" : "full";
 
   const jalur = pilihJalur({ jenjang, kelas, kategoriUtama, modePersiapan });
   const jenjangResmi: JenjangResmi = jenjang ? JENJANG_MAP[jenjang] : (jalur.startsWith("sd") ? "SD" : jalur.startsWith("smp") ? "SMP" : "SMA");
@@ -36,11 +37,12 @@ export async function POST(req: NextRequest) {
     kategoriUtama,
     modePersiapan,
     jalurAktif: jalur,
+    modeKurikulum,
     onboardingStatus: "belum",
   });
 
   const sessionId = await createDiagnosticSession(uid, jalur);
-  const step = await startOnboarding(jalur, jenjangResmi);
+  const step = await startOnboarding(jalur, jenjangResmi, modeKurikulum);
 
   return NextResponse.json({
     sessionId,

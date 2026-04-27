@@ -52,6 +52,12 @@ export default async function SubMateriPage({
 
       <div className="mb-8 flex flex-wrap gap-2">
         <Link
+          href={`/cek-kesiapan/${encodeURIComponent(sub)}`}
+          className="inline-flex items-center gap-2 rounded-xl bg-white border-2 border-brand text-brand-strong hover:bg-brand-soft px-5 py-2.5 font-semibold transition-all hover:-translate-y-0.5"
+        >
+          🛡️ Cek Kesiapan
+        </Link>
+        <Link
           href={`/latihan/${slug}/${encodeURIComponent(sub)}`}
           className={`inline-flex items-center gap-2 rounded-xl ${t.gradient} ${t.shadow} text-white px-5 py-2.5 font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all`}
         >

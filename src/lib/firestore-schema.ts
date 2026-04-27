@@ -24,6 +24,7 @@ import type {
   Kelas,
   KategoriUtama,
   MasteryStatus,
+  ModeKurikulum,
   SubMateriMastery,
 } from "@/types";
 
@@ -50,6 +51,8 @@ export type UserProfileDoc = {
   kelas?: Kelas;
   kategoriUtama: KategoriUtama;
   modePersiapan?: "sekolah" | "utbk" | "olimpiade";
+  /** Mode kurikulum dual-track: strict CP 046 atau full comprehensive. */
+  modeKurikulum?: ModeKurikulum;
   /** Jalur aktif sekarang. */
   jalurAktif?: JalurDiagnostik;
   /** Last theta global (dari diagnostik terakhir). */

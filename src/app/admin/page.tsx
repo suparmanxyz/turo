@@ -30,6 +30,7 @@ export default function AdminIndexPage() {
 
   const tools = [
     { href: "/admin/materi", emoji: "📚", judul: "Materi & Pohon Prasyarat", desc: "Lihat 472 sub-materi resmi & pohon prasyarat dari peta-prasyarat.json." },
+    { href: "/admin/item-bank", emoji: "🏦", judul: "Item Bank", desc: "Seed soal MC ke item_bank per sub-materi prioritas (untuk diagnostik IRT)." },
     { href: "/admin/diagnostik", emoji: "🎯", judul: "Soal Diagnostik", desc: "Validasi soal hasil generate AI dari semua tes diagnostik user." },
     { href: "/admin/import", emoji: "📥", judul: "Impor Soal PDF", desc: "Upload PDF, ekstrak & klasifikasi otomatis ke materi." },
   ];

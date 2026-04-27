@@ -15,7 +15,7 @@ export const runtime = "nodejs";
  */
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { kode, subMateri, includeNonStrict, maxDepth } = body;
+  const { kode, subMateri, includeNonStrict, maxDepth, modeKurikulum } = body;
 
   let rootKode: string | undefined = typeof kode === "string" ? kode : undefined;
 
@@ -37,12 +37,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Sub-materi dengan kode "${rootKode}" tidak ditemukan di peta resmi` }, { status: 404 });
   }
 
+  const mode = modeKurikulum === "strict" ? "strict" : "full";
   const peta = petaUntukSubMateri(rootKode, {
     includeNonStrict: !!includeNonStrict,
     maxDepth: typeof maxDepth === "number" ? maxDepth : undefined,
+    modeKurikulum: mode,
   });
   if (!peta) {
     return NextResponse.json({ error: "Gagal bangun peta dari kode" }, { status: 500 });
   }
-  return NextResponse.json({ ...peta, _resmi: true });
+  return NextResponse.json({ ...peta, _resmi: true, _mode: mode });
 }

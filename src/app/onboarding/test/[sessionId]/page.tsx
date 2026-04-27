@@ -48,6 +48,13 @@ export default function OnboardingTestPage(props: { params: Promise<{ sessionId:
     itemStartTime.current = Date.now();
   }, [sessionId]);
 
+  // Redirect ke hasil kalau sesi sudah selesai (di effect, bukan di render)
+  useEffect(() => {
+    if (stored && !stored.nextItem) {
+      router.replace(`/onboarding/hasil/${sessionId}`);
+    }
+  }, [stored, router, sessionId]);
+
   if (loading) return <main className="p-8 text-slate-500">Memuat...</main>;
   if (!user) return <main className="p-8"><Link href="/login" className="text-brand underline">Login dulu</Link></main>;
   if (error) {
@@ -60,8 +67,6 @@ export default function OnboardingTestPage(props: { params: Promise<{ sessionId:
   }
   if (!stored) return <main className="p-8 text-slate-500">Memuat sesi...</main>;
   if (!stored.nextItem) {
-    // Should redirect to result
-    router.replace(`/onboarding/hasil/${sessionId}`);
     return <main className="p-8 text-slate-500">Mengarahkan ke hasil...</main>;
   }
 

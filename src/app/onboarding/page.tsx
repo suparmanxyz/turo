@@ -13,6 +13,7 @@ import {
   type Jenjang,
   type KategoriUtama,
   type Kelas,
+  type ModeKurikulum,
 } from "@/types";
 import { JALUR_LABEL, JALUR_DURASI_MENIT, pilihJalur } from "@/lib/diagnostic-routing";
 
@@ -22,6 +23,7 @@ export default function OnboardingPage() {
   const [kategori, setKategori] = useState<KategoriUtama>("reguler");
   const [jenjang, setJenjang] = useState<Jenjang | "">("");
   const [kelas, setKelas] = useState<Kelas | "">("");
+  const [modeKurikulum, setModeKurikulum] = useState<ModeKurikulum>("full");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,7 +54,7 @@ export default function OnboardingPage() {
       const res = await fetch("/api/onboarding/start", {
         method: "POST",
         headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
-        body: JSON.stringify({ jenjang, kelas, kategoriUtama: kategori }),
+        body: JSON.stringify({ jenjang, kelas, kategoriUtama: kategori, modeKurikulum }),
       });
       if (!res.ok) {
         const txt = await res.text();
@@ -144,12 +146,39 @@ export default function OnboardingPage() {
           </div>
         )}
 
+        {/* Mode Kurikulum (dual-track) */}
+        <div>
+          <label className="block text-sm font-semibold mb-2">4. Mode kurikulum</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setModeKurikulum("full")}
+              className={`text-left rounded-xl border-2 p-3 transition ${
+                modeKurikulum === "full" ? "border-brand bg-brand-soft" : "border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              <div className="font-medium">Comprehensive Full <span className="text-xs text-slate-500">(default)</span></div>
+              <div className="text-xs text-slate-500 mt-0.5">472 sub — termasuk Buku-K2013, UTBK, Pengayaan. Cocok kalau sekolah pakai buku lama atau target SNBT/olimpiade.</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setModeKurikulum("strict")}
+              className={`text-left rounded-xl border-2 p-3 transition ${
+                modeKurikulum === "strict" ? "border-brand bg-brand-soft" : "border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              <div className="font-medium">Strict CP 046 <span className="text-xs text-emerald-600">(audit ketat)</span></div>
+              <div className="text-xs text-slate-500 mt-0.5">438 sub — hanya yang lolos CP 046/H/KR/2025. Cocok untuk sekolah Kurikulum Merdeka murni.</div>
+            </button>
+          </div>
+        </div>
+
         {/* Preview jalur */}
         {jalur && (
           <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm">
             <div className="font-semibold text-slate-700">Jalur diagnostik: {JALUR_LABEL[jalur]}</div>
             <div className="text-slate-500 mt-1">
-              Estimasi waktu: ~{JALUR_DURASI_MENIT[jalur].fast} menit (Fast Test) + {JALUR_DURASI_MENIT[jalur].deep - JALUR_DURASI_MENIT[jalur].fast} menit (Deep Test).
+              Mode: <strong>{modeKurikulum === "strict" ? "Strict CP 046" : "Comprehensive Full"}</strong> · Estimasi waktu: ~{JALUR_DURASI_MENIT[jalur].fast} menit (Fast Test) + {JALUR_DURASI_MENIT[jalur].deep - JALUR_DURASI_MENIT[jalur].fast} menit (Deep Test).
             </div>
           </div>
         )}

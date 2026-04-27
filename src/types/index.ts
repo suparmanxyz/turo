@@ -165,6 +165,12 @@ export interface PrereqRelation {
   reason: string;
 }
 
+/** Label kategori sub-materi di dual-track curriculum (Turo v3.0). */
+export type LabelKurikulum = "CP-2025" | "Buku-2025" | "UTBK" | "Pengayaan";
+
+/** Mode kurikulum yang dipilih user. */
+export type ModeKurikulum = "strict" | "full";
+
 export interface SubMateriResmi {
   /** Format: {JENJANG}.{KELAS}.B{NOMOR_BAB}.{NOMOR_URUT} */
   kode: string;
@@ -181,6 +187,10 @@ export interface SubMateriResmi {
   depth: number;
   dependents_count: number;
   prereq: PrereqRelation[];
+  /** Apakah masuk Jalur Strict CP 046 (true) atau hanya Comprehensive Full (false). */
+  strict: boolean;
+  /** Label kategori untuk audit transparansi. */
+  label: LabelKurikulum;
 }
 
 export interface PetaPrasyaratResmi {
@@ -197,6 +207,11 @@ export interface PetaPrasyaratResmi {
     submateri_dengan_multi_prereq: number;
     entry_points: number;
     submateri_maku: number;
+    /** Jumlah sub yang masuk Jalur Strict CP 046. */
+    strict_only?: number;
+    /** Jumlah sub di Jalur Full = total. */
+    full?: number;
+    label_counts?: Record<string, number>;
   };
   submateri: SubMateriResmi[];
 }
@@ -207,6 +222,9 @@ export interface PetaPrasyaratIndex {
   by_bab: Record<string, string[]>;
   entry_points: string[];
   maku_codes: string[];
+  /** Sub-materi yang masuk Jalur Strict CP 046. */
+  strict_kodes?: string[];
+  by_label?: Record<string, string[]>;
   dependents: Record<
     string,
     Array<{
