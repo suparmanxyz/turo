@@ -42,13 +42,21 @@ export async function POST(req: NextRequest) {
 
   // ── Cek pool dulu ──
   const poolKey = soalPoolKey({ topik, subKonsep, level: level ?? 1, audiens });
+  // hindari = array string pertanyaan yang sudah dipakai client (anti-duplicate)
+  const hindariSet = new Set<string>(
+    Array.isArray(hindari) ? hindari.map((s: string) => String(s).trim().toLowerCase()) : [],
+  );
   if (!force) {
     const existing = await loadPool(poolKey);
     if (isPoolValid(existing) && existing.pool.length >= jumlah) {
-      const picked = pickRandom(existing.pool, jumlah);
-      // Increment usedCount async (don't block response)
-      incrementUsed(poolKey, jumlah).catch((e) => console.warn(e));
-      return NextResponse.json({ soal: picked, _fromPool: true, _poolUsed: existing.usedCount });
+      // Filter pool: skip soal yang pertanyaan-nya match hindari (anti-duplicate cross-tahap)
+      const eligible = existing.pool.filter((s) => !hindariSet.has(s.pertanyaan.trim().toLowerCase()));
+      if (eligible.length >= jumlah) {
+        const picked = pickRandom(eligible, jumlah);
+        incrementUsed(poolKey, jumlah).catch((e) => console.warn(e));
+        return NextResponse.json({ soal: picked, _fromPool: true, _poolUsed: existing.usedCount, _eligibleAfterHindari: eligible.length });
+      }
+      // Pool habis untuk hindari → fallback regenerate (jangan kirim soal duplikat)
     }
   }
 
@@ -141,7 +149,9 @@ Schema:
   const claude = getClaude();
   let msg;
   try {
-    msg = await claude.messages.create({
+    // Pakai streaming — Anthropic SDK reject non-streaming untuk request yang
+    // bisa >10 menit (max_tokens besar untuk pool generation).
+    const stream = claude.messages.stream({
       model: pilihModel("soal", level),
       // Per soal MC dengan 4 distractor + alasan + LaTeX bisa 1500-3000 tokens.
       // Beri budget besar supaya tidak truncated mid-JSON.
@@ -149,6 +159,7 @@ Schema:
       max_tokens: Math.min(60000, 3500 * jumlahGenerate + 2000),
       messages: [{ role: "user", content: prompt }],
     });
+    msg = await stream.finalMessage();
   } catch (e) {
     const m = e instanceof Error ? e.message : String(e);
     let pesan = m;

@@ -126,11 +126,14 @@ Schema:
 }`;
 
   const claude = getClaude();
-  const msg = await claude.messages.create({
+  // Pakai streaming — Anthropic API reject non-streaming kalau request bisa >10 menit
+  // (max_tokens besar untuk pool size). Stream() helper accumulate ke final message.
+  const stream = claude.messages.stream({
     model: pilihModel("soal", level),
     max_tokens: Math.min(60000, 3500 * n + 2000),
     messages: [{ role: "user", content: prompt }],
   });
+  const msg = await stream.finalMessage();
 
   const text = msg.content
     .filter((c) => c.type === "text")

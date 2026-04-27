@@ -210,6 +210,8 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
 
     // 1 soal per job (BUKAN n=2). Confirmation pattern menggantikan kebutuhan duplikasi.
     // Pakai allSettled biar 1 fail tidak gagal seluruh tahap — drop yang fail.
+    // Kirim hindari = pertanyaan yang sudah dipakai user, supaya pool gak return duplikat
+    const hindariList = riwayatSoal.map((s) => s.pertanyaan);
     const settled = await Promise.allSettled(
       jobs.map(async (job): Promise<SoalDiagnostik> => {
         const r = await fetch("/api/generate-soal-mc", {
@@ -220,6 +222,7 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
             subKonsep: job.subKonsep,
             level: job.level,
             n: 1,
+            hindari: hindariList,
             ...audiens,
           }),
         });
@@ -936,6 +939,72 @@ function DiagnostikHasil({
               })}
           </div>
         </section>
+      ) : soalSalah.length > 0 ? (
+        // Edge case: pohon semua dianggap mahir (lulus konfirmasi) tapi ada soal salah di tahap awal.
+        // Kemungkinan lucky guess MC di konfirmasi — kasih rekomendasi review.
+        (() => {
+          // Group soal salah by nodeId (topik) supaya kasih rekomendasi per-topik
+          const nodeSalah = new Map<string, { nodeId: string; salah: number; total: number; topik?: string; linkedSlug?: string }>();
+          for (const s of soalRiwayat) {
+            const node = nodeById(peta, s.nodeId);
+            const cur = nodeSalah.get(s.nodeId) ?? { nodeId: s.nodeId, salah: 0, total: 0, topik: node?.topik, linkedSlug: node?.linkedSlug };
+            cur.total += 1;
+            const jw = jawaban[s.id];
+            if (jw === undefined || !s.opsi[jw]?.benar) cur.salah += 1;
+            nodeSalah.set(s.nodeId, cur);
+          }
+          const adaSalah = Array.from(nodeSalah.values()).filter((n) => n.salah > 0).sort((a, b) => b.salah - a.salah);
+
+          return (
+            <section className="space-y-3">
+              <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
+                <div className="flex items-start gap-3">
+                  <div className="text-3xl">⚠</div>
+                  <div className="flex-1">
+                    <p className="font-bold text-amber-900">Hasil ambigu — perlu review</p>
+                    <p className="text-sm text-amber-800 mt-1">
+                      Sistem mendeteksi semua pohon "selesai" karena jawaban di tahap konfirmasi benar, tapi {soalSalah.length} soal salah di tahap awal.
+                      Kemungkinan beberapa jawaban benar konfirmasi adalah <strong>tebakan beruntung</strong> (MC 4 opsi punya peluang 25% benar).
+                      Sebaiknya review topik berikut.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className={`text-xl font-bold flex items-center gap-2 ${temaTextStrong}`}>
+                <span className={`inline-block h-2 w-2 rounded-full ${temaGradient}`} />
+                Topik Perlu Review
+              </h3>
+              <div className="space-y-3">
+                {adaSalah.map((n, i) => {
+                  const linkSlug = n.linkedSlug ?? materiSlug;
+                  const labelLatihan = n.linkedSlug ? "Buka bab" : "Latihan";
+                  return (
+                    <div key={n.nodeId} className={`rounded-2xl border-2 ${temaBorder} ${temaBgSoft} p-4`}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 text-xs flex-wrap">
+                            <span className="px-2 py-0.5 bg-white/70 rounded-full font-medium text-slate-600">#{i + 1}</span>
+                            <span className="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-medium text-[10px]">
+                              {n.salah} dari {n.total} salah
+                            </span>
+                          </div>
+                          <h4 className={`font-bold ${temaTextStrong}`}>{n.topik ?? n.nodeId}</h4>
+                        </div>
+                        <Link
+                          href={n.linkedSlug ? `/materi/${linkSlug}` : `/latihan/${materiSlug}/konsep`}
+                          className={`shrink-0 rounded-lg ${temaGradient} text-white px-3 py-1.5 text-sm font-medium`}
+                        >
+                          {labelLatihan} →
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })()
       ) : (
         <section className={`rounded-2xl border-2 ${temaBorder} ${temaBgSoft} p-6 text-center`}>
           <div className="text-4xl mb-2">🎉</div>

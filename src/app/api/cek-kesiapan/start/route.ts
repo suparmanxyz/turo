@@ -25,20 +25,42 @@ export async function POST(req: NextRequest) {
 
   const result = await startCekKesiapan(uid, kode);
 
+  // Enrich blindSpots dengan nama & kelas dari peta resmi
+  const blindSpotsDetail = result.blindSpots.map((bs) => {
+    const bsSub = cariSubMateriResmi(bs.kode);
+    return {
+      kode: bs.kode,
+      nama: bsSub?.nama ?? bs.kode,
+      jenjang: bsSub?.jenjang,
+      kelas: bsSub?.kelas,
+      area: bsSub?.area,
+      weight: bs.weight,
+      reason: bs.reason,
+    };
+  });
+
   return NextResponse.json({
     targetKode: result.targetKode,
     targetNama: sub.nama,
-    blindSpots: result.blindSpots,
-    warmupQueue: result.warmupQueue.map((w) => ({
-      blindSpotKode: w.blindSpotKode,
-      item: {
-        id: w.item.id,
-        subMateriKode: w.item.subMateriKode,
-        pertanyaan: w.item.konten.pertanyaan,
-        opsi: w.item.konten.opsi.map((o) => ({ teks: o.teks })),
-        svg: w.item.konten.svg,
-      },
-    })),
+    targetKelas: sub.kelas,
+    targetJenjang: sub.jenjang,
+    blindSpots: blindSpotsDetail,
+    warmupQueue: result.warmupQueue.map((w) => {
+      const bsSub = cariSubMateriResmi(w.blindSpotKode);
+      return {
+        blindSpotKode: w.blindSpotKode,
+        blindSpotNama: bsSub?.nama,
+        blindSpotKelas: bsSub?.kelas,
+        blindSpotJenjang: bsSub?.jenjang,
+        item: {
+          id: w.item.id,
+          subMateriKode: w.item.subMateriKode,
+          pertanyaan: w.item.konten.pertanyaan,
+          opsi: w.item.konten.opsi.map((o) => ({ teks: o.teks })),
+          svg: w.item.konten.svg,
+        },
+      };
+    }),
     shortCircuit: result.shortCircuit,
   });
 }

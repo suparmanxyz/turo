@@ -16,10 +16,21 @@ type SanitizedItem = {
 
 type WarmupItem = {
   blindSpotKode: string;
+  blindSpotNama?: string;
+  blindSpotKelas?: number;
+  blindSpotJenjang?: "SD" | "SMP" | "SMA";
   item: SanitizedItem;
 };
 
-type BlindSpot = { kode: string; weight: string; reason: string };
+type BlindSpot = {
+  kode: string;
+  nama?: string;
+  jenjang?: "SD" | "SMP" | "SMA";
+  kelas?: number;
+  area?: string;
+  weight: string;
+  reason: string;
+};
 
 type Decision =
   | { action: "lanjut"; targetKode: string; alasan: string }
@@ -29,6 +40,8 @@ type Decision =
 type StartResp = {
   targetKode: string;
   targetNama: string;
+  targetKelas?: number;
+  targetJenjang?: "SD" | "SMP" | "SMA";
   blindSpots: BlindSpot[];
   warmupQueue: WarmupItem[];
   shortCircuit?: Decision;
@@ -145,17 +158,26 @@ export default function CekKesiapanPage(props: { params: Promise<{ kode: string 
           Cek Kesiapan<span className="text-brand">.</span>
         </h1>
         <p className="text-muted mb-6">
-          Sebelum buka <strong>{data.targetNama}</strong> ({data.targetKode}), kita cek dulu {data.blindSpots.length} prasyarat penting biar belajarnya nyambung.
+          Sebelum buka <strong>{data.targetNama}</strong>{data.targetJenjang && data.targetKelas && (
+            <span className="text-xs ml-2 px-1.5 py-0.5 rounded bg-sky-100 text-sky-700">{data.targetJenjang} K{data.targetKelas}</span>
+          )} ({data.targetKode}), kita cek dulu {data.blindSpots.length} prasyarat penting biar belajarnya nyambung.
         </p>
 
         <div className="rounded-2xl bg-white border border-slate-200 p-5 mb-4">
-          <div className="text-sm font-semibold mb-2">Yang akan dicek ({data.warmupQueue.length} soal):</div>
-          <ul className="space-y-1.5 text-sm">
-            {data.blindSpots.slice(0, 5).map((bs) => (
-              <li key={bs.kode} className="flex items-center gap-2">
-                <span className="text-amber-500">•</span>
-                <code className="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">{bs.kode}</code>
-                <span className="text-slate-500 text-xs">— {bs.reason}</span>
+          <div className="text-sm font-semibold mb-3">Yang akan dicek ({data.warmupQueue.length} soal dari {data.blindSpots.length} prasyarat):</div>
+          <ul className="space-y-2.5 text-sm">
+            {data.blindSpots.slice(0, 8).map((bs) => (
+              <li key={bs.kode} className="border-l-2 border-amber-300 pl-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium">{bs.nama ?? bs.kode}</span>
+                  {bs.jenjang && bs.kelas !== undefined && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700">{bs.jenjang} K{bs.kelas}</span>
+                  )}
+                  {bs.area && <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">{bs.area}</span>}
+                </div>
+                <div className="text-xs text-slate-500 mt-0.5">
+                  <code className="font-mono">{bs.kode}</code> · {bs.reason}
+                </div>
               </li>
             ))}
           </ul>
@@ -178,8 +200,15 @@ export default function CekKesiapanPage(props: { params: Promise<{ kode: string 
     return (
       <main className="mx-auto max-w-3xl p-4 sm:p-6">
         <div className="mb-4">
-          <div className="flex items-center justify-between text-sm mb-2">
-            <span className="font-medium text-slate-700">Cek Prasyarat: {cur.blindSpotKode}</span>
+          <div className="flex items-center justify-between text-sm mb-2 flex-wrap gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-medium text-slate-700">Cek Prasyarat:</span>
+              <span className="font-semibold">{cur.blindSpotNama ?? cur.blindSpotKode}</span>
+              {cur.blindSpotJenjang && cur.blindSpotKelas !== undefined && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700">{cur.blindSpotJenjang} K{cur.blindSpotKelas}</span>
+              )}
+              <code className="text-[10px] text-slate-400 font-mono">{cur.blindSpotKode}</code>
+            </div>
             <span className="text-slate-500">{idx + 1} / {data.warmupQueue.length}</span>
           </div>
           <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
