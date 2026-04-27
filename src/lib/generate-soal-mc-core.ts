@@ -80,6 +80,17 @@ ATURAN TEKNIS SVG:
 - viewBox proporsional. Stroke 2-3px, warna kontras tinggi. Font 14-22px.
 - Di dalam <text>, JANGAN pakai LaTeX. Pakai unicode (×, ÷, ≤, π, θ, x², dll).
 
+KONSISTENSI ANGKA — KRITIS:
+- Sebelum render visual, COCOKKAN setiap angka di SVG dengan angka di pertanyaan.
+- Contoh: "12 permen dibagi 3 anak, masing-masing 4" → SVG harus tampilkan EXACT 12 lingkaran (bisa dipisah jadi 3 kelompok 4),
+  BUKAN 14 atau 13 atau lebih/kurang.
+- Contoh: "segitiga sama sisi sisi 8 cm" → label "8 cm" muncul di setiap sisi, panjang sisi visual proporsional sama.
+- Contoh: "5 apel + 3 jeruk = 8 buah" → SVG show 5 apel + 3 jeruk, total 8 elemen visual.
+- HITUNG ULANG jumlah elemen visual SEBELUM finalisasi SVG. Kalau angka di pertanyaan = N,
+  jumlah elemen visual yang merepresentasikan harus = N exactly.
+- Untuk pembagian: kalau "X dibagi Y", visual boleh tampilkan X benda dipisah jadi Y kelompok yang sama besar (X/Y per kelompok).
+  JANGAN tampilkan X benda di baris atas + (X+extra) di baris bawah atau sebaliknya.
+
 ${gayaSvg}`;
 
   const prompt = `Buat ${n} soal pilihan ganda matematika untuk diagnosa kesiapan ${audiensPrompt(audiens)}. Soal akan disimpan di item bank dan random-pick untuk banyak siswa.

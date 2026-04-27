@@ -10,6 +10,7 @@ import { DAFTAR_MATERI } from "@/data/materi";
 import { temaUntukMateri, TEMA_KATEGORI_UTAMA } from "@/lib/kategori-tema";
 import { useAuth } from "@/contexts/AuthContext";
 import { loadSesi, saveSesi } from "@/lib/progress";
+import { bridgeMastery } from "@/lib/mastery-bridge";
 
 type Fase = "awal" | "melihat-soal" | "menjawab" | "hasil";
 
@@ -232,8 +233,16 @@ function LatihanInner({ params }: { params: Promise<{ slug: string; sub: string 
       baru.add(soal.nodeId);
       setNodesSelesai(baru);
       persist({ nodesSelesai: baru, jumlahDijawab: dijawabBaru, jumlahBenar: benarBaru, nodeIdSekarang: soal.nodeId });
+      // Bridge ke sub_materi_mastery — node selesai = siap (kode peta resmi format X.Y.BZ.NN)
+      if (user && /^(SD|SMP|SMA)\.\d+\.B\d+\.\d+$/i.test(soal.nodeId)) {
+        void bridgeMastery(user, [{ kode: soal.nodeId, status: "siap", confidence: 0.7, source: "latihan" }]);
+      }
     } else {
       persist({ jumlahDijawab: dijawabBaru, jumlahBenar: benarBaru, nodeIdSekarang: soal.nodeId });
+      // Bridge: jawaban salah → review (belum confirmed remediasi, bisa lucky guess di tahap berikut)
+      if (user && /^(SD|SMP|SMA)\.\d+\.B\d+\.\d+$/i.test(soal.nodeId)) {
+        void bridgeMastery(user, [{ kode: soal.nodeId, status: "review", confidence: 0.5, source: "latihan" }]);
+      }
     }
   }
 

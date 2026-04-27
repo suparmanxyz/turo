@@ -8,6 +8,7 @@ import { temaUntukMateri, TEMA_KATEGORI_UTAMA } from "@/lib/kategori-tema";
 import { MathText } from "@/components/MathText";
 import { useAuth } from "@/contexts/AuthContext";
 import { saveDiagnostik, type LaporanDiagnostik } from "@/lib/laporan";
+import { bridgeMastery, type MasteryItem } from "@/lib/mastery-bridge";
 import { cekMasteryBab, sudahMastery, MASTERY_THRESHOLD } from "@/lib/mastery";
 import {
   adaPohonBelumTuntas,
@@ -341,6 +342,36 @@ export default function DiagnosticPage(props: { params: Promise<{ slug: string }
         setStatusSimpan("ok");
         setErrorSimpan(null);
         setTersimpan(true);
+        // Bridge mastery ke sub_materi_mastery (best-effort, non-blocking)
+        // Kode resmi = nodeId (peta resmi) atau linkedSlug (legacy peta AI)
+        const masteryItems: MasteryItem[] = [];
+        const seen = new Set<string>();
+        const pushMastery = (kode: string | undefined, status: MasteryItem["status"], confidence: number) => {
+          if (!kode || !/^(SD|SMP|SMA)\.\d+\.B\d+\.\d+$/i.test(kode)) return;
+          if (seen.has(kode)) return;
+          seen.add(kode);
+          masteryItems.push({ kode, status, confidence, source: "diagnostic" });
+        };
+        for (const p of statesArg) {
+          // Pohon yang selesai-ok (lulus konfirmasi atau initial benar) → "siap"
+          if (p.status === "selesai-ok") {
+            for (const id of p.nodeBenarIds) pushMastery(id, "siap", 0.75);
+            // Cek juga linkedSlug node aktif kalau ada (legacy peta AI yang punya linkedSlug)
+            const node = nodeById(peta, p.nodeAktifId);
+            if (node?.linkedSlug && node.linkedSlug !== node.id) pushMastery(node.linkedSlug, "siap", 0.75);
+          }
+          // Pohon yang selesai-perlu-belajar → semua nodeGagalIds = "remediasi"
+          if (p.status === "selesai-perlu-belajar") {
+            for (const id of p.nodeGagalIds) pushMastery(id, "remediasi", 0.6);
+          }
+        }
+        // perluBelajar nodes (gabungan gagal + masih aktif) → review (lemah belum confirmed)
+        for (const it of perluBelajar) {
+          pushMastery(it.linkedSlug ?? it.nodeId, "review", 0.5);
+        }
+        if (masteryItems.length > 0) {
+          void bridgeMastery(user, masteryItems);
+        }
       } else {
         setStatusSimpan("gagal");
         setErrorSimpan(r.error);
