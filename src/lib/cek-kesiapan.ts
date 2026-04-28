@@ -13,7 +13,7 @@ import { cariSubMateriResmi } from "@/data/peta-resmi";
 import { itemsForSubMateri } from "@/lib/item-bank";
 import type { ItemBankEntry } from "@/lib/item-bank";
 import { listMasteryByUser, getMastery } from "@/lib/firestore-schema";
-import type { BlindSpot, MasteryStatus, PrereqRelation } from "@/types";
+import type { BlindSpot, MasteryStatus, PrereqRelation, WeightPrereq } from "@/types";
 
 /** TTL untuk mastery — di atas ini dianggap stale, perlu re-cek. */
 const MASTERY_STALE_MS = 60 * 24 * 60 * 60 * 1000; // 60 hari
@@ -212,6 +212,139 @@ export function finishCekKesiapan(
   responses: WarmupResponse[],
 ): CekKesiapanDecision {
   return putuskanCekKesiapan(targetKode, responses);
+}
+
+// ============================================================
+// VARIAN PER-BAB (Lapis 1.5)
+// ============================================================
+
+/**
+ * Identifikasi blind spots untuk SELURUH bab.
+ * Strategi: union prereq STRICT-CRITICAL dari semua sub di bab,
+ * kemudian filter prereq yang ada di dalam bab itu sendiri (in-bab prereq
+ * akan auto di-cover saat user belajar bab itu, gak perlu cek dulu).
+ *
+ * Input subKodesInBab = list kode sub-materi yang ada di bab target.
+ */
+export async function identifyBlindSpotsForBab(
+  uid: string,
+  subKodesInBab: string[],
+): Promise<BlindSpot[]> {
+  if (subKodesInBab.length === 0) return [];
+  const inBabSet = new Set(subKodesInBab);
+  const now = Date.now();
+
+  // Kumpulkan prereq STRICT-CRITICAL dari SEMUA sub di bab — dedup by kode
+  const aggregatePrereq = new Map<string, { kode: string; weight: WeightPrereq; reason: string; fromSubs: string[] }>();
+  for (const subKode of subKodesInBab) {
+    const sub = cariSubMateriResmi(subKode);
+    if (!sub) continue;
+    for (const p of sub.prereq) {
+      if (p.relation !== "STRICT" || p.weight !== "CRITICAL") continue;
+      // Skip prereq yang ada di bab itu sendiri — akan auto di-cover
+      if (inBabSet.has(p.kode)) continue;
+      const ex = aggregatePrereq.get(p.kode);
+      if (ex) {
+        ex.fromSubs.push(subKode);
+      } else {
+        aggregatePrereq.set(p.kode, { kode: p.kode, weight: p.weight, reason: p.reason, fromSubs: [subKode] });
+      }
+    }
+  }
+
+  // Cek mastery user untuk tiap prereq agregat
+  const blindSpots: BlindSpot[] = [];
+  for (const [kode, info] of aggregatePrereq.entries()) {
+    const m = await getMastery(uid, kode);
+    if (!m || !masteryValid(m.status, m.lastAssessedAt, now)) {
+      // Reason kombinasi: dari berapa sub di bab yang butuh prereq ini
+      const reasonAggregate = info.fromSubs.length > 1
+        ? `dibutuhkan ${info.fromSubs.length} sub-materi di bab ini`
+        : info.reason;
+      blindSpots.push({ kode, weight: info.weight, reason: reasonAggregate });
+    }
+  }
+  return blindSpots;
+}
+
+/**
+ * Start cek kesiapan per BAB.
+ * Cek dulu apakah user lemah di prereq agregat — kalau iya, sajikan warmup.
+ */
+export async function startCekKesiapanBab(
+  uid: string,
+  materiSlug: string,
+  subKodesInBab: string[],
+): Promise<{
+  materiSlug: string;
+  blindSpots: BlindSpot[];
+  warmupQueue: WarmupItem[];
+  shortCircuit?: CekKesiapanDecision;
+}> {
+  const blindSpots = await identifyBlindSpotsForBab(uid, subKodesInBab);
+  if (blindSpots.length === 0) {
+    return {
+      materiSlug,
+      blindSpots: [],
+      warmupQueue: [],
+      shortCircuit: {
+        action: "lanjut",
+        targetKode: materiSlug,
+        alasan: "Semua prereq STRICT-CRITICAL bab sudah dikuasai",
+      },
+    };
+  }
+  const warmupQueue = await buildWarmupQueue(blindSpots);
+  if (warmupQueue.length === 0) {
+    return {
+      materiSlug,
+      blindSpots,
+      warmupQueue: [],
+      shortCircuit: {
+        action: "diagnostik",
+        targetKode: materiSlug,
+        alasan: "Item bank belum punya soal untuk prereq bab — perlu diagnostik manual",
+      },
+    };
+  }
+  return { materiSlug, blindSpots, warmupQueue };
+}
+
+/**
+ * Decision logic untuk cek kesiapan bab — sama dengan per-sub,
+ * tapi threshold lebih longgar karena cek menyeluruh & banyak prereq.
+ *
+ * - Semua benar → "lanjut" (siap belajar bab)
+ * - 1-2 salah → "remediasi" (sebagian prereq lemah, bisa lanjut tapi review dulu)
+ * - 3+ salah → "diagnostik" (banyak fondasi lemah, perlu cek lebih dalam)
+ */
+export function finishCekKesiapanBab(
+  materiSlug: string,
+  responses: WarmupResponse[],
+): CekKesiapanDecision {
+  const wrong = responses.filter((r) => !r.correct);
+  const wrongKodes = Array.from(new Set(wrong.map((r) => r.blindSpotKode)));
+
+  if (wrong.length === 0) {
+    return {
+      action: "lanjut",
+      targetKode: materiSlug,
+      alasan: `Semua ${responses.length} prereq bab sudah dikuasai`,
+    };
+  }
+  if (wrongKodes.length <= 2) {
+    return {
+      action: "remediasi",
+      targetKode: materiSlug,
+      remediasiKodes: wrongKodes,
+      alasan: `${wrongKodes.length} prereq belum siap — sebaiknya review dulu sebelum mulai bab`,
+    };
+  }
+  return {
+    action: "diagnostik",
+    targetKode: materiSlug,
+    alasan: `${wrongKodes.length} prereq lemah — perlu diagnostik lebih dalam (mungkin balik ke bab sebelumnya)`,
+  };
 }
 
 // Re-export untuk konsumer

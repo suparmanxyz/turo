@@ -77,6 +77,36 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         <Card title="Total Soal" value={String(session.itemsAnswered)} sub="dijawab" />
       </section>
 
+      {/* UTBK Estimate — hanya muncul untuk jalur sma-utbk */}
+      {session.jalur === "sma-utbk" && session.thetaGlobal !== undefined && (
+        <section className="mb-6">
+          <div className="rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 text-white p-5 sm:p-6 shadow-lg">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <div className="text-xs uppercase tracking-wider text-white/80 mb-1">📊 Estimasi Skor UTBK</div>
+                <h3 className="text-3xl sm:text-4xl font-extrabold">
+                  {Math.round(thetaToUtbkScore(session.thetaGlobal))}
+                  <span className="text-lg font-normal text-white/70 ml-2">/ 1000</span>
+                </h3>
+                <p className="text-sm text-white/85 mt-2">
+                  Estimasi kasar berdasarkan kemampuan {session.itemsAnswered} soal yang dijawab.
+                  Rentang: 200-1000 (mirroring skala LTMPT).
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-white/70 mb-1">Klasifikasi</div>
+                <div className={`inline-block px-3 py-1 rounded-full font-semibold text-sm ${utbkClassification(thetaToUtbkScore(session.thetaGlobal)).color}`}>
+                  {utbkClassification(thetaToUtbkScore(session.thetaGlobal)).label}
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-white/70 mt-3 italic">
+              ⚠ Estimasi kasar dari diagnostik internal — bukan prediksi resmi LTMPT. Untuk skor akurat, ikuti tryout simulasi UTBK.
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* Per Area */}
       {cov && cov.perArea.length > 0 && (
         <section className="mb-6">
@@ -156,4 +186,22 @@ function Card({ title, value, sub }: { title: string; value: string; sub?: strin
       {sub && <div className="text-xs text-slate-400 mt-0.5">{sub}</div>}
     </div>
   );
+}
+
+/**
+ * Map theta IRT (-3 to +3) ke skala UTBK 200-1000 (mirroring LTMPT scaled score).
+ * Linear approx — theta 0 = 500 (median), theta +3 = 1000, theta -3 = 200.
+ * Catatan: ini estimasi kasar saja, bukan model resmi LTMPT.
+ */
+function thetaToUtbkScore(theta: number): number {
+  const score = 500 + theta * 133.33; // (1000-200)/(3-(-3)) ≈ 133.33
+  return Math.max(200, Math.min(1000, score));
+}
+
+function utbkClassification(score: number): { label: string; color: string } {
+  if (score >= 700) return { label: "Sangat Baik", color: "bg-emerald-200 text-emerald-900" };
+  if (score >= 600) return { label: "Baik", color: "bg-sky-200 text-sky-900" };
+  if (score >= 500) return { label: "Cukup", color: "bg-amber-200 text-amber-900" };
+  if (score >= 400) return { label: "Perlu Persiapan", color: "bg-orange-200 text-orange-900" };
+  return { label: "Butuh Banyak Latihan", color: "bg-rose-200 text-rose-900" };
 }

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { DAFTAR_MATERI } from "@/data/materi";
 import { temaUntukMateri } from "@/lib/kategori-tema";
 import { ELEMEN_LABEL, JENJANG_LABEL, KATEGORI_UTAMA_LABEL } from "@/types";
+import { MateriPrereqWarning } from "@/components/MateriPrereqWarning";
 
 function konteksLabel(m: ReturnType<typeof DAFTAR_MATERI.find> & object): string {
   if (m.kategoriUtama === "snbt") return KATEGORI_UTAMA_LABEL.snbt;
@@ -48,8 +49,15 @@ export default async function MateriPage({ params }: { params: Promise<{ slug: s
         </div>
       </div>
 
+      {/* Soft warning banner — hanya muncul kalau sistem deteksi prereq lemah */}
+      <MateriPrereqWarning
+        materiSlug={materi.slug}
+        subKodes={materi.subMateri.map((s) => s.slug)}
+      />
+
+      {/* CTA opt-in: Cek Kesiapan Bab (Lapis 1.5) */}
       <Link
-        href={`/diagnostic/${materi.slug}`}
+        href={`/cek-kesiapan-bab/${materi.slug}`}
         className={`mb-8 group block rounded-2xl border-2 ${t.border} ${t.bgSoft} p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all`}
       >
         <div className="flex items-center gap-4">
@@ -57,9 +65,9 @@ export default async function MateriPage({ params }: { params: Promise<{ slug: s
             🎯
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className={`font-bold ${t.textStrong}`}>Cek Kesiapan dulu</h3>
+            <h3 className={`font-bold ${t.textStrong}`}>Cek Kesiapan Bab</h3>
             <p className="text-sm text-slate-600 mt-0.5">
-              Tes adaptif untuk pastikan kamu siap mempelajari materi ini — kalau ada konsep yang lemah, kami bantu petakan.
+              Tes singkat (5-10 soal) untuk pastikan prasyarat bab ini sudah kamu kuasai sebelum mulai belajar. Opsional, bisa dilewatin.
             </p>
           </div>
           <span className={`shrink-0 ${t.text} font-semibold opacity-0 group-hover:opacity-100 transition`}>→</span>
