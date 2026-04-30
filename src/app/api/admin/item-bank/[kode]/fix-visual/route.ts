@@ -48,6 +48,9 @@ export async function POST(req: NextRequest) {
     const yMinRaw = body.yMin === "" || body.yMin === undefined ? undefined : Number(body.yMin);
     const yMaxRaw = body.yMax === "" || body.yMax === undefined ? undefined : Number(body.yMax);
     const label = body.label ? String(body.label) : undefined;
+    const xTickMode = ["auto", "radian", "derajat", "numerik"].includes(body.xTickMode)
+      ? body.xTickMode as "auto" | "radian" | "derajat" | "numerik"
+      : "auto";
     if (!expression || !Number.isFinite(xMin) || !Number.isFinite(xMax)) {
       return NextResponse.json({ error: "expression, xMin, xMax wajib" }, { status: 400 });
     }
@@ -58,6 +61,7 @@ export async function POST(req: NextRequest) {
         yMin: yMinRaw,
         yMax: yMaxRaw,
         label,
+        xTickMode,
       });
       return NextResponse.json({
         itemId,

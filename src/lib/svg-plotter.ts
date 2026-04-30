@@ -30,6 +30,14 @@ export type PlotOptions = {
   width?: number;
   /** Tinggi SVG (default 280). */
   height?: number;
+  /**
+   * Format label sumbu X.
+   * "auto" — radian untuk fungsi trig (sin/cos/tan), numerik untuk lainnya
+   * "radian" — kelipatan π (e.g. π/2, π, 2π)
+   * "derajat" — derajat (90°, 180°, 360°). Otomatis konversi xMin/xMax dari radian
+   * "numerik" — angka biasa (1, 2, 3, dst)
+   */
+  xTickMode?: "auto" | "radian" | "derajat" | "numerik";
 };
 
 export type PlotResult = {
@@ -72,16 +80,45 @@ function compileExpression(expression: string): (x: number) => number {
   }
 }
 
-/** Format tick label biar singkat. */
-function formatTick(v: number): string {
+/** Format tick label biar singkat. Mode menentukan format. */
+function formatTick(v: number, mode: "radian" | "derajat" | "numerik" = "numerik"): string {
   if (Math.abs(v) < 1e-10) return "0";
-  if (Math.abs(v % Math.PI) < 0.01) {
-    const n = Math.round(v / Math.PI);
-    if (n === 0) return "0";
-    if (n === 1) return "π";
-    if (n === -1) return "-π";
-    return `${n}π`;
+  if (mode === "derajat") {
+    // Konversi radian → derajat
+    const deg = (v * 180) / Math.PI;
+    if (Math.abs(deg - Math.round(deg)) < 0.5) return `${Math.round(deg)}°`;
+    return `${deg.toFixed(1)}°`;
   }
+  if (mode === "radian") {
+    // Snap ke kelipatan π/4 atau π/2
+    const halfPi = Math.PI / 2;
+    const quartPi = Math.PI / 4;
+    // Coba kelipatan π/2 dulu (lebih bersih)
+    const nHalf = v / halfPi;
+    if (Math.abs(nHalf - Math.round(nHalf)) < 0.05) {
+      const n = Math.round(nHalf);
+      if (n === 0) return "0";
+      if (n === 1) return "π/2";
+      if (n === -1) return "-π/2";
+      if (n === 2) return "π";
+      if (n === -2) return "-π";
+      if (n % 2 === 0) return `${n / 2}π`;
+      return `${n}π/2`;
+    }
+    // Kelipatan π/4
+    const nQuart = v / quartPi;
+    if (Math.abs(nQuart - Math.round(nQuart)) < 0.05) {
+      const n = Math.round(nQuart);
+      if (n === 1) return "π/4";
+      if (n === -1) return "-π/4";
+      if (n === 3) return "3π/4";
+      if (n === -3) return "-3π/4";
+      return `${n}π/4`;
+    }
+    // Fallback decimal
+    return v.toFixed(2);
+  }
+  // Numerik
   if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
   return v.toFixed(2);
 }
@@ -151,8 +188,16 @@ export function plotFunction(opts: PlotOptions): PlotResult {
   }
   const pathStr = pathSegments.join(" ");
 
-  // Generate ticks
-  const xTicks = generateTicks(opts.xMin, opts.xMax, /^Math\.(sin|cos|tan)/.test(opts.expression) || /sin|cos|tan/.test(opts.expression));
+  // Resolve xTickMode auto → radian (kalau trig) atau numerik
+  const isTrig = /\b(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh)\s*\(/.test(opts.expression);
+  let xTickMode: "radian" | "derajat" | "numerik" = "numerik";
+  if (opts.xTickMode === "radian") xTickMode = "radian";
+  else if (opts.xTickMode === "derajat") xTickMode = "derajat";
+  else if (opts.xTickMode === "numerik") xTickMode = "numerik";
+  else if (isTrig) xTickMode = "radian"; // auto
+
+  // Generate ticks — periodicTrig kalau radian/derajat (snap ke π/2)
+  const xTicks = generateTicks(opts.xMin, opts.xMax, xTickMode === "radian" || xTickMode === "derajat");
   const yTicks = generateTicks(yMin, yMax, false);
 
   // Axis lines (kalau 0 dalam range)
@@ -186,11 +231,11 @@ export function plotFunction(opts: PlotOptions): PlotResult {
   // Tick labels
   for (const t of xTicks) {
     if (Math.abs(t) < 1e-10) continue; // skip 0 (sudah di axis)
-    parts.push(`<text x="${px(t).toFixed(2)}" y="${(xAxisY + 14).toFixed(2)}" font-size="10" fill="#64748b" text-anchor="middle">${formatTick(t)}</text>`);
+    parts.push(`<text x="${px(t).toFixed(2)}" y="${(xAxisY + 14).toFixed(2)}" font-size="10" fill="#64748b" text-anchor="middle">${formatTick(t, xTickMode)}</text>`);
   }
   for (const t of yTicks) {
     if (Math.abs(t) < 1e-10) continue;
-    parts.push(`<text x="${(yAxisX - 4).toFixed(2)}" y="${(py(t) + 3).toFixed(2)}" font-size="10" fill="#64748b" text-anchor="end">${formatTick(t)}</text>`);
+    parts.push(`<text x="${(yAxisX - 4).toFixed(2)}" y="${(py(t) + 3).toFixed(2)}" font-size="10" fill="#64748b" text-anchor="end">${formatTick(t, "numerik")}</text>`);
   }
 
   // Curve

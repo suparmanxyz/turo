@@ -194,10 +194,16 @@ function classifyMastery(
   // Confidence = 1 - se/2 (clamped 0-1)
   const confidence = Math.max(0, Math.min(1, 1 - est.se / 2));
 
+  // Threshold ABSOLUT — kalau accuracy < 0.5 langsung remediasi terlepas dari theta global.
+  // Mencegah bug: user jawab asal-asalan → theta global rendah → semua sub dianggap "review/siap"
+  // padahal accuracy real-nya 25% (random guess MC).
+  if (accuracy <= 0.4) {
+    return { status: "remediasi", confidence };
+  }
   if (accuracy >= 0.7 && est.theta >= thetaGlobal - 0.3) {
     return { status: "siap", confidence };
   }
-  if (accuracy <= 0.3 || est.theta < thetaGlobal - 1.0) {
+  if (est.theta < thetaGlobal - 1.0) {
     return { status: "remediasi", confidence };
   }
   return { status: "review", confidence };

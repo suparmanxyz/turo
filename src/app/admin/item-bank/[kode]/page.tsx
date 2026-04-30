@@ -58,8 +58,12 @@ type FixVisualState = {
   plotYMin: string;
   plotYMax: string;
   plotLabel: string;
+  plotXTickMode: "auto" | "radian" | "derajat" | "numerik";
   loading: boolean;
   result?: { svgBefore: string; svgAfter: string; catatan?: string; modelUsed: string };
+  /** Post-plot AI tweak instruksi. */
+  postTweakInstruksi?: string;
+  postTweakLoading?: boolean;
   saving?: boolean;
   error?: string;
 } | null;
@@ -147,6 +151,7 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
             yMin: fixModal.plotYMin,
             yMax: fixModal.plotYMax,
             label: fixModal.plotLabel,
+            xTickMode: fixModal.plotXTickMode,
           }
         : { itemId: fixModal.itemId, mode: "chat", instruksi: fixModal.instruksi, model: fixModel };
       const res = await fetch(`/api/admin/item-bank/${encodeURIComponent(decodedKode)}/fix-visual`, {
@@ -162,6 +167,43 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
       setFixModal({ ...fixModal, loading: false, result: { svgBefore: out.svgBefore, svgAfter: out.svgAfter, catatan: out.catatan, modelUsed: out.modelUsed } });
     } catch (e) {
       setFixModal({ ...fixModal, loading: false, error: e instanceof Error ? e.message : String(e) });
+    }
+  }
+
+  async function postTweakResult() {
+    if (!fixModal?.result || !user || !fixModal.postTweakInstruksi?.trim()) return;
+    setFixModal({ ...fixModal, postTweakLoading: true, error: undefined });
+    try {
+      const idToken = await user.getIdToken();
+      // Sementara apply SVG terbaru sebagai "current" supaya AI bisa baca, lalu request tweak
+      // Caranya: panggil endpoint chat AI dengan instruksi yang include SVG sebagai context.
+      // Workaround: kirim SVG via query — atau kita pakai endpoint terpisah yang accept svgInput.
+      // Untuk MVP simpler: pakai chat AI dengan svgBefore di-replace dengan svgAfter dari result
+      // — perlu temp save dulu, lalu chat. Atau bypass dengan extra body field.
+      const res = await fetch(`/api/admin/item-bank/${encodeURIComponent(decodedKode)}/fix-visual`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({
+          itemId: fixModal.itemId,
+          mode: "chat",
+          instruksi: `SVG saat ini (hasil plot otomatis):\n${fixModal.result.svgAfter}\n\nTugas: ${fixModal.postTweakInstruksi}`,
+          model: fixModel,
+        }),
+      });
+      const out = await res.json();
+      if (!res.ok) {
+        setFixModal({ ...fixModal, postTweakLoading: false, error: out.error ?? `HTTP ${res.status}` });
+        return;
+      }
+      // Update result.svgAfter dengan tweak baru — keep svgBefore awal untuk komparasi
+      setFixModal({
+        ...fixModal,
+        postTweakLoading: false,
+        postTweakInstruksi: "",
+        result: { ...fixModal.result, svgAfter: out.svgAfter, catatan: out.catatan, modelUsed: out.modelUsed },
+      });
+    } catch (e) {
+      setFixModal({ ...fixModal, postTweakLoading: false, error: e instanceof Error ? e.message : String(e) });
     }
   }
 
@@ -353,6 +395,7 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
                         itemId: it.id, tab: "chat", instruksi: "",
                         plotExpression: "sin(x)", plotXMin: String(-2 * Math.PI), plotXMax: String(2 * Math.PI),
                         plotYMin: "-1.5", plotYMax: "1.5", plotLabel: "y = sin(x)",
+                        plotXTickMode: "auto",
                         loading: false,
                       })}
                       disabled={busy === it.id}
@@ -569,6 +612,20 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
                           disabled={fixModal.loading}
                         />
                       </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-semibold mb-1">Format label sumbu X</label>
+                        <select
+                          value={fixModal.plotXTickMode}
+                          onChange={(e) => setFixModal({ ...fixModal, plotXTickMode: e.target.value as "auto" | "radian" | "derajat" | "numerik" })}
+                          className="w-full rounded-lg border border-slate-200 p-2 text-sm"
+                          disabled={fixModal.loading}
+                        >
+                          <option value="auto">Auto (radian untuk trig, numerik untuk lainnya)</option>
+                          <option value="radian">Radian (π/2, π, 2π, ...)</option>
+                          <option value="derajat">Derajat (90°, 180°, 360°, ...)</option>
+                          <option value="numerik">Numerik (1, 2, 3, ...)</option>
+                        </select>
+                      </div>
                     </div>
                   </>
                 )}
@@ -612,9 +669,37 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
                 </div>
                 {fixModal.result.catatan && (
                   <div className="rounded-lg bg-violet-50 border border-violet-200 p-3 text-sm text-violet-900 mb-3">
-                    <strong>Catatan AI:</strong> {fixModal.result.catatan}
+                    <strong>Catatan:</strong> {fixModal.result.catatan}
                   </div>
                 )}
+
+                {/* Post-tweak via AI — fine-tune SVG hasil */}
+                <div className="rounded-lg border-2 border-dashed border-violet-200 bg-violet-50/50 p-3 mb-3">
+                  <label className="block text-xs font-semibold text-violet-800 mb-1">
+                    💬 Tweak lebih lanjut via AI (opsional)
+                  </label>
+                  <p className="text-[10px] text-violet-600 mb-2">
+                    Untuk customization spesifik label/warna/marker — AI akan revisi SVG di atas. Contoh: &quot;ganti warna kurva jadi merah&quot;, &quot;tambah marker bulat di puncak (π/2, 1)&quot;, &quot;label sumbu X jadi tebal&quot;.
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      value={fixModal.postTweakInstruksi ?? ""}
+                      onChange={(e) => setFixModal({ ...fixModal, postTweakInstruksi: e.target.value })}
+                      placeholder="Instruksi tweak ke AI..."
+                      className="flex-1 rounded-lg border border-violet-200 p-2 text-sm font-mono"
+                      disabled={fixModal.postTweakLoading || fixModal.saving}
+                      onKeyDown={(e) => { if (e.key === "Enter") postTweakResult(); }}
+                    />
+                    <button
+                      onClick={postTweakResult}
+                      disabled={!fixModal.postTweakInstruksi?.trim() || fixModal.postTweakLoading || fixModal.saving}
+                      className="rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium px-3 py-2 text-sm disabled:opacity-50"
+                    >
+                      {fixModal.postTweakLoading ? "..." : "Tweak →"}
+                    </button>
+                  </div>
+                </div>
+
                 {fixModal.error && (
                   <div className="rounded-lg bg-rose-50 text-rose-700 border border-rose-200 p-3 text-sm mb-3">
                     {fixModal.error}

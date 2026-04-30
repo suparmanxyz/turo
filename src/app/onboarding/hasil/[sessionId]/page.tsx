@@ -127,7 +127,7 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         </section>
       )}
 
-      {/* Sub-materi remediasi */}
+      {/* Sub-materi remediasi (Deep stage) */}
       {deep && deep.remediasiKodes.length > 0 && (
         <section className="mb-6">
           <h2 className="text-xl font-bold mb-3">Perlu Remediasi ({deep.remediasiKodes.length})</h2>
@@ -141,6 +141,46 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
                 <li className="text-rose-500">+ {deep.remediasiKodes.length - 10} lainnya</li>
               )}
             </ul>
+          </div>
+        </section>
+      )}
+
+      {/* FALLBACK: kalau Deep tidak jalan (item bank tipis), kasih rekomendasi dari Coverage areaSuspect */}
+      {!deep && cov && (
+        <section className="mb-6">
+          {cov.areaSuspect.length > 0 ? (
+            <>
+              <h2 className="text-xl font-bold mb-3">Area Perlu Diperdalam ({cov.areaSuspect.length})</h2>
+              <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm">
+                <p className="text-amber-900 mb-2 font-medium">⚠ Tes berhenti di Tahap 2 (item bank belum cukup banyak untuk drill detail). Berdasarkan profil per area, fokuskan belajar di:</p>
+                <ul className="space-y-1 mt-2">
+                  {cov.areaSuspect.map((area) => (
+                    <li key={area} className="flex items-center gap-2 text-amber-800">
+                      <span className="text-amber-500">•</span>
+                      <span className="font-medium">{AREA_LABEL[area] ?? area}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs text-amber-700 mt-3">Untuk rekomendasi sub-materi spesifik, jalankan ulang diagnostik setelah item bank lebih lengkap.</p>
+              </div>
+            </>
+          ) : session.thetaGlobal !== undefined && session.thetaGlobal < -1.0 ? (
+            <div className="rounded-xl bg-rose-50 border border-rose-200 p-4 text-sm">
+              <p className="text-rose-800 font-medium">⚠ Skor θ={session.thetaGlobal.toFixed(2)} jauh di bawah median.</p>
+              <p className="text-rose-700 mt-2">Banyak jawaban salah terdeteksi. Sebaiknya mulai dari foundation: latihan dasar SD/SMP terlebih dulu, lalu cek kesiapan ulang.</p>
+            </div>
+          ) : null}
+        </section>
+      )}
+
+      {/* Indicator stage progression */}
+      {(deep || cov) && (
+        <section className="mb-6">
+          <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">
+            <span className="font-semibold">Tahap selesai:</span>{" "}
+            {session.hasilLocator ? "✓ Locator" : "○ Locator"}{" · "}
+            {cov ? "✓ Coverage" : "○ Coverage"}{" · "}
+            {deep ? "✓ Deep" : "○ Deep (item bank kurang)"}
           </div>
         </section>
       )}

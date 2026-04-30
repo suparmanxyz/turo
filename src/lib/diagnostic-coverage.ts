@@ -244,6 +244,15 @@ export type CoverageResult = {
 };
 
 function classifyArea(thetaArea: number, thetaGlobal: number): AreaProfile["status"] {
+  // BUKAN cuma relatif gap — kalau theta absolut rendah (jauh di bawah median),
+  // langsung "lemah" terlepas dari posisi relatif theta global.
+  // Mencegah bug: user jawab salah semua → theta global -2 → semua area gap=0 → "cukup".
+  if (thetaArea < -1.5) return "lemah";
+  if (thetaArea < -0.5) {
+    // Theta absolut rendah-sedang: kalau juga di bawah global → lemah, kalau di atas → cukup
+    return thetaArea < thetaGlobal ? "lemah" : "cukup";
+  }
+  // Theta absolut OK (≥ -0.5) — pakai gap relatif untuk diferensiasi
   const gap = thetaArea - thetaGlobal;
   if (gap >= 0.5) return "kuat";
   if (gap >= -0.5) return "cukup";
