@@ -225,6 +225,10 @@ export function submitCoverageResponse(
 export type AreaProfile = {
   area: AreaMatematika;
   itemsAnswered: number;
+  /** Jumlah benar di area ini. */
+  itemsCorrect: number;
+  /** Accuracy = correct/answered. Signal kuat untuk klasifikasi. */
+  accuracy: number;
   theta: number;
   se: number;
   /** Klasifikasi qualitative untuk laporan: "kuat" / "cukup" / "lemah" / "data_kurang" */
@@ -243,20 +247,20 @@ export type CoverageResult = {
   responses: Response[];
 };
 
-function classifyArea(thetaArea: number, thetaGlobal: number): AreaProfile["status"] {
-  // BUKAN cuma relatif gap — kalau theta absolut rendah (jauh di bawah median),
-  // langsung "lemah" terlepas dari posisi relatif theta global.
-  // Mencegah bug: user jawab salah semua → theta global -2 → semua area gap=0 → "cukup".
-  if (thetaArea < -1.5) return "lemah";
-  if (thetaArea < -0.5) {
-    // Theta absolut rendah-sedang: kalau juga di bawah global → lemah, kalau di atas → cukup
-    return thetaArea < thetaGlobal ? "lemah" : "cukup";
+function classifyArea(accuracy: number, thetaArea: number, thetaGlobal: number): AreaProfile["status"] {
+  // SIGNAL UTAMA = accuracy real (bukan theta yang di-smooth oleh prior IRT).
+  // IRT EAP dengan prior N(0,1) menarik theta ke 0 → tidak responsif untuk
+  // detect "salah semua". Accuracy lebih reliable.
+  // Random guess MC4 = 0.25 — kalau accuracy mendekati itu = jelas lemah.
+  if (accuracy <= 0.4) return "lemah";
+  if (accuracy >= 0.8 && thetaArea >= thetaGlobal - 0.3) return "kuat";
+  if (accuracy >= 0.65) {
+    // Cukup baik, tapi cek apakah signifikan kuat vs global
+    const gap = thetaArea - thetaGlobal;
+    return gap >= 0.5 ? "kuat" : "cukup";
   }
-  // Theta absolut OK (≥ -0.5) — pakai gap relatif untuk diferensiasi
-  const gap = thetaArea - thetaGlobal;
-  if (gap >= 0.5) return "kuat";
-  if (gap >= -0.5) return "cukup";
-  return "lemah";
+  // accuracy 0.41-0.64 → cukup (di atas random guess tapi belum mastery)
+  return "cukup";
 }
 
 export function finalizeCoverage(state: CoverageState): CoverageResult | null {
@@ -266,16 +270,33 @@ export function finalizeCoverage(state: CoverageState): CoverageResult | null {
   for (const area of targets.keys()) {
     const themEst = state.thetaByArea.get(area);
     const used = state.areaUsed.get(area) ?? 0;
+    // Hitung accuracy per area dari responses yang itemsnya milik area ini
+    const areaItemIds = new Set(
+      state.pool.filter((it) => it.area === area && state.used.has(it.id)).map((it) => it.id),
+    );
+    const areaResponses = state.responses.filter((r) => areaItemIds.has(r.itemId));
+    const itemsCorrect = areaResponses.filter((r) => r.correct).length;
+    const itemsAnswered = areaResponses.length;
+    const accuracy = itemsAnswered > 0 ? itemsCorrect / itemsAnswered : 0;
+
     if (!themEst || used < 2) {
-      perArea.push({ area, itemsAnswered: used, theta: state.estimate.theta, se: Infinity, status: "data_kurang" });
+      // Data kurang TAPI kalau ada >=1 jawaban dan accuracy <=0.4, kasih sinyal "lemah"
+      const fallbackStatus: AreaProfile["status"] =
+        itemsAnswered >= 1 && accuracy <= 0.4 ? "lemah" : "data_kurang";
+      perArea.push({
+        area, itemsAnswered, itemsCorrect, accuracy,
+        theta: state.estimate.theta, se: Infinity, status: fallbackStatus,
+      });
       continue;
     }
     perArea.push({
       area,
-      itemsAnswered: used,
+      itemsAnswered,
+      itemsCorrect,
+      accuracy,
       theta: themEst.theta,
       se: themEst.se,
-      status: classifyArea(themEst.theta, state.estimate.theta),
+      status: classifyArea(accuracy, themEst.theta, state.estimate.theta),
     });
   }
   const areaSuspect = perArea

@@ -84,6 +84,9 @@ export async function POST(req: NextRequest) {
               theta: p.theta,
               se: p.se,
               status: p.status,
+              itemsAnswered: p.itemsAnswered,
+              itemsCorrect: p.itemsCorrect,
+              accuracy: p.accuracy,
             })),
             areaSuspect: result.hasilCoverage.areaSuspect,
           }

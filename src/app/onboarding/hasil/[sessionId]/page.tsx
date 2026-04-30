@@ -70,6 +70,17 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
       </h1>
       <p className="text-muted mb-6">{JALUR_LABEL[session.jalur]}</p>
 
+      {/* Disclaimer: sesi lama mungkin pakai logic klasifikasi pre-fix */}
+      {session.startedAt < new Date("2026-05-01T00:00:00Z").getTime() && (
+        <div className="mb-4 rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-800">
+          ℹ Sesi ini dibuat sebelum update klasifikasi. Status &quot;cukup/lemah&quot; di bawah mungkin tidak akurat — disarankan
+          {" "}
+          <Link href="/onboarding" className="underline font-semibold">jalankan diagnostik ulang</Link>
+          {" "}
+          dengan logic terbaru.
+        </div>
+      )}
+
       {/* Ringkasan */}
       <section className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
         <Card title="Level Kelas" value={session.kelasEstimasi?.toFixed(1) ?? "-"} sub="estimasi" />
@@ -112,17 +123,27 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         <section className="mb-6">
           <h2 className="text-xl font-bold mb-3">Profil Per Area</h2>
           <div className="space-y-2">
-            {cov.perArea.map((p) => (
-              <div key={p.area} className="rounded-xl bg-white border border-slate-200 p-3 flex items-center justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="font-medium">{AREA_LABEL[p.area] ?? p.area}</div>
-                  <div className="text-xs text-slate-500 mt-0.5">θ={p.theta.toFixed(2)} · SE={p.se === Infinity ? "—" : p.se.toFixed(2)}</div>
+            {cov.perArea.map((p) => {
+              const acc = p.accuracy;
+              const ans = p.itemsAnswered ?? 0;
+              const cor = p.itemsCorrect ?? 0;
+              return (
+                <div key={p.area} className="rounded-xl bg-white border border-slate-200 p-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium">{AREA_LABEL[p.area] ?? p.area}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">
+                      {ans > 0 && (
+                        <>Benar {cor}/{ans} ({acc !== undefined ? Math.round(acc * 100) : Math.round((cor / Math.max(1, ans)) * 100)}%) · </>
+                      )}
+                      θ={p.theta.toFixed(2)}
+                    </div>
+                  </div>
+                  <span className={`text-xs px-2 py-1 rounded-full border ${STATUS_COLOR[p.status] ?? STATUS_COLOR.data_kurang}`}>
+                    {p.status === "data_kurang" ? "data kurang" : p.status}
+                  </span>
                 </div>
-                <span className={`text-xs px-2 py-1 rounded-full border ${STATUS_COLOR[p.status] ?? STATUS_COLOR.data_kurang}`}>
-                  {p.status === "data_kurang" ? "data kurang" : p.status}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
@@ -145,33 +166,69 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         </section>
       )}
 
-      {/* FALLBACK: kalau Deep tidak jalan (item bank tipis), kasih rekomendasi dari Coverage areaSuspect */}
-      {!deep && cov && (
-        <section className="mb-6">
-          {cov.areaSuspect.length > 0 ? (
-            <>
-              <h2 className="text-xl font-bold mb-3">Area Perlu Diperdalam ({cov.areaSuspect.length})</h2>
-              <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm">
-                <p className="text-amber-900 mb-2 font-medium">⚠ Tes berhenti di Tahap 2 (item bank belum cukup banyak untuk drill detail). Berdasarkan profil per area, fokuskan belajar di:</p>
+      {/* REKOMENDASI: SELALU render kalau ada area lemah ATAU theta rendah ATAU low overall accuracy */}
+      {!deep && (() => {
+        // Hitung overall accuracy dari per-area data (kalau ada)
+        const totalAns = cov?.perArea.reduce((s, p) => s + (p.itemsAnswered ?? 0), 0) ?? 0;
+        const totalCor = cov?.perArea.reduce((s, p) => s + (p.itemsCorrect ?? 0), 0) ?? 0;
+        const overallAcc = totalAns > 0 ? totalCor / totalAns : null;
+        const lemahAreas = cov?.perArea.filter((p) => p.status === "lemah") ?? [];
+        const cukupAreas = cov?.perArea.filter((p) => p.status === "cukup") ?? [];
+        const tetabRendah = session.thetaGlobal !== undefined && session.thetaGlobal < -0.5;
+        const accRendah = overallAcc !== null && overallAcc <= 0.4;
+
+        if (lemahAreas.length > 0) {
+          return (
+            <section className="mb-6">
+              <h2 className="text-xl font-bold mb-3">Area Perlu Diperdalam ({lemahAreas.length})</h2>
+              <div className="rounded-xl bg-rose-50 border border-rose-200 p-4 text-sm">
+                <p className="text-rose-900 mb-2 font-medium">Berdasarkan jawabanmu, fokuskan latihan di area berikut:</p>
                 <ul className="space-y-1 mt-2">
-                  {cov.areaSuspect.map((area) => (
-                    <li key={area} className="flex items-center gap-2 text-amber-800">
-                      <span className="text-amber-500">•</span>
-                      <span className="font-medium">{AREA_LABEL[area] ?? area}</span>
+                  {lemahAreas.map((p) => (
+                    <li key={p.area} className="flex items-center gap-2 text-rose-800">
+                      <span className="text-rose-500">•</span>
+                      <span className="font-medium">{AREA_LABEL[p.area] ?? p.area}</span>
+                      {p.itemsAnswered !== undefined && p.itemsCorrect !== undefined && (
+                        <span className="text-xs text-rose-600">— {p.itemsCorrect}/{p.itemsAnswered} benar ({Math.round((p.accuracy ?? 0) * 100)}%)</span>
+                      )}
                     </li>
                   ))}
                 </ul>
-                <p className="text-xs text-amber-700 mt-3">Untuk rekomendasi sub-materi spesifik, jalankan ulang diagnostik setelah item bank lebih lengkap.</p>
+                {cukupAreas.length > 0 && (
+                  <p className="text-xs text-rose-700 mt-3">
+                    Area lain ({cukupAreas.map((p) => AREA_LABEL[p.area] ?? p.area).join(", ")}) status "cukup" — bisa lanjut tapi tetap perlu latihan.
+                  </p>
+                )}
+                <p className="text-xs text-rose-700 mt-2">
+                  Untuk rekomendasi sub-materi spesifik, jalankan diagnostik ulang setelah item bank lebih lengkap (saat ini Deep stage skip karena pool kecil).
+                </p>
               </div>
-            </>
-          ) : session.thetaGlobal !== undefined && session.thetaGlobal < -1.0 ? (
-            <div className="rounded-xl bg-rose-50 border border-rose-200 p-4 text-sm">
-              <p className="text-rose-800 font-medium">⚠ Skor θ={session.thetaGlobal.toFixed(2)} jauh di bawah median.</p>
-              <p className="text-rose-700 mt-2">Banyak jawaban salah terdeteksi. Sebaiknya mulai dari foundation: latihan dasar SD/SMP terlebih dulu, lalu cek kesiapan ulang.</p>
-            </div>
-          ) : null}
-        </section>
-      )}
+            </section>
+          );
+        }
+        if (accRendah || tetabRendah) {
+          return (
+            <section className="mb-6">
+              <h2 className="text-xl font-bold mb-3">Perlu Banyak Latihan</h2>
+              <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm">
+                <p className="text-amber-900 font-medium">
+                  ⚠ {accRendah && overallAcc !== null && `Accuracy ${Math.round(overallAcc * 100)}% (${totalCor}/${totalAns} benar). `}
+                  {tetabRendah && `θ global ${session.thetaGlobal!.toFixed(2)} di bawah median.`}
+                </p>
+                <p className="text-amber-800 mt-2">
+                  Banyak jawaban salah terdeteksi — sistem belum bisa drill detail per sub-materi karena item bank masih tipis. Sebaiknya:
+                </p>
+                <ul className="text-xs text-amber-700 mt-2 space-y-1 list-disc list-inside">
+                  <li>Mulai dari foundation: latihan dasar SD/SMP terlebih dulu</li>
+                  <li>Buka materi per bab dan klik &quot;Cek Kesiapan Bab&quot;</li>
+                  <li>Jalankan diagnostik ulang setelah item bank lebih lengkap</li>
+                </ul>
+              </div>
+            </section>
+          );
+        }
+        return null;
+      })()}
 
       {/* Indicator stage progression */}
       {(deep || cov) && (

@@ -118,7 +118,7 @@ export type DiagnosticSessionDoc = {
     thetaGlobal: number;
     seGlobal: number;
     itemsUsed: number;
-    perArea: { area: AreaMatematika; theta: number; se: number; status: string }[];
+    perArea: { area: AreaMatematika; theta: number; se: number; status: string; itemsAnswered?: number; itemsCorrect?: number; accuracy?: number }[];
     areaSuspect: AreaMatematika[];
   };
   hasilDeep?: {
