@@ -48,12 +48,32 @@ type ItemDetail = {
 
 type FixVisualState = {
   itemId: string;
+  /** "chat" = AI revisi text instruksi; "plot" = server-side function plotter. */
+  tab: "chat" | "plot";
   instruksi: string;
+  /** Plot mode form. */
+  plotExpression: string;
+  plotXMin: string;
+  plotXMax: string;
+  plotYMin: string;
+  plotYMax: string;
+  plotLabel: string;
   loading: boolean;
   result?: { svgBefore: string; svgAfter: string; catatan?: string; modelUsed: string };
   saving?: boolean;
   error?: string;
 } | null;
+
+type PlotPreset = {
+  id: string;
+  label: string;
+  expression: string;
+  xMin: number;
+  xMax: number;
+  yMin?: number;
+  yMax?: number;
+  description: string;
+};
 
 export default function AdminItemBankDetailPage(props: { params: Promise<{ kode: string }> }) {
   const { kode } = use(props.params);
@@ -64,6 +84,18 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
   const [busy, setBusy] = useState<string | null>(null);
   const [fixModal, setFixModal] = useState<FixVisualState>(null);
   const [fixModel, setFixModel] = useState<"sonnet" | "opus">("sonnet");
+  const [plotPresets, setPlotPresets] = useState<PlotPreset[]>([]);
+
+  // Load plot presets sekali
+  useEffect(() => {
+    if (!user || !isAdminEmail(user.email)) return;
+    user.getIdToken().then((token) => {
+      fetch("/api/admin/plot-presets", { headers: { authorization: `Bearer ${token}` } })
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => { if (d?.presets) setPlotPresets(d.presets); })
+        .catch(() => {});
+    });
+  }, [user]);
 
   async function load() {
     if (!user) return;
@@ -105,10 +137,22 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
     setFixModal({ ...fixModal, loading: true, error: undefined });
     try {
       const idToken = await user.getIdToken();
+      const body = fixModal.tab === "plot"
+        ? {
+            itemId: fixModal.itemId,
+            mode: "plot-fungsi",
+            expression: fixModal.plotExpression,
+            xMin: Number(fixModal.plotXMin),
+            xMax: Number(fixModal.plotXMax),
+            yMin: fixModal.plotYMin,
+            yMax: fixModal.plotYMax,
+            label: fixModal.plotLabel,
+          }
+        : { itemId: fixModal.itemId, mode: "chat", instruksi: fixModal.instruksi, model: fixModel };
       const res = await fetch(`/api/admin/item-bank/${encodeURIComponent(decodedKode)}/fix-visual`, {
         method: "POST",
         headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
-        body: JSON.stringify({ itemId: fixModal.itemId, instruksi: fixModal.instruksi, model: fixModel }),
+        body: JSON.stringify(body),
       });
       const out = await res.json();
       if (!res.ok) {
@@ -119,6 +163,19 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
     } catch (e) {
       setFixModal({ ...fixModal, loading: false, error: e instanceof Error ? e.message : String(e) });
     }
+  }
+
+  function applyPreset(preset: PlotPreset) {
+    if (!fixModal) return;
+    setFixModal({
+      ...fixModal,
+      plotExpression: preset.expression,
+      plotXMin: String(preset.xMin),
+      plotXMax: String(preset.xMax),
+      plotYMin: preset.yMin !== undefined ? String(preset.yMin) : "",
+      plotYMax: preset.yMax !== undefined ? String(preset.yMax) : "",
+      plotLabel: preset.label,
+    });
   }
 
   async function applyFixVisual() {
@@ -292,10 +349,15 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
                 <div className="flex items-center gap-1">
                   {it.konten.svg && (
                     <button
-                      onClick={() => setFixModal({ itemId: it.id, instruksi: "", loading: false })}
+                      onClick={() => setFixModal({
+                        itemId: it.id, tab: "chat", instruksi: "",
+                        plotExpression: "sin(x)", plotXMin: String(-2 * Math.PI), plotXMax: String(2 * Math.PI),
+                        plotYMin: "-1.5", plotYMax: "1.5", plotLabel: "y = sin(x)",
+                        loading: false,
+                      })}
                       disabled={busy === it.id}
                       className="text-xs text-violet-700 hover:bg-violet-50 px-2 py-1 rounded disabled:opacity-50"
-                      title="Perbaiki gambar via AI"
+                      title="Perbaiki gambar via AI atau plot fungsi"
                     >
                       🎨 Fix gambar
                     </button>
@@ -372,27 +434,145 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
 
             {!fixModal.result ? (
               <>
-                <label className="block text-sm font-semibold mb-2">Instruksi untuk AI</label>
-                <textarea
-                  value={fixModal.instruksi}
-                  onChange={(e) => setFixModal({ ...fixModal, instruksi: e.target.value })}
-                  placeholder="Contoh: viewBox terlalu sempit, perbesar agar semua label kelihatan. Atau: kurangi 2 lingkaran karena soal hanya butuh 12 elemen, bukan 14."
-                  rows={4}
-                  className="w-full rounded-lg border border-slate-200 p-3 text-sm font-mono"
-                  disabled={fixModal.loading}
-                />
-                <label className="flex items-center gap-2 mt-3 text-sm">
-                  Model AI:
-                  <select
-                    value={fixModel}
-                    onChange={(e) => setFixModel(e.target.value as "sonnet" | "opus")}
-                    className="rounded-lg border border-slate-200 px-2 py-1"
-                    disabled={fixModal.loading}
+                {/* Tab switcher */}
+                <div className="flex gap-1 mb-4 border-b border-slate-200">
+                  <button
+                    onClick={() => setFixModal({ ...fixModal, tab: "chat", error: undefined })}
+                    className={`px-4 py-2 text-sm font-medium transition border-b-2 ${
+                      fixModal.tab === "chat"
+                        ? "border-violet-600 text-violet-700"
+                        : "border-transparent text-slate-500 hover:text-slate-700"
+                    }`}
                   >
-                    <option value="sonnet">Sonnet 4.6 (cepat)</option>
-                    <option value="opus">Opus 4.7 (presisi visual)</option>
-                  </select>
-                </label>
+                    💬 Chat AI (instruksi bebas)
+                  </button>
+                  <button
+                    onClick={() => setFixModal({ ...fixModal, tab: "plot", error: undefined })}
+                    className={`px-4 py-2 text-sm font-medium transition border-b-2 ${
+                      fixModal.tab === "plot"
+                        ? "border-emerald-600 text-emerald-700"
+                        : "border-transparent text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    📈 Plot Fungsi (akurat 100%)
+                  </button>
+                </div>
+
+                {fixModal.tab === "chat" ? (
+                  <>
+                    <p className="text-xs text-slate-500 mb-2">Untuk fix kecil: viewBox, label posisi, jumlah elemen visual. AI generate path SVG kasar — tidak akurat untuk grafik fungsi (pakai tab Plot Fungsi).</p>
+                    <label className="block text-sm font-semibold mb-2">Instruksi untuk AI</label>
+                    <textarea
+                      value={fixModal.instruksi}
+                      onChange={(e) => setFixModal({ ...fixModal, instruksi: e.target.value })}
+                      placeholder="Contoh: viewBox terlalu sempit, perbesar agar semua label kelihatan. Atau: kurangi 2 lingkaran karena soal hanya butuh 12 elemen."
+                      rows={4}
+                      className="w-full rounded-lg border border-slate-200 p-3 text-sm font-mono"
+                      disabled={fixModal.loading}
+                    />
+                    <label className="flex items-center gap-2 mt-3 text-sm">
+                      Model AI:
+                      <select
+                        value={fixModel}
+                        onChange={(e) => setFixModel(e.target.value as "sonnet" | "opus")}
+                        className="rounded-lg border border-slate-200 px-2 py-1"
+                        disabled={fixModal.loading}
+                      >
+                        <option value="sonnet">Sonnet 4.6 (cepat)</option>
+                        <option value="opus">Opus 4.7 (presisi visual)</option>
+                      </select>
+                    </label>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs text-emerald-700 mb-3 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5">
+                      💡 <strong>Plot Fungsi server-side</strong> — koordinat di-compute exact dari rumus matematis (bukan AI approximation). Cocok untuk grafik sin/cos/parabola/eksponen/dll. Hasil 100% akurat.
+                    </p>
+
+                    {/* Preset chips */}
+                    {plotPresets.length > 0 && (
+                      <div className="mb-3">
+                        <label className="block text-sm font-semibold mb-2">Preset cepat</label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {plotPresets.map((p) => (
+                            <button
+                              key={p.id}
+                              onClick={() => applyPreset(p)}
+                              disabled={fixModal.loading}
+                              className="text-xs rounded-lg bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 px-2.5 py-1 transition disabled:opacity-50"
+                              title={p.description}
+                            >
+                              {p.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-semibold mb-1">Rumus (variabel x)</label>
+                        <input
+                          value={fixModal.plotExpression}
+                          onChange={(e) => setFixModal({ ...fixModal, plotExpression: e.target.value })}
+                          placeholder="e.g. sin(x), x*x, exp(-x)*cos(x)"
+                          className="w-full rounded-lg border border-slate-200 p-2 text-sm font-mono"
+                          disabled={fixModal.loading}
+                        />
+                        <p className="text-[10px] text-slate-500 mt-1">
+                          Bisa pakai: sin, cos, tan, exp, log, sqrt, abs, PI, E, ^ (pangkat). Contoh: <code>2*sin(x) + cos(2*x)</code>
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">x Min</label>
+                        <input
+                          value={fixModal.plotXMin}
+                          onChange={(e) => setFixModal({ ...fixModal, plotXMin: e.target.value })}
+                          className="w-full rounded-lg border border-slate-200 p-2 text-sm font-mono"
+                          disabled={fixModal.loading}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">x Max</label>
+                        <input
+                          value={fixModal.plotXMax}
+                          onChange={(e) => setFixModal({ ...fixModal, plotXMax: e.target.value })}
+                          className="w-full rounded-lg border border-slate-200 p-2 text-sm font-mono"
+                          disabled={fixModal.loading}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">y Min (kosong = auto)</label>
+                        <input
+                          value={fixModal.plotYMin}
+                          onChange={(e) => setFixModal({ ...fixModal, plotYMin: e.target.value })}
+                          className="w-full rounded-lg border border-slate-200 p-2 text-sm font-mono"
+                          disabled={fixModal.loading}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">y Max (kosong = auto)</label>
+                        <input
+                          value={fixModal.plotYMax}
+                          onChange={(e) => setFixModal({ ...fixModal, plotYMax: e.target.value })}
+                          className="w-full rounded-lg border border-slate-200 p-2 text-sm font-mono"
+                          disabled={fixModal.loading}
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-semibold mb-1">Label di atas grafik (opsional)</label>
+                        <input
+                          value={fixModal.plotLabel}
+                          onChange={(e) => setFixModal({ ...fixModal, plotLabel: e.target.value })}
+                          placeholder="e.g. y = sin(x)"
+                          className="w-full rounded-lg border border-slate-200 p-2 text-sm font-mono"
+                          disabled={fixModal.loading}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
                 {fixModal.error && (
                   <div className="mt-3 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 p-3 text-sm">
                     {fixModal.error}
@@ -407,10 +587,12 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
                   </button>
                   <button
                     onClick={submitFixVisual}
-                    disabled={fixModal.loading || !fixModal.instruksi.trim()}
-                    className="rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium px-4 py-2 text-sm disabled:opacity-50"
+                    disabled={fixModal.loading || (fixModal.tab === "chat" ? !fixModal.instruksi.trim() : !fixModal.plotExpression.trim())}
+                    className={`rounded-lg text-white font-medium px-4 py-2 text-sm disabled:opacity-50 ${
+                      fixModal.tab === "plot" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-violet-600 hover:bg-violet-700"
+                    }`}
                   >
-                    {fixModal.loading ? "Memproses..." : "Generate revisi →"}
+                    {fixModal.loading ? "Memproses..." : fixModal.tab === "plot" ? "Plot →" : "Generate revisi →"}
                   </button>
                 </div>
               </>

@@ -4,6 +4,7 @@ import { loadItem } from "@/lib/item-bank";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { getClaude } from "@/lib/claude";
 import { extractJson } from "@/lib/extract-json";
+import { plotFunction } from "@/lib/svg-plotter";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -31,14 +32,51 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const itemId = String(body.itemId ?? "").trim();
-  const instruksi = String(body.instruksi ?? "").trim();
-  const modelChoice = body.model === "opus" ? "claude-opus-4-7" : "claude-sonnet-4-6";
-  if (!itemId || !instruksi) {
-    return NextResponse.json({ error: "itemId + instruksi wajib" }, { status: 400 });
+  const mode = body.mode === "plot-fungsi" ? "plot-fungsi" : "chat";
+  if (!itemId) {
+    return NextResponse.json({ error: "itemId wajib" }, { status: 400 });
   }
 
   const item = await loadItem(itemId);
   if (!item) return NextResponse.json({ error: `Item ${itemId} tidak ditemukan` }, { status: 404 });
+
+  // ── MODE: PLOT FUNGSI (server-side, akurat 100%) ──
+  if (mode === "plot-fungsi") {
+    const expression = String(body.expression ?? "").trim();
+    const xMin = Number(body.xMin);
+    const xMax = Number(body.xMax);
+    const yMinRaw = body.yMin === "" || body.yMin === undefined ? undefined : Number(body.yMin);
+    const yMaxRaw = body.yMax === "" || body.yMax === undefined ? undefined : Number(body.yMax);
+    const label = body.label ? String(body.label) : undefined;
+    if (!expression || !Number.isFinite(xMin) || !Number.isFinite(xMax)) {
+      return NextResponse.json({ error: "expression, xMin, xMax wajib" }, { status: 400 });
+    }
+    try {
+      const result = plotFunction({
+        expression,
+        xMin, xMax,
+        yMin: yMinRaw,
+        yMax: yMaxRaw,
+        label,
+      });
+      return NextResponse.json({
+        itemId,
+        svgBefore: item.konten.svg ?? "",
+        svgAfter: result.svg,
+        catatan: `Plot otomatis ${expression} di range x:[${xMin}, ${xMax}], y:[${result.yMinUsed.toFixed(2)}, ${result.yMaxUsed.toFixed(2)}] dari ${result.validPoints} titik sampling.`,
+        modelUsed: "server-plot",
+      });
+    } catch (e) {
+      return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 400 });
+    }
+  }
+
+  // ── MODE: CHAT AI (instruksi bebas) ──
+  const instruksi = String(body.instruksi ?? "").trim();
+  const modelChoice = body.model === "opus" ? "claude-opus-4-7" : "claude-sonnet-4-6";
+  if (!instruksi) {
+    return NextResponse.json({ error: "instruksi wajib untuk mode chat" }, { status: 400 });
+  }
 
   const currentSvg = item.konten.svg ?? "";
   const prompt = `Kamu editor SVG matematika. Berikut soal MC + SVG saat ini:
