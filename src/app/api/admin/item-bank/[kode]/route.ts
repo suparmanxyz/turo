@@ -49,6 +49,7 @@ export async function GET(req: NextRequest, props: { params: Promise<{ kode: str
       format: it.format,
       calibrationN: it.calibrationN,
       source: it.source,
+      aiModel: it.aiModel,
       createdAt: it.createdAt,
       konten: it.konten,
     })),

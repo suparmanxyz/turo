@@ -35,6 +35,7 @@ type ItemDetail = {
   format: string;
   calibrationN: number;
   source: string;
+  aiModel?: string;
   createdAt: number;
   konten: {
     pertanyaan: string;
@@ -45,6 +46,15 @@ type ItemDetail = {
   };
 };
 
+type FixVisualState = {
+  itemId: string;
+  instruksi: string;
+  loading: boolean;
+  result?: { svgBefore: string; svgAfter: string; catatan?: string; modelUsed: string };
+  saving?: boolean;
+  error?: string;
+} | null;
+
 export default function AdminItemBankDetailPage(props: { params: Promise<{ kode: string }> }) {
   const { kode } = use(props.params);
   const decodedKode = decodeURIComponent(kode);
@@ -52,6 +62,8 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
   const [data, setData] = useState<{ sub: SubInfo; dependents: Dependent[]; items: ItemDetail[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [fixModal, setFixModal] = useState<FixVisualState>(null);
+  const [fixModel, setFixModel] = useState<"sonnet" | "opus">("sonnet");
 
   async function load() {
     if (!user) return;
@@ -85,6 +97,45 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
       alert(`Gagal hapus: ${e}`);
     } finally {
       setBusy(null);
+    }
+  }
+
+  async function submitFixVisual() {
+    if (!fixModal || !user) return;
+    setFixModal({ ...fixModal, loading: true, error: undefined });
+    try {
+      const idToken = await user.getIdToken();
+      const res = await fetch(`/api/admin/item-bank/${encodeURIComponent(decodedKode)}/fix-visual`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ itemId: fixModal.itemId, instruksi: fixModal.instruksi, model: fixModel }),
+      });
+      const out = await res.json();
+      if (!res.ok) {
+        setFixModal({ ...fixModal, loading: false, error: out.error ?? `HTTP ${res.status}` });
+        return;
+      }
+      setFixModal({ ...fixModal, loading: false, result: { svgBefore: out.svgBefore, svgAfter: out.svgAfter, catatan: out.catatan, modelUsed: out.modelUsed } });
+    } catch (e) {
+      setFixModal({ ...fixModal, loading: false, error: e instanceof Error ? e.message : String(e) });
+    }
+  }
+
+  async function applyFixVisual() {
+    if (!fixModal?.result || !user) return;
+    setFixModal({ ...fixModal, saving: true });
+    try {
+      const idToken = await user.getIdToken();
+      const res = await fetch(`/api/admin/item-bank/${encodeURIComponent(decodedKode)}/fix-visual`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ itemId: fixModal.itemId, svg: fixModal.result.svgAfter }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setFixModal(null);
+      await load();
+    } catch (e) {
+      setFixModal({ ...fixModal, saving: false, error: e instanceof Error ? e.message : String(e) });
     }
   }
 
@@ -232,14 +283,31 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
                   <span className="text-slate-500">b={it.b.toFixed(2)} · a={it.a.toFixed(1)} · c={it.c.toFixed(2)}</span>
                   <span className="text-slate-500">N={it.calibrationN}</span>
                   <span className="text-slate-400">{it.source}</span>
+                  {it.aiModel && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 font-mono">
+                      {it.aiModel.replace("claude-", "")}
+                    </span>
+                  )}
                 </div>
-                <button
-                  onClick={() => deleteItem(it.id)}
-                  disabled={busy === it.id}
-                  className="text-xs text-rose-600 hover:bg-rose-50 px-2 py-1 rounded disabled:opacity-50"
-                >
-                  {busy === it.id ? "..." : "🗑 Hapus"}
-                </button>
+                <div className="flex items-center gap-1">
+                  {it.konten.svg && (
+                    <button
+                      onClick={() => setFixModal({ itemId: it.id, instruksi: "", loading: false })}
+                      disabled={busy === it.id}
+                      className="text-xs text-violet-700 hover:bg-violet-50 px-2 py-1 rounded disabled:opacity-50"
+                      title="Perbaiki gambar via AI"
+                    >
+                      🎨 Fix gambar
+                    </button>
+                  )}
+                  <button
+                    onClick={() => deleteItem(it.id)}
+                    disabled={busy === it.id}
+                    className="text-xs text-rose-600 hover:bg-rose-50 px-2 py-1 rounded disabled:opacity-50"
+                  >
+                    {busy === it.id ? "..." : "🗑 Hapus"}
+                  </button>
+                </div>
               </div>
 
               {it.konten.svg && (
@@ -280,6 +348,122 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
               </div>
             </article>
           ))}
+        </div>
+      )}
+      {/* Modal: Fix visual via AI */}
+      {fixModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+          onClick={(e) => { if (e.target === e.currentTarget) setFixModal(null); }}
+        >
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="font-bold text-lg">🎨 Perbaiki Gambar (SVG)</h3>
+                <p className="text-xs text-slate-500 mt-1">Item {fixModal.itemId.slice(0, 12)}</p>
+              </div>
+              <button
+                onClick={() => setFixModal(null)}
+                className="text-slate-400 hover:text-slate-700 text-xl leading-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            {!fixModal.result ? (
+              <>
+                <label className="block text-sm font-semibold mb-2">Instruksi untuk AI</label>
+                <textarea
+                  value={fixModal.instruksi}
+                  onChange={(e) => setFixModal({ ...fixModal, instruksi: e.target.value })}
+                  placeholder="Contoh: viewBox terlalu sempit, perbesar agar semua label kelihatan. Atau: kurangi 2 lingkaran karena soal hanya butuh 12 elemen, bukan 14."
+                  rows={4}
+                  className="w-full rounded-lg border border-slate-200 p-3 text-sm font-mono"
+                  disabled={fixModal.loading}
+                />
+                <label className="flex items-center gap-2 mt-3 text-sm">
+                  Model AI:
+                  <select
+                    value={fixModel}
+                    onChange={(e) => setFixModel(e.target.value as "sonnet" | "opus")}
+                    className="rounded-lg border border-slate-200 px-2 py-1"
+                    disabled={fixModal.loading}
+                  >
+                    <option value="sonnet">Sonnet 4.6 (cepat)</option>
+                    <option value="opus">Opus 4.7 (presisi visual)</option>
+                  </select>
+                </label>
+                {fixModal.error && (
+                  <div className="mt-3 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 p-3 text-sm">
+                    {fixModal.error}
+                  </div>
+                )}
+                <div className="flex gap-2 mt-4 justify-end">
+                  <button
+                    onClick={() => setFixModal(null)}
+                    className="rounded-lg bg-slate-100 hover:bg-slate-200 px-4 py-2 text-sm"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={submitFixVisual}
+                    disabled={fixModal.loading || !fixModal.instruksi.trim()}
+                    className="rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium px-4 py-2 text-sm disabled:opacity-50"
+                  >
+                    {fixModal.loading ? "Memproses..." : "Generate revisi →"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                  <div>
+                    <div className="text-xs font-semibold text-slate-500 uppercase mb-1">Sebelum</div>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 min-h-[200px] flex items-center justify-center"
+                         dangerouslySetInnerHTML={{ __html: fixModal.result.svgBefore || "<p class='text-slate-400 text-sm'>(tidak ada SVG)</p>" }} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-emerald-700 uppercase mb-1">Sesudah ({fixModal.result.modelUsed.replace("claude-", "")})</div>
+                    <div className="rounded-lg border-2 border-emerald-300 bg-emerald-50/30 p-3 min-h-[200px] flex items-center justify-center"
+                         dangerouslySetInnerHTML={{ __html: fixModal.result.svgAfter }} />
+                  </div>
+                </div>
+                {fixModal.result.catatan && (
+                  <div className="rounded-lg bg-violet-50 border border-violet-200 p-3 text-sm text-violet-900 mb-3">
+                    <strong>Catatan AI:</strong> {fixModal.result.catatan}
+                  </div>
+                )}
+                {fixModal.error && (
+                  <div className="rounded-lg bg-rose-50 text-rose-700 border border-rose-200 p-3 text-sm mb-3">
+                    {fixModal.error}
+                  </div>
+                )}
+                <div className="flex gap-2 justify-end">
+                  <button
+                    onClick={() => setFixModal({ ...fixModal, result: undefined })}
+                    disabled={fixModal.saving}
+                    className="rounded-lg bg-slate-100 hover:bg-slate-200 px-4 py-2 text-sm disabled:opacity-50"
+                  >
+                    ← Coba lagi
+                  </button>
+                  <button
+                    onClick={() => setFixModal(null)}
+                    disabled={fixModal.saving}
+                    className="rounded-lg bg-slate-100 hover:bg-slate-200 px-4 py-2 text-sm disabled:opacity-50"
+                  >
+                    Tolak
+                  </button>
+                  <button
+                    onClick={applyFixVisual}
+                    disabled={fixModal.saving}
+                    className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 text-sm disabled:opacity-50"
+                  >
+                    {fixModal.saving ? "Menyimpan..." : "✓ Pakai revisi ini"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </main>

@@ -40,12 +40,16 @@ export type GenerateOpts = {
   /** Berapa soal yang dihasilkan dalam satu batch. */
   n: number;
   hindari?: string[];
+  /** Override model: "sonnet" | "opus" | undefined (auto pilih). */
+  modelOverride?: "sonnet" | "opus";
 };
 
 export type GenerateResult = {
   soal: SoalMc[];
   dropped: number;
   autoFixed: number;
+  /** Model yang dipakai (untuk audit kualitas). */
+  modelUsed: string;
 };
 
 export async function generateSoalMcBatch(opts: GenerateOpts): Promise<GenerateResult> {
@@ -133,7 +137,12 @@ Schema:
   // Untuk n kecil (seed admin n=3), pakai create() yang lebih cepat & lebih ringan.
   const maxTokens = Math.min(60000, 3500 * n + 2000);
   const useStream = n >= 6 || maxTokens > 20000;
-  const model = pilihModel("soal", level);
+  // Model selection: override > auto pilih based on level
+  const model = opts.modelOverride === "opus"
+    ? "claude-opus-4-7"
+    : opts.modelOverride === "sonnet"
+    ? "claude-sonnet-4-6"
+    : pilihModel("soal", level);
 
   let msg;
   if (useStream) {
@@ -217,5 +226,5 @@ Schema:
     throw new Error(`Semua ${parsed.data.soal.length} soal invalid (0 opsi benar). dropped=${dropped}, autoFixed=${autoFixed}`);
   }
 
-  return { soal: valid, dropped, autoFixed };
+  return { soal: valid, dropped, autoFixed, modelUsed: model };
 }

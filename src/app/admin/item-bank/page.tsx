@@ -37,6 +37,7 @@ export default function AdminItemBankPage() {
 
   // Seeding state
   const [targetCount, setTargetCount] = useState(3);
+  const [modelChoice, setModelChoice] = useState<"auto" | "sonnet" | "opus">("auto");
   const [seeding, setSeeding] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
   const [log, setLog] = useState<SeedResult[]>([]);
@@ -72,10 +73,12 @@ export default function AdminItemBankPage() {
 
   async function seedOne(kode: string): Promise<SeedResult> {
     const idToken = await user!.getIdToken();
+    const body: { kode: string; count: number; model?: string } = { kode, count: targetCount };
+    if (modelChoice !== "auto") body.model = modelChoice;
     const res = await fetch("/api/admin/seed-item-bank", {
       method: "POST",
       headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
-      body: JSON.stringify({ kode, count: targetCount }),
+      body: JSON.stringify(body),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -175,6 +178,19 @@ export default function AdminItemBankPage() {
             className="w-16 rounded-lg border border-slate-200 px-2 py-1"
             disabled={seeding}
           />
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          Model:
+          <select
+            value={modelChoice}
+            onChange={(e) => setModelChoice(e.target.value as "auto" | "sonnet" | "opus")}
+            className="rounded-lg border border-slate-200 px-2 py-1"
+            disabled={seeding}
+          >
+            <option value="auto">Auto (Sonnet)</option>
+            <option value="sonnet">Sonnet 4.6 (cepat)</option>
+            <option value="opus">Opus 4.7 (presisi, ~5× lebih mahal)</option>
+          </select>
         </label>
         <button
           onClick={loadStatus}

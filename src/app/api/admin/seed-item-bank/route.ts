@@ -22,6 +22,8 @@ export async function POST(req: NextRequest) {
   const kode = String(body.kode ?? "").trim();
   const targetCount = Math.max(1, Math.min(10, Number(body.count) || 3));
   const force = !!body.force;
+  const modelOverride: "sonnet" | "opus" | undefined =
+    body.model === "opus" ? "opus" : body.model === "sonnet" ? "sonnet" : undefined;
 
   if (!kode) {
     return NextResponse.json({ error: "kode wajib (e.g. SMP.8.B5.01)" }, { status: 400 });
@@ -66,12 +68,17 @@ export async function POST(req: NextRequest) {
       level: 1,
       audiens,
       n: need,
+      modelOverride,
     });
     dropped = result.dropped;
     autoFixed = result.autoFixed;
 
     const items = result.soal.map((s) =>
-      seedItemFromSoalMc(s, { subMateriKode: kode, source: "ai-generated" }),
+      seedItemFromSoalMc(s, {
+        subMateriKode: kode,
+        source: "ai-generated",
+        aiModel: result.modelUsed,
+      }),
     );
     await saveItemsBatch(items);
     generated = items.length;

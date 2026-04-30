@@ -73,6 +73,8 @@ export type ItemBankEntry = {
   };
   /** Source untuk audit. */
   source: "ai-generated" | "manual" | "imported";
+  /** Model AI yang dipakai (untuk audit kualitas). e.g. "claude-sonnet-4-6", "claude-opus-4-7". */
+  aiModel?: string;
   createdAt: number;
   updatedAt: number;
 };
@@ -138,7 +140,7 @@ export function inferJalur(sub: SubMateriResmi): JalurDiagnostik[] {
  */
 export function seedItemFromSoalMc(
   soal: SoalMc,
-  opts: { subMateriKode: string; format?: ItemFormat; source?: ItemBankEntry["source"] },
+  opts: { subMateriKode: string; format?: ItemFormat; source?: ItemBankEntry["source"]; aiModel?: string },
 ): ItemBankEntry {
   const sub = cariSubMateriResmi(opts.subMateriKode);
   if (!sub) throw new Error(`Sub-materi ${opts.subMateriKode} tidak ditemukan di peta resmi`);
@@ -182,6 +184,7 @@ export function seedItemFromSoalMc(
     isMaku: sub.is_maku,
     konten,
     source: opts.source ?? "ai-generated",
+    aiModel: opts.aiModel,
     createdAt: now,
     updatedAt: now,
   };
