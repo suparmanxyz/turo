@@ -80,16 +80,8 @@ ATURAN TEKNIS SVG:
 - viewBox proporsional. Stroke 2-3px, warna kontras tinggi. Font 14-22px.
 - Di dalam <text>, JANGAN pakai LaTeX. Pakai unicode (×, ÷, ≤, π, θ, x², dll).
 
-KONSISTENSI ANGKA — KRITIS:
-- Sebelum render visual, COCOKKAN setiap angka di SVG dengan angka di pertanyaan.
-- Contoh: "12 permen dibagi 3 anak, masing-masing 4" → SVG harus tampilkan EXACT 12 lingkaran (bisa dipisah jadi 3 kelompok 4),
-  BUKAN 14 atau 13 atau lebih/kurang.
-- Contoh: "segitiga sama sisi sisi 8 cm" → label "8 cm" muncul di setiap sisi, panjang sisi visual proporsional sama.
-- Contoh: "5 apel + 3 jeruk = 8 buah" → SVG show 5 apel + 3 jeruk, total 8 elemen visual.
-- HITUNG ULANG jumlah elemen visual SEBELUM finalisasi SVG. Kalau angka di pertanyaan = N,
-  jumlah elemen visual yang merepresentasikan harus = N exactly.
-- Untuk pembagian: kalau "X dibagi Y", visual boleh tampilkan X benda dipisah jadi Y kelompok yang sama besar (X/Y per kelompok).
-  JANGAN tampilkan X benda di baris atas + (X+extra) di baris bawah atau sebaliknya.
+KONSISTENSI ANGKA: jumlah elemen visual di SVG WAJIB = angka di pertanyaan.
+Contoh "12 permen dibagi 3" → SVG = 12 lingkaran (boleh dipisah jadi 3 kelompok 4), bukan 13/14.
 
 ${gayaSvg}`;
 
@@ -137,14 +129,27 @@ Schema:
 }`;
 
   const claude = getClaude();
-  // Pakai streaming — Anthropic API reject non-streaming kalau request bisa >10 menit
-  // (max_tokens besar untuk pool size). Stream() helper accumulate ke final message.
-  const stream = claude.messages.stream({
-    model: pilihModel("soal", level),
-    max_tokens: Math.min(60000, 3500 * n + 2000),
-    messages: [{ role: "user", content: prompt }],
-  });
-  const msg = await stream.finalMessage();
+  // Auto-pilih streaming: hanya wajib untuk request besar (>=6 soal, max_tokens >20k).
+  // Untuk n kecil (seed admin n=3), pakai create() yang lebih cepat & lebih ringan.
+  const maxTokens = Math.min(60000, 3500 * n + 2000);
+  const useStream = n >= 6 || maxTokens > 20000;
+  const model = pilihModel("soal", level);
+
+  let msg;
+  if (useStream) {
+    const stream = claude.messages.stream({
+      model,
+      max_tokens: maxTokens,
+      messages: [{ role: "user", content: prompt }],
+    });
+    msg = await stream.finalMessage();
+  } else {
+    msg = await claude.messages.create({
+      model,
+      max_tokens: maxTokens,
+      messages: [{ role: "user", content: prompt }],
+    });
+  }
 
   const text = msg.content
     .filter((c) => c.type === "text")

@@ -6,7 +6,7 @@ import { itemsForSubMateri, saveItemsBatch, seedItemFromSoalMc } from "@/lib/ite
 import type { Audiens, Jenjang, JenjangResmi, Kelas } from "@/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 60; // Vercel hobby plan limit
+export const maxDuration = 300; // Pro plan max; hobby tetap auto-cap 60
 
 const JENJANG_REVERSE: Record<JenjangResmi, Jenjang> = { SD: "sd", SMP: "smp", SMA: "sma" };
 
@@ -42,7 +42,14 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const need = Math.max(1, targetCount - existing.length);
+  // SMA materi sering bikin Anthropic generate response panjang (30-60s per soal).
+  // Untuk fit Vercel hobby cap 60s, batasi SMA ke 1 soal per request.
+  // User klik tombol Seed lagi untuk batch berikutnya.
+  let need = Math.max(1, targetCount - existing.length);
+  if (sub.jenjang === "SMA" && need > 1) {
+    need = 1;
+  }
+
   const audiens: Audiens = {
     kategoriUtama: "reguler",
     jenjang: JENJANG_REVERSE[sub.jenjang],
