@@ -44,6 +44,21 @@ type ItemDetail = {
     pembahasan?: string;
     svg?: string;
   };
+  meta?: {
+    difficultyLabel?: "easy" | "medium" | "hard";
+    microskill?: string;
+    subConcept?: string;
+    strongDistractor?: boolean;
+    multiStep?: boolean;
+    analyticalSteps?: number;
+    intuitiveLeap?: boolean;
+    requiresManipulation?: boolean;
+    abstractQuestion?: boolean;
+    readingHeavy?: boolean;
+    questionCondition?: number;
+    expectedResponseTimeSec?: number;
+    reasoningQualityRequired?: number;
+  };
 };
 
 type FixVisualState = {
@@ -387,6 +402,35 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
                       {it.aiModel.replace("claude-", "")}
                     </span>
                   )}
+                  {it.meta?.difficultyLabel && (
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${
+                      it.meta.difficultyLabel === "easy" ? "bg-emerald-100 text-emerald-700" :
+                      it.meta.difficultyLabel === "medium" ? "bg-amber-100 text-amber-700" :
+                      "bg-rose-100 text-rose-700"
+                    }`}>
+                      {it.meta.difficultyLabel}
+                    </span>
+                  )}
+                  {it.meta?.multiStep && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700" title={`${it.meta.analyticalSteps ?? "?"} langkah`}>
+                      multi-step
+                    </span>
+                  )}
+                  {it.meta?.strongDistractor && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-600 border border-rose-200" title="Distractor kuat">
+                      ⚠ trap
+                    </span>
+                  )}
+                  {it.meta?.expectedResponseTimeSec && (
+                    <span className="text-[10px] text-slate-500 font-mono" title="Estimated response time">
+                      ⏱{it.meta.expectedResponseTimeSec}s
+                    </span>
+                  )}
+                  {it.meta?.reasoningQualityRequired && (
+                    <span className="text-[10px] text-slate-500" title="Reasoning quality 1-4">
+                      🧠{"★".repeat(it.meta.reasoningQualityRequired)}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1">
                   {it.konten.svg && (
@@ -451,6 +495,37 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
                   </div>
                 ))}
               </div>
+
+              {/* Metadata pedagogis (collapsible) */}
+              {it.meta && Object.keys(it.meta).length > 0 && (
+                <details className="mt-3 rounded-lg bg-slate-50 border border-slate-200 p-2.5 text-xs">
+                  <summary className="cursor-pointer text-slate-600 font-medium">📋 Metadata pedagogis</summary>
+                  <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {it.meta.microskill && (
+                      <div><span className="text-slate-500">Microskill:</span> <code className="font-mono text-[11px]">{it.meta.microskill}</code></div>
+                    )}
+                    {it.meta.subConcept && (
+                      <div><span className="text-slate-500">Sub-konsep:</span> {it.meta.subConcept}</div>
+                    )}
+                    {it.meta.analyticalSteps !== undefined && (
+                      <div><span className="text-slate-500">Langkah analitis:</span> {it.meta.analyticalSteps}/5</div>
+                    )}
+                    {it.meta.questionCondition !== undefined && (
+                      <div><span className="text-slate-500">Kondisi/syarat:</span> {it.meta.questionCondition}</div>
+                    )}
+                    {it.meta.expectedResponseTimeSec !== undefined && (
+                      <div><span className="text-slate-500">Est. waktu:</span> {it.meta.expectedResponseTimeSec}s</div>
+                    )}
+                    {it.meta.reasoningQualityRequired !== undefined && (
+                      <div><span className="text-slate-500">Reasoning:</span> {it.meta.reasoningQualityRequired}/4</div>
+                    )}
+                    {it.meta.requiresManipulation && <div><span className="text-violet-700">✓ Manipulasi simbolik</span></div>}
+                    {it.meta.intuitiveLeap && <div><span className="text-violet-700">✓ Intuitive leap</span></div>}
+                    {it.meta.abstractQuestion && <div><span className="text-violet-700">✓ Abstrak</span></div>}
+                    {it.meta.readingHeavy && <div><span className="text-violet-700">✓ Reading heavy</span></div>}
+                  </div>
+                </details>
+              )}
             </article>
           ))}
         </div>

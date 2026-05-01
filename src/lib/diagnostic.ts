@@ -5,6 +5,23 @@ export type SoalMc = {
   opsi: { teks: string; benar: boolean; alasan?: string }[];
   /** SVG inline opsional untuk soal yang butuh visual (geometri, grafik). */
   svg?: string;
+  /** Metadata pedagogis (Integral spec) — optional, di-tag oleh AI saat generate.
+   * Dipakai untuk Phase 2 drilling: pemilihan soal Easy/Medium/Hard, microskill, dll. */
+  meta?: {
+    difficultyLabel?: "easy" | "medium" | "hard";
+    microskill?: string;
+    subConcept?: string;
+    strongDistractor?: boolean;
+    multiStep?: boolean;
+    analyticalSteps?: number;
+    intuitiveLeap?: boolean;
+    requiresManipulation?: boolean;
+    abstractQuestion?: boolean;
+    readingHeavy?: boolean;
+    questionCondition?: number;
+    expectedResponseTimeSec?: number;
+    reasoningQualityRequired?: number;
+  };
 };
 
 /** Soal MC + identitas node/sub-konsep yang dia uji.

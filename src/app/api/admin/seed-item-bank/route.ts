@@ -78,6 +78,7 @@ export async function POST(req: NextRequest) {
         subMateriKode: kode,
         source: "ai-generated",
         aiModel: result.modelUsed,
+        meta: s.meta,
       }),
     );
     await saveItemsBatch(items);

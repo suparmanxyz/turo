@@ -21,11 +21,29 @@ const OpsiSchema = z.object({
   alasan: z.string().optional(),
 });
 
+// Metadata pedagogis (Integral spec) — semua optional, AI fill kalau bisa
+const MetaSchema = z.object({
+  difficultyLabel: z.enum(["easy", "medium", "hard"]).optional(),
+  microskill: z.string().optional(),
+  subConcept: z.string().optional(),
+  strongDistractor: z.boolean().optional(),
+  multiStep: z.boolean().optional(),
+  analyticalSteps: z.number().int().min(1).max(5).optional(),
+  intuitiveLeap: z.boolean().optional(),
+  requiresManipulation: z.boolean().optional(),
+  abstractQuestion: z.boolean().optional(),
+  readingHeavy: z.boolean().optional(),
+  questionCondition: z.number().int().min(1).max(5).optional(),
+  expectedResponseTimeSec: z.number().int().min(10).max(600).optional(),
+  reasoningQualityRequired: z.number().int().min(1).max(4).optional(),
+});
+
 const SoalMcSchema = z.object({
   pertanyaan: z.string(),
   // Toleransi 3-5 opsi — auto-trim ke 4 di post-process supaya AI yang return 5 tidak gagal total
   opsi: z.array(OpsiSchema).min(3).max(5),
   svg: z.string().optional(),
+  meta: MetaSchema.optional(),
 });
 
 const BatchSchema = z.object({
@@ -113,6 +131,21 @@ ${levelKesulitanPanduan(audiens)}
 
 ${visualRules}
 
+METADATA PEDAGOGIS — WAJIB tag setiap soal dengan field "meta":
+- "difficultyLabel": "easy" | "medium" | "hard" — kesulitan kontekstual (Easy=langsung apply rumus, Medium=multi-step, Hard=aplikasi/integrasi)
+- "microskill": string singkat skill spesifik yang dites, e.g. "substitusi_langsung", "faktor_sederhana", "konversi_satuan"
+- "subConcept": string sub-konsep detail, e.g. "Substitusi Nilai Fungsi"
+- "strongDistractor": boolean — true kalau distractor hampir benar (siswa lemah pasti tertipu)
+- "multiStep": boolean — true kalau butuh >2 langkah penyelesaian
+- "analyticalSteps": int 1-5 — jumlah langkah berpikir analitis (1=langsung, 5=multi-tahap kompleks)
+- "intuitiveLeap": boolean — true kalau butuh insight non-procedural
+- "requiresManipulation": boolean — true kalau butuh manipulasi simbolik aljabar/persamaan
+- "abstractQuestion": boolean — true kalau soal abstrak (bukan kontekstual cerita)
+- "readingHeavy": boolean — true kalau soal cerita panjang (>40 kata)
+- "questionCondition": int 1-5 — jumlah syarat/kondisi/data yang dikasih di soal
+- "expectedResponseTimeSec": int 20-300 — estimasi detik untuk siswa average
+- "reasoningQualityRequired": int 1-4 — 1=hafalan, 2=aplikasi, 3=analisis, 4=kreatif
+
 - Output HANYA JSON murni (TANPA code fence/backtick).
 
 Schema:
@@ -126,9 +159,24 @@ Schema:
         { "teks": "...", "benar": false, "alasan": "miskonsepsi: ..." },
         { "teks": "...", "benar": false, "alasan": "miskonsepsi: ..." }
       ],
-      "svg": "<svg ...>...</svg>  // OPSIONAL"
+      "svg": "<svg ...>...</svg>  // OPSIONAL",
+      "meta": {
+        "difficultyLabel": "easy",
+        "microskill": "substitusi_langsung",
+        "subConcept": "Substitusi Nilai Fungsi",
+        "strongDistractor": true,
+        "multiStep": false,
+        "analyticalSteps": 2,
+        "intuitiveLeap": false,
+        "requiresManipulation": true,
+        "abstractQuestion": false,
+        "readingHeavy": false,
+        "questionCondition": 1,
+        "expectedResponseTimeSec": 60,
+        "reasoningQualityRequired": 2
+      }
     },
-    "... total ${n} soal ..."
+    "... total ${n} soal dengan distribusi difficulty mix (e.g. 30% easy, 40% medium, 30% hard) ..."
   ]
 }`;
 

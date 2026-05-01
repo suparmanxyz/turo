@@ -30,6 +30,51 @@ export type JalurDiagnostik = "sd-k1-3" | "sd-k4-6" | "smp" | "sma-reguler" | "s
 /** Format soal di item bank. */
 export type ItemFormat = "MC4" | "MC5" | "ISIAN_SINGKAT";
 
+/** Difficulty label sesuai Integral spec — komplemen IRT b parameter. */
+export type DifficultyLabel = "easy" | "medium" | "hard";
+
+/**
+ * Metadata pedagogis untuk pemilihan soal di Phase 2 drilling.
+ * Sesuai Integral spec Table 1 & 2 — dipakai untuk:
+ *   - Phase 2 drilling: Easy/Medium/Hard mix per LANGKAH
+ *   - Adaptive confirmation tier: pilih difficulty progresif
+ *   - Anti-luck: detect strong distractors yang bedakan mastery vs guess
+ */
+export type ItemPedagogyMetadata = {
+  /** Easy / Medium / Hard — independent dari IRT b. */
+  difficultyLabel?: DifficultyLabel;
+  /** Sub-skill spesifik (e.g. "substitusi_langsung", "faktor_sederhana"). */
+  microskill?: string;
+  /** Sub-konsep detail (e.g. "Substitusi Nilai"). */
+  subConcept?: string;
+  /** Pengecoh kuat (boolean) — distractor yang menyerupai jawaban benar. */
+  strongDistractor?: boolean;
+  /** Soal multi-langkah (perlu reasoning bertingkat). */
+  multiStep?: boolean;
+  /** Jumlah langkah analitis 1-5. */
+  analyticalSteps?: number;
+  /** Memerlukan intuitive leap (insight tidak procedural). */
+  intuitiveLeap?: boolean;
+  /** Memerlukan manipulasi simbolik. */
+  requiresManipulation?: boolean;
+  /** Bersifat abstrak (bukan kontekstual). */
+  abstractQuestion?: boolean;
+  /** Reading-heavy (perlu interpretasi bacaan). */
+  readingHeavy?: boolean;
+  /** Jumlah kondisi/syarat di soal 1-5. */
+  questionCondition?: number;
+  /** Estimasi waktu respons (detik). */
+  expectedResponseTimeSec?: number;
+  /** Kualitas reasoning yang dibutuhkan 1-4 (1=hafalan, 4=analisis kreatif). */
+  reasoningQualityRequired?: number;
+  /** Pattern type untuk pengelompokan (e.g. "pattern_grafik_sin"). */
+  patternType?: string;
+  /** Jenis transfer konsep (e.g. "transfer_komposisi"). */
+  transferType?: string;
+  /** Score per option untuk partial credit (A/B/C/D, 0-4). */
+  scorePerOption?: number[];
+};
+
 /** Default IRT params untuk item baru sebelum dikalibrasi. */
 const DEFAULT_A = 1.0;
 const DEFAULT_C_MC4 = 0.25;
@@ -75,6 +120,8 @@ export type ItemBankEntry = {
   source: "ai-generated" | "manual" | "imported";
   /** Model AI yang dipakai (untuk audit kualitas). e.g. "claude-sonnet-4-6", "claude-opus-4-7". */
   aiModel?: string;
+  /** Metadata pedagogis untuk Phase 2 drilling (Integral spec). */
+  meta?: ItemPedagogyMetadata;
   createdAt: number;
   updatedAt: number;
 };
@@ -140,7 +187,13 @@ export function inferJalur(sub: SubMateriResmi): JalurDiagnostik[] {
  */
 export function seedItemFromSoalMc(
   soal: SoalMc,
-  opts: { subMateriKode: string; format?: ItemFormat; source?: ItemBankEntry["source"]; aiModel?: string },
+  opts: {
+    subMateriKode: string;
+    format?: ItemFormat;
+    source?: ItemBankEntry["source"];
+    aiModel?: string;
+    meta?: ItemPedagogyMetadata;
+  },
 ): ItemBankEntry {
   const sub = cariSubMateriResmi(opts.subMateriKode);
   if (!sub) throw new Error(`Sub-materi ${opts.subMateriKode} tidak ditemukan di peta resmi`);
@@ -185,8 +238,78 @@ export function seedItemFromSoalMc(
     konten,
     source: opts.source ?? "ai-generated",
     aiModel: opts.aiModel,
+    meta: opts.meta,
     createdAt: now,
     updatedAt: now,
+  };
+}
+
+// ============================================================
+// Query helpers untuk Phase 2 drilling — filter by metadata
+// ============================================================
+
+/** Items yang match difficulty label (untuk Easy/Med/Hard mix). */
+export async function itemsByDifficulty(
+  subMateriKode: string,
+  difficulty: DifficultyLabel,
+): Promise<ItemBankEntry[]> {
+  const all = await itemsForSubMateri(subMateriKode);
+  return all.filter((it) => it.meta?.difficultyLabel === difficulty);
+}
+
+/** Pilih mix items sesuai pattern E/M/H — untuk Phase 2 drilling step (Integral Table 4). */
+export async function pickItemsWithMix(
+  subMateriKode: string,
+  mix: { easy: number; medium: number; hard: number },
+  excludeIds: Set<string> = new Set(),
+): Promise<{ easy: ItemBankEntry[]; medium: ItemBankEntry[]; hard: ItemBankEntry[]; total: ItemBankEntry[] }> {
+  const all = await itemsForSubMateri(subMateriKode);
+  const eligible = all.filter((it) => !excludeIds.has(it.id));
+  const byDiff = {
+    easy: eligible.filter((it) => it.meta?.difficultyLabel === "easy"),
+    medium: eligible.filter((it) => it.meta?.difficultyLabel === "medium"),
+    hard: eligible.filter((it) => it.meta?.difficultyLabel === "hard"),
+    untagged: eligible.filter((it) => !it.meta?.difficultyLabel),
+  };
+  // Fallback: kalau difficulty kurang, ambil dari untagged (assume medium default)
+  function pick(arr: ItemBankEntry[], n: number): ItemBankEntry[] {
+    const shuffled = [...arr].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, n);
+  }
+  const easyPicks = pick(byDiff.easy, mix.easy);
+  const mediumPicks = pick(byDiff.medium, mix.medium);
+  const hardPicks = pick(byDiff.hard, mix.hard);
+  // Top up dari untagged kalau kurang
+  const totalAvailable = easyPicks.length + mediumPicks.length + hardPicks.length;
+  const targetTotal = mix.easy + mix.medium + mix.hard;
+  if (totalAvailable < targetTotal) {
+    const need = targetTotal - totalAvailable;
+    const fillUp = pick(byDiff.untagged, need);
+    mediumPicks.push(...fillUp); // assume untagged = medium
+  }
+  return {
+    easy: easyPicks,
+    medium: mediumPicks,
+    hard: hardPicks,
+    total: [...easyPicks, ...mediumPicks, ...hardPicks],
+  };
+}
+
+/** Coverage stats — berapa % item di sub punya metadata (audit). */
+export async function metadataCoverage(subMateriKode: string): Promise<{
+  total: number;
+  withDifficulty: number;
+  withMicroskill: number;
+  withMultiStep: number;
+  withReasoningQuality: number;
+}> {
+  const items = await itemsForSubMateri(subMateriKode);
+  return {
+    total: items.length,
+    withDifficulty: items.filter((it) => it.meta?.difficultyLabel).length,
+    withMicroskill: items.filter((it) => it.meta?.microskill).length,
+    withMultiStep: items.filter((it) => it.meta?.multiStep !== undefined).length,
+    withReasoningQuality: items.filter((it) => it.meta?.reasoningQualityRequired !== undefined).length,
   };
 }
 
