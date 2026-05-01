@@ -116,6 +116,46 @@ export default function AdminItemBankPage() {
     await loadStatus();
   }
 
+  async function regenerateOne(kode: string, count: number): Promise<SeedResult> {
+    const idToken = await user!.getIdToken();
+    const body: { count: number; model?: string } = { count };
+    if (modelChoice !== "auto") body.model = modelChoice;
+    const res = await fetch(`/api/admin/item-bank/${encodeURIComponent(kode)}/regenerate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      return { kode, generated: 0, existing: count, total: 0, error: data.error ?? `HTTP ${res.status}` };
+    }
+    return { kode, generated: data.generated, existing: data.deleted, total: data.generated };
+  }
+
+  async function regenerateBatch(items: Row[]) {
+    if (items.length === 0) return;
+    if (!confirm(`♻ Regenerate ${items.length} sub-materi?\n\nIni akan HAPUS items lama setiap sub, lalu generate baru. Tujuan: refresh items lama supaya dapat metadata pedagogis.\n\nEstimasi cost: ~$${(items.length * 0.012).toFixed(2)}. Throttle 800ms antar request.\n\nLanjut?`)) return;
+    setSeeding(true);
+    setStopRequested(false);
+    setLog([]);
+    setProgress({ done: 0, total: items.length });
+    for (let i = 0; i < items.length; i++) {
+      if (stopRequested) break;
+      const row = items[i]!;
+      // Pakai count target = max(targetCount, row.count saat ini) supaya gak ngecil
+      const useCount = Math.max(targetCount, row.count);
+      const result = await regenerateOne(row.kode, useCount);
+      setLog((l) => [...l, result]);
+      setProgress({ done: i + 1, total: items.length });
+      setRows((rs) =>
+        rs.map((r) => (r.kode === row.kode ? { ...r, count: result.total } : r)),
+      );
+      await new Promise((res) => setTimeout(res, 800));
+    }
+    setSeeding(false);
+    await loadStatus();
+  }
+
   if (loading) return <main className="p-8 text-slate-500">Memuat...</main>;
   if (!user || !isAdminEmail(user.email)) {
     return (
@@ -203,12 +243,12 @@ export default function AdminItemBankPage() {
 
       {error && <div className="mb-4 p-3 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-sm">{error}</div>}
 
-      {/* Seeding controls */}
-      <div className="mb-6 rounded-2xl bg-amber-50 border border-amber-200 p-4">
+      {/* Seeding controls — untuk sub yang BELUM cukup */}
+      <div className="mb-4 rounded-2xl bg-amber-50 border border-amber-200 p-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <div className="font-semibold text-amber-900">⚡ Seed batch — {gaps.length} sub-materi belum cukup ({targetCount}/sub)</div>
-            <div className="text-xs text-amber-700 mt-1">Estimasi cost: ~$0.005-0.02 per sub × {gaps.length} = ~${(gaps.length * 0.012).toFixed(2)}. Throttle 800ms antar request.</div>
+            <div className="text-xs text-amber-700 mt-1">Untuk sub yang count &lt; {targetCount}. Estimasi cost: ~${(gaps.length * 0.012).toFixed(2)}. Throttle 800ms.</div>
           </div>
           <div className="flex gap-2">
             {!seeding ? (
@@ -248,6 +288,52 @@ export default function AdminItemBankPage() {
           </div>
         )}
       </div>
+
+      {/* Regenerate batch — untuk sub yang SUDAH punya items (refresh metadata) */}
+      {(() => {
+        const withItems = rows.filter((r) => r.count > 0);
+        return (
+          <div className="mb-6 rounded-2xl bg-violet-50 border border-violet-200 p-4">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <div className="font-semibold text-violet-900">♻ Regenerate batch — {withItems.length} sub-materi sudah punya items</div>
+                <div className="text-xs text-violet-700 mt-1">
+                  Hapus items lama + generate baru dengan metadata pedagogis lengkap.
+                  Untuk update items lama (sebelum schema metadata).
+                  Estimasi cost: ~${(withItems.length * 0.012).toFixed(2)}.
+                </div>
+              </div>
+              <div className="flex gap-2">
+                {!seeding ? (
+                  <>
+                    <button
+                      onClick={() => regenerateBatch(withItems.slice(0, 10))}
+                      disabled={withItems.length === 0}
+                      className="rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium px-4 py-2 text-sm disabled:opacity-50"
+                    >
+                      Regenerate 10 Pertama
+                    </button>
+                    <button
+                      onClick={() => regenerateBatch(withItems)}
+                      disabled={withItems.length === 0}
+                      className="rounded-lg bg-violet-700 hover:bg-violet-800 text-white font-medium px-4 py-2 text-sm disabled:opacity-50"
+                    >
+                      Regenerate Semua ({withItems.length})
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setStopRequested(true)}
+                    className="rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium px-4 py-2 text-sm"
+                  >
+                    ⏸ Stop
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Recent log */}
       {log.length > 0 && (
