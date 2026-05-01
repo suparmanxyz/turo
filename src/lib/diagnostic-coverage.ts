@@ -23,6 +23,17 @@ import type { ItemBankEntry, JalurDiagnostik } from "@/lib/item-bank";
 import type { LocatorResult } from "@/lib/diagnostic-locator";
 import type { AreaMatematika } from "@/types";
 import { classifyAreaWithConfig, getClassificationConfig } from "@/lib/classification-config";
+import {
+  isFoundation,
+  pickFoundationTarget,
+  buildAdaptiveThresholds,
+  routePath,
+  classifyClusterStatus,
+  type Cluster,
+  type PathRoute,
+  type ClusterThresholds,
+} from "@/lib/foundation-set";
+import type { JenjangResmi } from "@/types";
 
 /** Distribusi target area per jalur (proportion, sum to 1). */
 const AREA_TARGETS: Record<JalurDiagnostik, Map<AreaMatematika, number>> = {
@@ -236,6 +247,15 @@ export type AreaProfile = {
   status: "kuat" | "cukup" | "lemah" | "data_kurang";
 };
 
+export type ClusterScore = {
+  cluster: Cluster;
+  itemsAnswered: number;
+  itemsCorrect: number;
+  accuracy: number;
+  status: "siap" | "review" | "remediasi";
+  threshold: number;
+};
+
 export type CoverageResult = {
   jalur: JalurDiagnostik;
   thetaGlobal: number;
@@ -245,12 +265,78 @@ export type CoverageResult = {
   perArea: AreaProfile[];
   /** Area yang lemah relatif theta global — kandidat target Stage 2 (B5). */
   areaSuspect: AreaMatematika[];
+  /** Skor per cluster A/B/C (kalau profile user ada — derived dari foundation set). */
+  clusterScores?: ClusterScore[];
+  /** Path routing 4-tier berdasarkan skor cluster. */
+  pathRoute?: PathRoute;
   responses: Response[];
 };
 
 // classifyArea sekarang baca config from classification-config.ts (bisa di-tune admin).
 
-export async function finalizeCoverage(state: CoverageState): Promise<CoverageResult | null> {
+/**
+ * Per item response, classify ke Cluster A/B/C berdasarkan:
+ *   - Foundation Set (untuk jenjang user) → C terlepas kelas
+ *   - Kelas item == kelas user → A (target level)
+ *   - Kelas item < kelas user → B (supporting from earlier grade)
+ *   - Kelas item > kelas user → A (challenging — anggap masih direct relevant)
+ */
+function classifyItemCluster(
+  itemSubMateriKode: string,
+  itemKelas: number,
+  userJenjang: JenjangResmi,
+  userKelas: number,
+  foundationTarget: ReturnType<typeof pickFoundationTarget>,
+): Cluster {
+  if (isFoundation(itemSubMateriKode, foundationTarget)) return "C";
+  if (itemKelas >= userKelas) return "A";
+  // Item dari kelas lebih rendah TAPI bukan foundation set → B (supporting bridging)
+  return "B";
+}
+
+/**
+ * Build cluster scores dari responses.
+ * Butuh profile user (jenjang+kelas) untuk derive cluster mapping.
+ */
+function buildClusterScores(
+  responses: Response[],
+  pool: ItemBankEntry[],
+  userJenjang: JenjangResmi,
+  userKelas: number,
+  thresholds: ClusterThresholds,
+): ClusterScore[] {
+  const foundationTarget = pickFoundationTarget(userJenjang, userKelas);
+  const itemMap = new Map(pool.map((it) => [it.id, it]));
+  const buckets: Record<Cluster, { ans: number; cor: number }> = {
+    A: { ans: 0, cor: 0 },
+    B: { ans: 0, cor: 0 },
+    C: { ans: 0, cor: 0 },
+  };
+  for (const r of responses) {
+    const it = itemMap.get(r.itemId);
+    if (!it) continue;
+    const cluster = classifyItemCluster(it.subMateriKode, it.kelas, userJenjang, userKelas, foundationTarget);
+    buckets[cluster].ans += 1;
+    if (r.correct) buckets[cluster].cor += 1;
+  }
+  return (["A", "B", "C"] as Cluster[]).map((cluster) => {
+    const b = buckets[cluster];
+    const accuracy = b.ans > 0 ? b.cor / b.ans : 0;
+    return {
+      cluster,
+      itemsAnswered: b.ans,
+      itemsCorrect: b.cor,
+      accuracy,
+      status: classifyClusterStatus(accuracy, cluster, thresholds),
+      threshold: thresholds[cluster],
+    };
+  });
+}
+
+export async function finalizeCoverage(
+  state: CoverageState,
+  userProfile?: { jenjang: JenjangResmi; kelas: number },
+): Promise<CoverageResult | null> {
   if (!state.done || !state.stopReason) return null;
   const cfg = await getClassificationConfig();
   const targets = AREA_TARGETS[state.jalur];
@@ -292,6 +378,18 @@ export async function finalizeCoverage(state: CoverageState): Promise<CoverageRe
     .sort((a, b) => a.theta - b.theta) // paling lemah dulu
     .map((p) => p.area);
 
+  // Cluster scores (Pendekatan Integral) — kalau profile user tersedia
+  let clusterScores: ClusterScore[] | undefined;
+  let pathRoute: PathRoute | undefined;
+  if (userProfile) {
+    const adaptiveThresholds = buildAdaptiveThresholds(userProfile.jenjang, userProfile.kelas);
+    clusterScores = buildClusterScores(state.responses, state.pool, userProfile.jenjang, userProfile.kelas, adaptiveThresholds);
+    const accA = clusterScores.find((s) => s.cluster === "A")?.accuracy ?? 0;
+    const accB = clusterScores.find((s) => s.cluster === "B")?.accuracy ?? 0;
+    const accC = clusterScores.find((s) => s.cluster === "C")?.accuracy ?? 0;
+    pathRoute = routePath(accA, accB, accC, adaptiveThresholds);
+  }
+
   return {
     jalur: state.jalur,
     thetaGlobal: state.estimate.theta,
@@ -300,6 +398,8 @@ export async function finalizeCoverage(state: CoverageState): Promise<CoverageRe
     stopReason: state.stopReason,
     perArea,
     areaSuspect,
+    clusterScores,
+    pathRoute,
     responses: state.responses,
   };
 }

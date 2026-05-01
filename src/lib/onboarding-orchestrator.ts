@@ -42,6 +42,8 @@ export type OnboardingStage = "locator" | "coverage" | "deep" | "selesai";
 export type OnboardingState = {
   jalur: JalurDiagnostik;
   jenjang: JenjangResmi;
+  /** Kelas user (untuk auto-derive cluster + foundation target). */
+  kelas?: number;
   /** Mode kurikulum untuk filter item pool. Default "full". */
   modeKurikulum: ModeKurikulum;
   stage: OnboardingStage;
@@ -130,10 +132,12 @@ export async function startOnboarding(
   jalur: JalurDiagnostik,
   jenjang: JenjangResmi,
   modeKurikulum: ModeKurikulum = "full",
+  kelas?: number,
 ): Promise<OnboardingStep> {
   const state: OnboardingState = {
     jalur,
     jenjang,
+    kelas,
     modeKurikulum,
     stage: "locator",
     responses: [],
@@ -188,7 +192,10 @@ async function nextStep(state: OnboardingState): Promise<OnboardingStep> {
   if (state.stage === "coverage") {
     const cov = await rehydrateCoverage(state);
     if (cov.done) {
-      const result = await finalizeCoverage(cov);
+      const userProfile = state.kelas !== undefined
+        ? { jenjang: state.jenjang, kelas: state.kelas }
+        : undefined;
+      const result = await finalizeCoverage(cov, userProfile);
       const newState: OnboardingState = { ...state, stage: "deep", hasilCoverage: result ?? undefined };
       return await nextStep(newState);
     }

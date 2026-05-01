@@ -89,6 +89,8 @@ export async function POST(req: NextRequest) {
               accuracy: p.accuracy,
             })),
             areaSuspect: result.hasilCoverage.areaSuspect,
+            clusterScores: result.hasilCoverage.clusterScores,
+            pathRoute: result.hasilCoverage.pathRoute,
           }
         : undefined,
       hasilDeep: result.hasilDeep

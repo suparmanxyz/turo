@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
   });
 
   const sessionId = await createDiagnosticSession(uid, jalur);
-  const step = await startOnboarding(jalur, jenjangResmi, modeKurikulum);
+  const step = await startOnboarding(jalur, jenjangResmi, modeKurikulum, kelas);
 
   return NextResponse.json({
     sessionId,
