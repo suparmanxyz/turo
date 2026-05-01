@@ -242,10 +242,10 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         </section>
       )}
 
-      {/* Mastery summary */}
+      {/* Mastery summary — Deep stage (per sub-materi) */}
       {deep && (
         <section className="mb-6">
-          <h2 className="text-xl font-bold mb-3">Distribusi Mastery</h2>
+          <h2 className="text-xl font-bold mb-3">Distribusi Mastery (per sub-materi · Deep)</h2>
           <div className="grid grid-cols-4 gap-2">
             {(["siap", "review", "remediasi", "unknown"] as const).map((s) => (
               <div key={s} className="rounded-xl bg-white border border-slate-200 p-3 text-center">
@@ -254,6 +254,33 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {/* FALLBACK Mastery: kalau Deep tidak ada, tampilkan distribusi area dari Coverage */}
+      {!deep && cov && cov.perArea.length > 0 && (
+        <section className="mb-6">
+          <h2 className="text-xl font-bold mb-3">Distribusi Status (per area · Coverage)</h2>
+          <div className="grid grid-cols-4 gap-2">
+            {(["kuat", "cukup", "lemah", "data_kurang"] as const).map((s) => {
+              const count = cov.perArea.filter((p) => p.status === s).length;
+              const colorMap: Record<string, string> = {
+                kuat: "text-emerald-700",
+                cukup: "text-amber-700",
+                lemah: "text-rose-700",
+                data_kurang: "text-slate-500",
+              };
+              return (
+                <div key={s} className="rounded-xl bg-white border border-slate-200 p-3 text-center">
+                  <div className={`text-2xl font-bold ${colorMap[s]}`}>{count}</div>
+                  <div className="text-xs text-slate-500 mt-1 capitalize">{s === "data_kurang" ? "data kurang" : s}</div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[10px] text-slate-400 mt-2">
+            Tahap Deep skip karena item bank belum cukup. Distribusi di atas adalah agregat per AREA dari Tahap 2 Coverage.
+          </p>
         </section>
       )}
 

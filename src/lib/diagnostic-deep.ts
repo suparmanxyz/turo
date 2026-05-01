@@ -20,6 +20,7 @@ import type { ItemBankEntry } from "@/lib/item-bank";
 import { cariSubMateriResmi, subMateriPerArea, subMateriPerKelas } from "@/data/peta-resmi";
 import type { CoverageResult } from "@/lib/diagnostic-coverage";
 import type { AreaMatematika, JenjangResmi, MasteryStatus, SubMateriMastery, SubMateriResmi } from "@/types";
+import { classifyMasteryWithConfig, getClassificationConfig, type ClassificationConfig } from "@/lib/classification-config";
 
 /** Per-sub-materi state selama deep test. */
 type SubState = {
@@ -46,6 +47,8 @@ export type DeepState = {
   used: Set<string>;
   /** Hasil mastery per sub-materi (build incremental). */
   mastery: Map<string, SubMateriMastery>;
+  /** Threshold klasifikasi (loaded saat init dari Firestore config). */
+  cfg: ClassificationConfig;
   done: boolean;
   stopReason?: "queue_empty" | "max_items" | "time_cap";
 };
@@ -120,6 +123,9 @@ export async function initDeep(
   // Carry-over: items yang sudah dipakai di Coverage
   const carriedUsed = new Set(coverage.responses.map((r) => r.itemId));
 
+  // Load threshold config dari Firestore (cached)
+  const cfg = await getClassificationConfig();
+
   return {
     jalur: coverage.jalur,
     jenjang,
@@ -128,6 +134,7 @@ export async function initDeep(
     activeIdx: 0,
     used: carriedUsed,
     mastery: new Map(),
+    cfg,
     done: queue.length === 0,
     stopReason: queue.length === 0 ? "queue_empty" : undefined,
   };
@@ -178,6 +185,7 @@ function classifyMastery(
   responses: Response[],
   thetaGlobal: number,
   itemPool: ItemBankEntry[],
+  cfg: ClassificationConfig,
 ): { status: MasteryStatus; confidence: number } {
   if (responses.length === 0) return { status: "unknown", confidence: 0 };
   const correct = responses.filter((r) => r.correct).length;
@@ -191,22 +199,10 @@ function classifyMastery(
     .filter((it): it is ItemBankEntry => !!it)
     .map((it) => ({ id: it.id, subMateriKode: it.subMateriKode, area: it.area, b: it.b, a: it.a, c: it.c }));
   const est = estimateThetaEAP(items, responses);
-  // Confidence = 1 - se/2 (clamped 0-1)
   const confidence = Math.max(0, Math.min(1, 1 - est.se / 2));
 
-  // Threshold ABSOLUT — kalau accuracy < 0.5 langsung remediasi terlepas dari theta global.
-  // Mencegah bug: user jawab asal-asalan → theta global rendah → semua sub dianggap "review/siap"
-  // padahal accuracy real-nya 25% (random guess MC).
-  if (accuracy <= 0.4) {
-    return { status: "remediasi", confidence };
-  }
-  if (accuracy >= 0.7 && est.theta >= thetaGlobal - 0.3) {
-    return { status: "siap", confidence };
-  }
-  if (est.theta < thetaGlobal - 1.0) {
-    return { status: "remediasi", confidence };
-  }
-  return { status: "review", confidence };
+  const status = classifyMasteryWithConfig(accuracy, est.theta, thetaGlobal, cfg);
+  return { status, confidence };
 }
 
 export function submitDeepResponse(
@@ -251,7 +247,7 @@ export function submitDeepResponse(
   // Build mastery kalau settled
   const newMastery = new Map(state.mastery);
   if (newPhase === "settled-ok" || newPhase === "settled-bad") {
-    const cls = classifyMastery(newResponses, state.thetaGlobal, sub.pool);
+    const cls = classifyMastery(newResponses, state.thetaGlobal, sub.pool, state.cfg);
     newMastery.set(sub.kode, {
       kode: sub.kode,
       status: cls.status,
@@ -331,7 +327,7 @@ export function finalizeDeep(state: DeepState): DeepResult | null {
       });
       continue;
     }
-    const cls = classifyMastery(sub.responses, state.thetaGlobal, sub.pool);
+    const cls = classifyMastery(sub.responses, state.thetaGlobal, sub.pool, state.cfg);
     allMastery.set(sub.kode, {
       kode: sub.kode,
       status: cls.status,

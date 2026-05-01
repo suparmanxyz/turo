@@ -22,6 +22,7 @@ import { itemsForJalur, toIrtItems } from "@/lib/item-bank";
 import type { ItemBankEntry, JalurDiagnostik } from "@/lib/item-bank";
 import type { LocatorResult } from "@/lib/diagnostic-locator";
 import type { AreaMatematika } from "@/types";
+import { classifyAreaWithConfig, getClassificationConfig } from "@/lib/classification-config";
 
 /** Distribusi target area per jalur (proportion, sum to 1). */
 const AREA_TARGETS: Record<JalurDiagnostik, Map<AreaMatematika, number>> = {
@@ -247,24 +248,11 @@ export type CoverageResult = {
   responses: Response[];
 };
 
-function classifyArea(accuracy: number, thetaArea: number, thetaGlobal: number): AreaProfile["status"] {
-  // SIGNAL UTAMA = accuracy real (bukan theta yang di-smooth oleh prior IRT).
-  // IRT EAP dengan prior N(0,1) menarik theta ke 0 → tidak responsif untuk
-  // detect "salah semua". Accuracy lebih reliable.
-  // Random guess MC4 = 0.25 — kalau accuracy mendekati itu = jelas lemah.
-  if (accuracy <= 0.4) return "lemah";
-  if (accuracy >= 0.8 && thetaArea >= thetaGlobal - 0.3) return "kuat";
-  if (accuracy >= 0.65) {
-    // Cukup baik, tapi cek apakah signifikan kuat vs global
-    const gap = thetaArea - thetaGlobal;
-    return gap >= 0.5 ? "kuat" : "cukup";
-  }
-  // accuracy 0.41-0.64 → cukup (di atas random guess tapi belum mastery)
-  return "cukup";
-}
+// classifyArea sekarang baca config from classification-config.ts (bisa di-tune admin).
 
-export function finalizeCoverage(state: CoverageState): CoverageResult | null {
+export async function finalizeCoverage(state: CoverageState): Promise<CoverageResult | null> {
   if (!state.done || !state.stopReason) return null;
+  const cfg = await getClassificationConfig();
   const targets = AREA_TARGETS[state.jalur];
   const perArea: AreaProfile[] = [];
   for (const area of targets.keys()) {
@@ -280,9 +268,9 @@ export function finalizeCoverage(state: CoverageState): CoverageResult | null {
     const accuracy = itemsAnswered > 0 ? itemsCorrect / itemsAnswered : 0;
 
     if (!themEst || used < 2) {
-      // Data kurang TAPI kalau ada >=1 jawaban dan accuracy <=0.4, kasih sinyal "lemah"
+      // Data kurang TAPI kalau ada >=1 jawaban dan accuracy ≤ threshold lemah, kasih sinyal "lemah"
       const fallbackStatus: AreaProfile["status"] =
-        itemsAnswered >= 1 && accuracy <= 0.4 ? "lemah" : "data_kurang";
+        itemsAnswered >= 1 && accuracy <= cfg.coverageLemahMaxAcc ? "lemah" : "data_kurang";
       perArea.push({
         area, itemsAnswered, itemsCorrect, accuracy,
         theta: state.estimate.theta, se: Infinity, status: fallbackStatus,
@@ -296,7 +284,7 @@ export function finalizeCoverage(state: CoverageState): CoverageResult | null {
       accuracy,
       theta: themEst.theta,
       se: themEst.se,
-      status: classifyArea(accuracy, themEst.theta, state.estimate.theta),
+      status: classifyAreaWithConfig(accuracy, themEst.theta, state.estimate.theta, cfg),
     });
   }
   const areaSuspect = perArea
@@ -345,5 +333,5 @@ export async function simulateCoverage(
     });
   }
 
-  return { result: finalizeCoverage(state), trace };
+  return { result: await finalizeCoverage(state), trace };
 }

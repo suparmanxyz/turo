@@ -188,7 +188,7 @@ async function nextStep(state: OnboardingState): Promise<OnboardingStep> {
   if (state.stage === "coverage") {
     const cov = await rehydrateCoverage(state);
     if (cov.done) {
-      const result = finalizeCoverage(cov);
+      const result = await finalizeCoverage(cov);
       const newState: OnboardingState = { ...state, stage: "deep", hasilCoverage: result ?? undefined };
       return await nextStep(newState);
     }
