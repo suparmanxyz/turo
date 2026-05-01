@@ -271,6 +271,50 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
     }
   }
 
+  async function regenerateAll() {
+    const count = data?.items.length ?? 3;
+    if (!confirm(`♻ Regenerate semua ${count} items untuk sub ini?\n\nIni akan HAPUS items lama dulu, lalu generate ${count} soal baru dengan metadata pedagogis lengkap. Tidak bisa dibatalkan.`)) return;
+    setBusy("regen");
+    try {
+      const idToken = await user!.getIdToken();
+      const res = await fetch(`/api/admin/item-bank/${encodeURIComponent(decodedKode)}/regenerate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ count }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      const result = await res.json();
+      alert(`✓ Regenerate selesai: hapus ${result.deleted}, generate ${result.generated} (model: ${result.modelUsed})`);
+      await load();
+    } catch (e) {
+      alert(`Gagal regenerate: ${e}`);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function deleteAll() {
+    const count = data?.items.length ?? 0;
+    if (count === 0) return;
+    if (!confirm(`🗑 Hapus SEMUA ${count} items untuk sub ini?\n\nTidak bisa dibatalkan. Sub-materi akan kembali ke status 'belum punya items'.`)) return;
+    setBusy("del-all");
+    try {
+      const idToken = await user!.getIdToken();
+      const res = await fetch(`/api/admin/item-bank/${encodeURIComponent(decodedKode)}/regenerate`, {
+        method: "DELETE",
+        headers: { authorization: `Bearer ${idToken}` },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const result = await res.json();
+      alert(`✓ Hapus ${result.deleted} items.`);
+      await load();
+    } catch (e) {
+      alert(`Gagal hapus semua: ${e}`);
+    } finally {
+      setBusy(null);
+    }
+  }
+
   if (loading) return <main className="p-8 text-slate-500">Memuat...</main>;
   if (!user || !isAdminEmail(user.email)) {
     return <main className="mx-auto max-w-3xl p-8 text-center"><p className="text-rose-600">⛔ Akses ditolak</p></main>;
@@ -365,17 +409,35 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
       </div>
 
       {/* Action bar */}
-      <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex gap-2 flex-wrap">
         <button
           onClick={seedMore}
           disabled={busy !== null}
           className="rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2 text-sm disabled:opacity-50"
+          title="Tambah 3 soal baru (items lama tetap)"
         >
           {busy === "seed" ? "Generating..." : "+ Generate 3 soal lagi"}
         </button>
         <button
+          onClick={regenerateAll}
+          disabled={busy !== null || (data?.items.length ?? 0) === 0}
+          className="rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium px-4 py-2 text-sm disabled:opacity-50"
+          title="Hapus items lama + generate baru dengan metadata pedagogis lengkap"
+        >
+          {busy === "regen" ? "Regenerating..." : "♻ Regenerate semua"}
+        </button>
+        <button
+          onClick={deleteAll}
+          disabled={busy !== null || (data?.items.length ?? 0) === 0}
+          className="rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 font-medium px-4 py-2 text-sm disabled:opacity-50"
+          title="Hapus semua items tanpa generate baru"
+        >
+          {busy === "del-all" ? "Hapus..." : "🗑 Hapus semua"}
+        </button>
+        <button
           onClick={load}
-          className="rounded-lg bg-slate-100 hover:bg-slate-200 px-4 py-2 text-sm"
+          disabled={busy !== null}
+          className="rounded-lg bg-slate-100 hover:bg-slate-200 px-4 py-2 text-sm disabled:opacity-50"
         >
           🔄 Refresh
         </button>
