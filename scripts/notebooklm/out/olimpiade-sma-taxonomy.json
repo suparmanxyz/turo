@@ -1,0 +1,54 @@
+{
+  "domain": "Olimpiade Matematika SMA Indonesia",
+  "_meta": {
+    "source": "NotebookLM fast mode (FALLBACK — deep mode rate-limited)",
+    "research_date": "2026-05-02",
+    "task_id": "f7b2abc3-0a1b-43ea-b2bb-95511dafff62",
+    "mode": "fast",
+    "note": "⚠️ INCOMPLETE: Fast mode hanya kasih 10 URL tanpa sintesis report markdown (berbeda dengan deep mode yang generate 30 KB report). Tidak setara dengan UTBK/SD/SMP NotebookLM-research version. Untuk authoritative SMA taxonomy, retry dengan --mode deep saat quota reset (~24 jam).",
+    "raw_report": "olimpiade-sma-report.md (placeholder, bukan hasil sintesis)",
+    "sources_list": "olimpiade-sma-sources.json",
+    "query": "tipe dan kategori soal olimpiade matematika SMA MA Indonesia, OSN-K SMA, OSP, OSN, KSN matematika, seleksi IMO Indonesia, materi aljabar lanjut teori bilangan kombinatorika geometri analitik bukti pembuktian, contoh soal pembahasan",
+    "fallback_recommendation": "Pakai olimpiade-sma-taxonomy.claude-direct.json sebagai primary sampai deep mode tersedia"
+  },
+  "topic_hints_dari_url_titles": [
+    {
+      "topic": "Pembuktian Matematis",
+      "evidence_url": "ANALISIS KESULITAN MAHASISWA DALAM PEMBUKTIAN MATEMATIS PADA MATA KULIAH ANALISIS REAL (Untirta)",
+      "implikasi": "OSN SMA tingkat tinggi butuh keterampilan pembuktian formal seperti analisis real (epsilon-delta, dll)"
+    },
+    {
+      "topic": "Persamaan Fungsional",
+      "evidence_url": "Introduction to Functional Equations - Evan Chen",
+      "implikasi": "Topic kunci IMO; Cauchy's f(x+y)=f(x)+f(y), substitusi spesifik, pembuktian f kontinu/monotonic"
+    },
+    {
+      "topic": "Order Modulo Prima",
+      "evidence_url": "Orders Modulo A Prime - Evan Chen",
+      "implikasi": "Teori bilangan lanjut: ord_p(a), Teorema Fermat-Euler, primitive roots"
+    },
+    {
+      "topic": "Kombinatorika Olimpiade",
+      "evidence_url": "Olympiad Combinatorics Problems Solutions - Berkeley",
+      "implikasi": "Counting lanjut, Pigeonhole generalized, Ramsey-type, probabilistic method"
+    },
+    {
+      "topic": "Seleksi IMO Indonesia",
+      "evidence_url": "Kemendikdasmen kirim 6 siswa terbaik ke IMO 2025",
+      "implikasi": "Pelatnas TOMI (Tim Olimpiade Matematika Indonesia) untuk IMO; konfirmasi hierarki OSK→OSP→OSN→Pelatnas→IMO"
+    }
+  ],
+  "sumber_authoritative_resmi": [
+    {
+      "url": "https://pusatprestasinasional.kemendikdasmen.go.id/uploads/lampiran/Pedoman%20OSN%20SMA_MA%202024%20fix.pdf",
+      "title": "PEDOMAN Olimpiade Sains Nasional (OSN) SMA/MA/Sederajat 2024",
+      "status": "RESMI Kemendikdasmen — silabus & format ujian official"
+    },
+    {
+      "url": "https://smaawards.jawapos.co.id/uploads/pengumuman/file/d06d426cd3c5a7e88c35d0673da388d7.pdf",
+      "title": "Silabus Olimpiade Matematika SMA",
+      "status": "Silabus referensi"
+    }
+  ],
+  "next_action": "Retry NotebookLM deep mode + import-all setelah quota reset (~24 jam) untuk dapat report 30+ KB. Sementara ini, gunakan olimpiade-sma-taxonomy.claude-direct.json yang sudah lengkap berdasarkan training knowledge."
+}

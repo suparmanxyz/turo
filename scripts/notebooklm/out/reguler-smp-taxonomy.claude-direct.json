@@ -1,0 +1,312 @@
+{
+  "_meta": {
+    "source": "claude-direct",
+    "model": "claude-opus-4-7",
+    "domain": "reguler-smp",
+    "generated_at": "2026-05-03",
+    "kurikulum": "CP 046/H/KR/2025 Kurikulum Merdeka",
+    "scope": "SMP K7-K9 (Fase D)",
+    "note": "Claude-direct generation. NB deep research belum bisa dijalankan (rate limit)."
+  },
+  "elemen_cp046": [
+    "Bilangan",
+    "Aljabar dan Fungsi",
+    "Pengukuran",
+    "Geometri",
+    "Analisis Data dan Peluang"
+  ],
+  "kelas": [
+    {
+      "kelas": 7,
+      "fase": "D",
+      "bab": [
+        {
+          "id": "K7.B1",
+          "nama": "Bilangan Bulat dan Pecahan",
+          "sub_bab": [
+            "Bilangan rasional (bulat, pecahan, desimal)",
+            "Operasi bilangan bulat (aturan tanda)",
+            "Operasi pecahan campuran",
+            "Bilangan berpangkat & akar (pengenalan)",
+            "Notasi ilmiah sederhana"
+          ],
+          "tipe_soal": ["PG", "Isian", "Soal cerita"]
+        },
+        {
+          "id": "K7.B2",
+          "nama": "Himpunan",
+          "sub_bab": [
+            "Konsep himpunan & notasi",
+            "Operasi himpunan (gabungan, irisan, selisih)",
+            "Diagram Venn"
+          ],
+          "tipe_soal": ["PG bergambar Venn", "Isian"]
+        },
+        {
+          "id": "K7.B3",
+          "nama": "Bentuk Aljabar",
+          "sub_bab": [
+            "Variabel & koefisien",
+            "Operasi penjumlahan/pengurangan suku sejenis",
+            "Perkalian bentuk aljabar (x+a)(x+b)",
+            "Sifat distributif"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        },
+        {
+          "id": "K7.B4",
+          "nama": "Persamaan dan Pertidaksamaan Linear Satu Variabel",
+          "sub_bab": [
+            "Persamaan linear satu variabel (PLSV)",
+            "Pertidaksamaan linear satu variabel (PtLSV)",
+            "Aplikasi: aritmetika sosial (untung-rugi, diskon, bunga)"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita finansial"]
+        },
+        {
+          "id": "K7.B5",
+          "nama": "Perbandingan",
+          "sub_bab": [
+            "Perbandingan dua besaran",
+            "Perbandingan senilai (proporsi)",
+            "Perbandingan berbalik nilai",
+            "Skala peta"
+          ],
+          "tipe_soal": ["Soal cerita", "PG"]
+        },
+        {
+          "id": "K7.B6",
+          "nama": "Garis dan Sudut",
+          "sub_bab": [
+            "Hubungan dua garis (sejajar, berpotongan, bersilangan)",
+            "Sudut: jenis & pengukuran",
+            "Sudut sehadap, berseberangan, sepihak",
+            "Garis transversal"
+          ],
+          "tipe_soal": ["PG bergambar", "Isian"]
+        },
+        {
+          "id": "K7.B7",
+          "nama": "Segitiga dan Segiempat",
+          "sub_bab": [
+            "Sifat & jenis segitiga",
+            "Sifat segiempat (persegi, persegi panjang, jajar genjang, trapesium, layang-layang, belah ketupat)",
+            "Keliling & luas bangun datar"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        },
+        {
+          "id": "K7.B8",
+          "nama": "Statistika & Penyajian Data",
+          "sub_bab": [
+            "Pengumpulan & penyajian data",
+            "Diagram batang, garis, lingkaran",
+            "Tabel distribusi frekuensi"
+          ],
+          "tipe_soal": ["PG dari diagram", "Isian"]
+        }
+      ]
+    },
+    {
+      "kelas": 8,
+      "fase": "D",
+      "bab": [
+        {
+          "id": "K8.B1",
+          "nama": "Pola Bilangan & Barisan",
+          "sub_bab": [
+            "Pola bilangan",
+            "Barisan aritmetika",
+            "Barisan geometri (pengenalan)"
+          ],
+          "tipe_soal": ["Isian", "PG"]
+        },
+        {
+          "id": "K8.B2",
+          "nama": "Koordinat Kartesius",
+          "sub_bab": [
+            "Sistem koordinat kartesius",
+            "Posisi titik (x, y)",
+            "Posisi titik terhadap sumbu/garis"
+          ],
+          "tipe_soal": ["PG bergambar koordinat", "Isian"]
+        },
+        {
+          "id": "K8.B3",
+          "nama": "Relasi dan Fungsi",
+          "sub_bab": [
+            "Konsep relasi (panah, himpunan pasangan terurut)",
+            "Konsep fungsi & notasi f(x)",
+            "Domain, kodomain, range",
+            "Fungsi linear & grafiknya"
+          ],
+          "tipe_soal": ["PG bergambar", "Isian"]
+        },
+        {
+          "id": "K8.B4",
+          "nama": "Persamaan Garis Lurus",
+          "sub_bab": [
+            "Gradien (m) & cara menentukan",
+            "Persamaan garis y = mx + c",
+            "Persamaan garis dari 2 titik",
+            "Garis sejajar & tegak lurus"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        },
+        {
+          "id": "K8.B5",
+          "nama": "Sistem Persamaan Linear Dua Variabel (SPLDV)",
+          "sub_bab": [
+            "Konsep SPLDV",
+            "Metode substitusi",
+            "Metode eliminasi",
+            "Metode grafik",
+            "Aplikasi soal cerita"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        },
+        {
+          "id": "K8.B6",
+          "nama": "Teorema Pythagoras",
+          "sub_bab": [
+            "Konsep teorema Pythagoras",
+            "Tripel Pythagoras",
+            "Aplikasi pada segitiga siku-siku",
+            "Aplikasi geometri (jarak, diagonal)"
+          ],
+          "tipe_soal": ["Isian bergambar", "Soal cerita"]
+        },
+        {
+          "id": "K8.B7",
+          "nama": "Lingkaran",
+          "sub_bab": [
+            "Unsur lingkaran",
+            "Keliling & luas lingkaran",
+            "Sudut pusat & sudut keliling",
+            "Panjang busur & luas juring"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        },
+        {
+          "id": "K8.B8",
+          "nama": "Bangun Ruang Sisi Datar",
+          "sub_bab": [
+            "Kubus, balok, prisma, limas",
+            "Luas permukaan & volume",
+            "Jaring-jaring"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        },
+        {
+          "id": "K8.B9",
+          "nama": "Statistika Lanjut",
+          "sub_bab": [
+            "Mean, median, modus data tunggal",
+            "Quartil, range",
+            "Penyajian data: histogram"
+          ],
+          "tipe_soal": ["PG", "Isian"]
+        },
+        {
+          "id": "K8.B10",
+          "nama": "Peluang Empirik & Teoretik",
+          "sub_bab": [
+            "Konsep peluang",
+            "Peluang empirik (frekuensi relatif)",
+            "Peluang teoretik (P = n(A)/n(S))"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        }
+      ]
+    },
+    {
+      "kelas": 9,
+      "fase": "D",
+      "bab": [
+        {
+          "id": "K9.B1",
+          "nama": "Bilangan Berpangkat dan Akar",
+          "sub_bab": [
+            "Sifat bilangan berpangkat (a^m × a^n, dll)",
+            "Bilangan berpangkat negatif & nol",
+            "Bentuk akar & merasionalkan penyebut",
+            "Notasi ilmiah lanjut"
+          ],
+          "tipe_soal": ["Isian", "PG"]
+        },
+        {
+          "id": "K9.B2",
+          "nama": "Persamaan Kuadrat",
+          "sub_bab": [
+            "Bentuk umum ax² + bx + c = 0",
+            "Pemfaktoran kuadrat",
+            "Melengkapkan kuadrat sempurna",
+            "Rumus abc",
+            "Diskriminan & jenis akar"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        },
+        {
+          "id": "K9.B3",
+          "nama": "Fungsi Kuadrat",
+          "sub_bab": [
+            "Bentuk fungsi kuadrat f(x) = ax² + bx + c",
+            "Grafik parabola (titik puncak, sumbu simetri)",
+            "Nilai maks/min",
+            "Aplikasi optimasi sederhana"
+          ],
+          "tipe_soal": ["PG bergambar", "Isian"]
+        },
+        {
+          "id": "K9.B4",
+          "nama": "Kekongruenan dan Kesebangunan",
+          "sub_bab": [
+            "Kekongruenan bangun datar (sama bentuk & ukuran)",
+            "Kesebangunan (perbandingan sisi sama)",
+            "Kekongruenan & kesebangunan segitiga (kriteria SSS, SAS, ASA)",
+            "Aplikasi (mengukur tinggi, jarak)"
+          ],
+          "tipe_soal": ["Isian bergambar", "Soal cerita"]
+        },
+        {
+          "id": "K9.B5",
+          "nama": "Bangun Ruang Sisi Lengkung",
+          "sub_bab": [
+            "Tabung (luas permukaan & volume)",
+            "Kerucut",
+            "Bola"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        },
+        {
+          "id": "K9.B6",
+          "nama": "Transformasi Geometri",
+          "sub_bab": [
+            "Translasi (geseran)",
+            "Refleksi (pencerminan)",
+            "Rotasi (perputaran)",
+            "Dilatasi (perbesaran)"
+          ],
+          "tipe_soal": ["PG bergambar", "Isian"]
+        }
+      ]
+    }
+  ],
+  "tipe_soal_global": [
+    "Pilihan Ganda (PG) — 4 opsi A/B/C/D",
+    "Isian Singkat",
+    "Esai/Uraian — dengan langkah penyelesaian (PTS/PAT/Sumatif)",
+    "Soal Cerita / Aplikasi (aritmetika sosial, geometri praktis)",
+    "PG Bergambar (geometri, koordinat, grafik fungsi)",
+    "Soal HOTS (Higher Order Thinking) — penalaran multi-step",
+    "PISA-like / Numerasi ANBK"
+  ],
+  "asesmen_format": [
+    "Ulangan Harian per bab",
+    "PTS (Penilaian Tengah Semester) — 25-40 soal",
+    "PAS/PAT (Akhir Semester/Tahun) — 40-60 soal",
+    "Asesmen Sumatif Akhir Fase D (K9)",
+    "ANBK (Asesmen Nasional) — sampling kelas 8",
+    "Ujian Sekolah K9 (akhir SMP)"
+  ]
+}

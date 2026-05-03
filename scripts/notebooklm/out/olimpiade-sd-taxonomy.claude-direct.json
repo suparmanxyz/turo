@@ -1,0 +1,224 @@
+{
+  "domain": "Olimpiade Matematika SD Indonesia",
+  "_meta": {
+    "source": "Claude direct (training knowledge, no live research)",
+    "model": "claude-opus-4-7",
+    "knowledge_cutoff": "2026-01",
+    "generated_date": "2026-05-02",
+    "scope": "KMNR (Klinik Pendidikan MIPA), OSN-SD/OSK/OSP, Matnasoa, OMI, kompetisi internal sekolah",
+    "method": "Generated dari prior knowledge tanpa akses sumber eksternal — untuk apple-to-apple comparison terhadap NotebookLM-research version"
+  },
+  "format_soal_global": [
+    {
+      "nama": "Pilihan Ganda",
+      "deskripsi": "5 opsi A-E (OSN umumnya); kadang 4 opsi A-D di kompetisi tertentu",
+      "ciri_soal": "Format dominan untuk babak penyisihan / OSK / OSP"
+    },
+    {
+      "nama": "Isian Singkat",
+      "deskripsi": "Jawaban berupa bilangan (bulat / pecahan dengan format tertentu)",
+      "ciri_soal": "Khas KMNR babak penyisihan; menghindari faktor tebak"
+    },
+    {
+      "nama": "Uraian Pendek",
+      "deskripsi": "Tunjukkan langkah, jawaban final tetap angka",
+      "ciri_soal": "Babak final KMNR, OSN tingkat nasional"
+    },
+    {
+      "nama": "Esai / Pembuktian",
+      "deskripsi": "Buktikan teorema kecil / argumentasi formal",
+      "ciri_soal": "Sangat jarang di SD; muncul di OSN tingkat tertinggi"
+    }
+  ],
+  "tingkat_kesulitan_kompetisi": [
+    {"level": "sekolah", "deskripsi": "internal, soal dasar"},
+    {"level": "kabupaten (OSK)", "deskripsi": "level menengah"},
+    {"level": "provinsi (OSP)", "deskripsi": "level lanjut"},
+    {"level": "nasional (OSN)", "deskripsi": "level tertinggi SD"}
+  ],
+  "kategori_materi": [
+    {
+      "nama": "Bilangan & Aritmetika",
+      "deskripsi": "Operasi & sifat bilangan termasuk aritmetika sosial",
+      "tipe": [
+        {
+          "nama": "Sifat Bilangan",
+          "subtipe": ["Ganjil-genap", "Prima-komposit", "Faktor-kelipatan", "Bilangan palindrom"],
+          "ciri_soal": "Manipulasi sifat untuk inferensi",
+          "tingkat_kesulitan": "easy",
+          "contoh_topik": ["jumlah n bilangan ganjil pertama", "FPB-KPK soal cerita"]
+        },
+        {
+          "nama": "Operasi Cepat & Manipulasi",
+          "subtipe": ["Operasi campuran", "Pecahan kompleks", "Desimal & persen", "Trick aritmetika"],
+          "ciri_soal": "Hasil eksak, sering pakai pola untuk shortcut",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["1+2+...+n", "rumus jumlah persegi", "perkalian dengan trik"]
+        },
+        {
+          "nama": "Aritmetika Sosial",
+          "subtipe": ["Jual-beli (untung-rugi)", "Diskon berlapis", "Bunga sederhana", "Pajak"],
+          "ciri_soal": "Soal cerita konteks ekonomi keseharian",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["harga jual setelah diskon dan pajak", "untung total dari beberapa transaksi"]
+        },
+        {
+          "nama": "Aritmetika Usia",
+          "subtipe": ["Selisih usia tetap", "Jumlah usia", "Kelipatan usia", "Usia di masa lalu/depan"],
+          "ciri_soal": "Variabel relasi antar orang, butuh sistem persamaan dasar",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["umur ayah 4x anak, 5 tahun lalu 7x", "jumlah usia dua orang"]
+        },
+        {
+          "nama": "Kecepatan-Jarak-Waktu",
+          "subtipe": ["Berpapasan", "Susul-menyusul", "Kecepatan rata-rata", "Pulang-pergi beda kecepatan"],
+          "ciri_soal": "Sering multi-step dengan kecepatan berubah",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["dua mobil dari arah berlawanan", "lari mengelilingi lapangan"]
+        }
+      ]
+    },
+    {
+      "nama": "Pola & Logika",
+      "deskripsi": "Pengenalan pola dan penalaran logis",
+      "tipe": [
+        {
+          "nama": "Pola Bilangan",
+          "subtipe": ["Aritmetika & geometri", "Pola gabungan", "Pola bertingkat (selisih dari selisih)", "Pola fibonacci-like"],
+          "ciri_soal": "Diberikan 4-6 angka, tentukan rumus / suku ke-n",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["1, 4, 9, 16, ...", "deret berselang-seling"]
+        },
+        {
+          "nama": "Pola Gambar / Visual",
+          "subtipe": ["Pola titik membentuk angka", "Pola simetri", "Pola pertumbuhan (sel)", "Pola tessellation"],
+          "ciri_soal": "Stimulus visual, hitung jumlah elemen di iterasi tertentu",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["banyaknya kotak di pola ke-10", "pola batik atau ubin"]
+        },
+        {
+          "nama": "Penalaran Logika",
+          "subtipe": ["Silogisme sederhana", "Urutan & ranking", "Tabel logika (kebenaran-kebohongan)", "Teka-teki klasik"],
+          "ciri_soal": "Petunjuk parsial → tentukan susunan/orang/hari",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["menentukan profesi 5 orang dari 4 petunjuk", "siapa yang berbohong"]
+        }
+      ]
+    },
+    {
+      "nama": "Geometri & Pengukuran",
+      "deskripsi": "Bangun datar, ruang, dan sistem pengukuran",
+      "tipe": [
+        {
+          "nama": "Luas & Keliling Bangun Datar",
+          "subtipe": ["Segitiga (sembarang, sama sisi, sama kaki)", "Persegi & persegi panjang", "Trapesium & jajaran genjang", "Lingkaran & juring", "Bangun gabungan & arsiran"],
+          "ciri_soal": "Sering kombinasi (luas arsir = luas total - luas dalam)",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["luas daerah arsir antara persegi dan lingkaran dalam", "keliling bangun majemuk"]
+        },
+        {
+          "nama": "Volume & Luas Permukaan",
+          "subtipe": ["Kubus & balok", "Tabung", "Kerucut & bola (lanjut)", "Bangun gabungan"],
+          "ciri_soal": "Soal cerita: berapa air masuk, berapa kotak masuk balok besar",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["jumlah kubus kecil dalam balok besar", "tinggi air berubah saat benda dimasukkan"]
+        },
+        {
+          "nama": "Sudut",
+          "subtipe": ["Jumlah sudut dalam segibanyak", "Sudut jam (jarum jam-menit)", "Sudut bertolak belakang & sehadap", "Sudut pada lingkaran"],
+          "ciri_soal": "Hitung besar sudut dari kondisi geometris",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["sudut antara dua jarum jam pukul 3:24", "jumlah sudut segi-12"]
+        },
+        {
+          "nama": "Pengukuran & Konversi",
+          "subtipe": ["Panjang (km, m, cm)", "Berat (ton, kg, gram)", "Waktu (durasi, selisih)", "Suhu", "Skala & peta"],
+          "ciri_soal": "Multi-konversi, sering nyatu dengan soal cerita",
+          "tingkat_kesulitan": "easy",
+          "contoh_topik": ["jarak peta vs jarak sebenarnya skala 1:50000", "selisih waktu antar zona"]
+        }
+      ]
+    },
+    {
+      "nama": "Teori Bilangan Dasar",
+      "deskripsi": "Sifat bilangan dengan kedalaman olimpiade",
+      "tipe": [
+        {
+          "nama": "FPB & KPK",
+          "subtipe": ["FPB-KPK 2-3 bilangan", "Soal cerita lonceng/lampu", "FPB-KPK dengan kondisi", "Hubungan FPB×KPK = a×b"],
+          "ciri_soal": "Konteks: jadwal, pembagian, sinkronisasi",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["3 lampu menyala bareng tiap n menit", "minimum siswa per kelompok"]
+        },
+        {
+          "nama": "Sisa Pembagian (Modular Dasar)",
+          "subtipe": ["Sisa dari pembagian sederhana", "Pola sisa", "Hari ke-n (mod 7)", "Digit terakhir pangkat tinggi"],
+          "ciri_soal": "Pakai pola periodik untuk simplify pangkat besar",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["digit satuan dari 7^100", "hari apa 1000 hari dari Senin"]
+        },
+        {
+          "nama": "Bilangan Spesial",
+          "subtipe": ["Palindrom", "Bilangan kuadrat-kubik", "Bilangan sempurna", "Bilangan bersusun (123, 234, ...)"],
+          "ciri_soal": "Cari bilangan dengan sifat tertentu pada interval",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["palindrom 4-digit antara 2000-3000", "kuadrat sempurna dengan 4 digit"]
+        }
+      ]
+    },
+    {
+      "nama": "Kombinatorika & Peluang Dasar",
+      "deskripsi": "Counting & probabilitas tanpa formula formal",
+      "tipe": [
+        {
+          "nama": "Counting Principle",
+          "subtipe": ["Aturan perkalian", "Aturan penjumlahan", "Diagram pohon", "Eksklusi-inklusi sederhana"],
+          "ciri_soal": "Hitung jumlah cara/susunan",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["jumlah angka 3-digit beda dengan digit dari {1-5}", "rute dari A ke B"]
+        },
+        {
+          "nama": "Permutasi-Kombinasi (intuitif)",
+          "subtipe": ["Susunan tanpa pengulangan", "Memilih dari sekelompok", "Susunan dengan syarat khusus", "Susunan melingkar dasar"],
+          "ciri_soal": "Belum pakai notasi P(n,r)/C(n,r), tapi konsep sama",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["jabat tangan 8 orang", "pilih 3 dari 7 buku berbeda"]
+        },
+        {
+          "nama": "Peluang Dasar",
+          "subtipe": ["Dadu tunggal & ganda", "Koin", "Kartu/kelereng warna", "Peluang gabungan sederhana"],
+          "ciri_soal": "Hitung peluang event dari ruang sampel terbatas",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["peluang jumlah dadu = 7", "peluang ambil 2 kelereng merah"]
+        }
+      ]
+    },
+    {
+      "nama": "Soal Cerita & Pemodelan (Nalaria Realistik)",
+      "deskripsi": "Khas KMNR — soal multi-step dari konteks nyata",
+      "tipe": [
+        {
+          "nama": "Konteks Ekonomi-Dagang",
+          "subtipe": ["Pasar tradisional", "Toko kelontong", "Modal-untung-rugi", "Patungan / iuran"],
+          "ciri_soal": "Multi-step, butuh translate teks → ekspresi",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["pedagang membagi modal", "diskon berlapis dengan voucher"]
+        },
+        {
+          "nama": "Konteks Sehari-hari",
+          "subtipe": ["Resep masakan", "Perbaikan rumah", "Olahraga", "Transportasi"],
+          "ciri_soal": "Konteks familiar, fokus translate",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["resep untuk 8 orang dari resep 3 orang", "lari mengelilingi taman"]
+        },
+        {
+          "nama": "Konteks Pertanian-Lingkungan",
+          "subtipe": ["Petak sawah/kebun", "Hewan ternak", "Cuaca & musim", "Lingkungan"],
+          "ciri_soal": "Sering pakai geometri (luas) atau perbandingan",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["jumlah pohon di petak persegi", "pakan ternak per ekor"]
+        }
+      ]
+    }
+  ]
+}

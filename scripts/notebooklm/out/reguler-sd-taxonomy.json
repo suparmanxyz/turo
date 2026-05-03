@@ -1,0 +1,520 @@
+{
+  "_meta": {
+    "source": "notebooklm-deep-research",
+    "model": "Gemini Deep Research (NotebookLM Pro)",
+    "domain": "reguler-sd",
+    "generated_at": "2026-05-03",
+    "kurikulum": "BSKAP No. 046/H/KR/2025 — Kurikulum Merdeka",
+    "regulasi_pengganti": "BSKAP 032/H/KR/2024 (kini tidak berlaku)",
+    "berlaku_sejak": "16 Juli 2025",
+    "filosofi": "Deep learning — bukan transfer prosedural, tapi membangun number sense + literasi numerasi + reasoning kritis",
+    "scope": "SD K1-K6 (Fase A: K1-2, Fase B: K3-4, Fase C: K5-6)",
+    "report_size_chars": 38855,
+    "sources_count": 52,
+    "report_file": "reguler-sd-report.md",
+    "sources_file": "reguler-sd-sources.json"
+  },
+  "elemen_cp046": [
+    "Bilangan",
+    "Aljabar",
+    "Pengukuran",
+    "Geometri",
+    "Analisis Data dan Peluang"
+  ],
+  "kelas": [
+    {
+      "kelas": 1,
+      "fase": "A",
+      "fokus": "Building number sense, intuisi bilangan via benda konkret",
+      "bab": [
+        {
+          "id": "K1.B1",
+          "nama": "Bilangan Cacah sampai dengan 20",
+          "sub_bab": [
+            "Membilang benda konkret",
+            "Membaca dan menulis lambang bilangan",
+            "Pasangan bilangan (number bonds)",
+            "Membandingkan jumlah benda (lebih banyak/sedikit/sama)",
+            "Nilai tempat puluhan dan satuan"
+          ],
+          "tipe_soal_contoh": [
+            "PG: Kotak mana yang berisi bola lebih banyak?",
+            "Isian: Tuliskan lambang bilangan dari 'tujuh belas'!"
+          ]
+        },
+        {
+          "id": "K1.B2",
+          "nama": "Penjumlahan dan Pengurangan Dasar",
+          "sub_bab": [
+            "Konsep penjumlahan sebagai penggabungan",
+            "Konsep pengurangan sebagai pengambilan",
+            "Strategi menghitung maju & mundur",
+            "Hubungan antara penjumlahan dan pengurangan"
+          ],
+          "tipe_soal_contoh": [
+            "Uraian cerita: Rani 7 permen + Ayah beri 5, total?",
+            "Isian: Jika 10−3=7, maka 7+...=10"
+          ]
+        },
+        {
+          "id": "K1.B3",
+          "nama": "Mengenal Bentuk Geometri dan Posisi",
+          "sub_bab": [
+            "Bangun datar (segitiga, segiempat, lingkaran)",
+            "Bangun ruang sederhana (kubus, balok, bola, kerucut)",
+            "Posisi benda (atas-bawah, depan-belakang, kanan-kiri)"
+          ],
+          "tipe_soal_contoh": ["Uraian: Sebutkan 2 benda berbentuk lingkaran", "PG: Dadu = bentuk apa?"]
+        },
+        {
+          "id": "K1.B4",
+          "nama": "Pengukuran dan Pola Sederhana",
+          "sub_bab": [
+            "Membandingkan panjang & berat secara langsung",
+            "Mengukur dengan satuan tidak baku (jengkal, klip kertas)",
+            "Melanjutkan pola gambar dan warna"
+          ],
+          "tipe_soal_contoh": ["Unjuk Kerja: ukur meja pakai jengkal", "Isian: lanjutkan pola Merah-Kuning-..."]
+        },
+        {
+          "id": "K1.B5",
+          "nama": "Analisis Data Sederhana",
+          "sub_bab": [
+            "Mengumpulkan data benda sekitar",
+            "Menyortir dan mengelompokkan objek",
+            "Membaca piktogram dan turus sederhana"
+          ],
+          "tipe_soal_contoh": ["Analisis Data: dari tabel di atas, berapa siswa suka pisang?"]
+        }
+      ]
+    },
+    {
+      "kelas": 2,
+      "fase": "A",
+      "fokus": "Pemantapan konsep + operasi bersusun + pengenalan pecahan",
+      "bab": [
+        {
+          "id": "K2.B1",
+          "nama": "Bilangan Cacah sampai dengan 1.000",
+          "sub_bab": [
+            "Membaca & menulis bilangan tiga angka",
+            "Nilai tempat (ratusan, puluhan, satuan)",
+            "Membandingkan & mengurutkan bilangan",
+            "Bilangan loncat"
+          ],
+          "tipe_soal_contoh": ["Isian: urutkan dari terkecil 234, 129, 341", "PG: Nilai tempat 5 di 567?"]
+        },
+        {
+          "id": "K2.B2",
+          "nama": "Operasi Hitung Bersusun",
+          "sub_bab": [
+            "Penjumlahan bersusun teknik menyimpan",
+            "Pengurangan bersusun teknik meminjam",
+            "Masalah kontekstual penjumlahan & pengurangan"
+          ],
+          "tipe_soal_contoh": ["HOTS Uraian: Ibu beli 125 telur, dipakai 48, sisa?", "Isian: 245+137=?"]
+        },
+        {
+          "id": "K2.B3",
+          "nama": "Pengukuran Baku: Panjang, Berat, dan Waktu",
+          "sub_bab": [
+            "Mengukur panjang dengan penggaris & meteran",
+            "Satuan berat (kg, g)",
+            "Membaca jam analog & durasi waktu"
+          ],
+          "tipe_soal_contoh": ["Menjodohkan jam: jarum panjang di 6, pendek antara 2-3", "HOTS: 1kg kapas vs 1kg besi"]
+        },
+        {
+          "id": "K2.B4",
+          "nama": "Pecahan Sederhana",
+          "sub_bab": [
+            "Konsep setengah (½)",
+            "Konsep seperempat (¼)",
+            "Membagi benda menjadi bagian sama besar"
+          ],
+          "tipe_soal_contoh": ["PG: Pizza dipotong 4 sama besar = ?", "Mengarsir ½ lingkaran"]
+        },
+        {
+          "id": "K2.B5",
+          "nama": "Geometri dan Pola Bilangan",
+          "sub_bab": [
+            "Unsur bangun datar (sisi, sudut)",
+            "Menyusun & mengurai bangun datar",
+            "Pola bilangan membesar/mengecil sampai 100"
+          ],
+          "tipe_soal_contoh": ["Isian: berapa sudut segitiga?", "Isian pola: 2,5,8,11,..."]
+        }
+      ]
+    },
+    {
+      "kelas": 3,
+      "fase": "B",
+      "fokus": "Otomatisasi perkalian/pembagian dasar (1-10) + konversi satuan",
+      "bab": [
+        {
+          "id": "K3.B1",
+          "nama": "Bilangan Cacah sampai dengan 1.000",
+          "sub_bab": [
+            "Membaca & menulis lambang bilangan",
+            "Nilai tempat ribuan",
+            "Penjumlahan & pengurangan sampai 1.000",
+            "Masalah cerita kompleks"
+          ],
+          "tipe_soal_contoh": ["HOTS Uraian: perpustakaan 875 buku, dipinjam 129, dikembalikan 45, sisa?"]
+        },
+        {
+          "id": "K3.B2",
+          "nama": "Perkalian dan Pembagian Dasar",
+          "sub_bab": [
+            "Tabel perkalian 1-10",
+            "Pembagian sebagai pengurangan berulang",
+            "Pembagian dengan sisa",
+            "Masalah distribusi merata"
+          ],
+          "tipe_soal_contoh": ["Isian: 48 kelereng / 6 anak = ?", "PG: 7×9=?"]
+        },
+        {
+          "id": "K3.B3",
+          "nama": "Kalimat Matematika",
+          "sub_bab": [
+            "Penjumlahan & pengurangan dengan simbol titik-titik",
+            "Mencari nilai tidak diketahui dalam operasi"
+          ],
+          "tipe_soal_contoh": ["Isian: 250+...=400", "Uraian: tentukan n pada n−75=150"]
+        },
+        {
+          "id": "K3.B4",
+          "nama": "Pengukuran Panjang dan Berat Baku",
+          "sub_bab": [
+            "Satuan baku m, cm, km",
+            "Satuan baku kg, g",
+            "Hubungan antar-satuan (konversi sederhana)",
+            "Estimasi hasil pengukuran"
+          ],
+          "tipe_soal_contoh": ["Isian: pintu 2 m = ? cm", "PG: urutkan 2kg gula, 500g kopi, 1kg telur"]
+        },
+        {
+          "id": "K3.B5",
+          "nama": "Geometri: Bangun Datar dan Sudut",
+          "sub_bab": [
+            "Jenis sudut (lancip, siku-siku, tumpul)",
+            "Sisi & sudut pada bangun datar",
+            "Garis sejajar & tegak lurus"
+          ],
+          "tipe_soal_contoh": ["Uraian: ciri persegi panjang berdasar sisi", "PG: sudut 90° = ?"]
+        },
+        {
+          "id": "K3.B6",
+          "nama": "Penyajian Data dalam Tabel",
+          "sub_bab": [
+            "Mengumpulkan & mengurutkan data",
+            "Membuat tabel frekuensi sederhana",
+            "Membaca informasi dari tabel"
+          ],
+          "tipe_soal_contoh": ["HOTS Analisis: dari tabel olahraga, selisih basket vs voli?"]
+        }
+      ]
+    },
+    {
+      "kelas": 4,
+      "fase": "B",
+      "fokus": "Eksplorasi bilangan besar (10.000) + faktor/kelipatan + konsep luas/volume formal",
+      "bab": [
+        {
+          "id": "K4.B1",
+          "nama": "Bilangan Cacah sampai dengan 10.000",
+          "sub_bab": [
+            "Membaca & menulis bilangan besar",
+            "Komposisi & dekomposisi",
+            "Operasi campuran",
+            "Pembulatan dan taksiran"
+          ],
+          "tipe_soal_contoh": ["Isian: bulatkan 4.567 ke ribuan", "HOTS: pakai angka 4,0,7,2 buat bilangan terbesar"]
+        },
+        {
+          "id": "K4.B2",
+          "nama": "Faktor dan Kelipatan",
+          "sub_bab": [
+            "Mencari faktor",
+            "Kelipatan persekutuan",
+            "Bilangan prima",
+            "Konsep dasar KPK & FPB melalui himpunan"
+          ],
+          "tipe_soal_contoh": ["Isian: faktor dari 12", "Uraian: lampu A 4 detik, B 6 detik, kapan bareng?"]
+        },
+        {
+          "id": "K4.B3",
+          "nama": "Pecahan, Desimal, dan Persen",
+          "sub_bab": [
+            "Pecahan senilai",
+            "Membandingkan pecahan penyebut sama",
+            "Desimal persepuluhan",
+            "Menghubungkan desimal dengan persen"
+          ],
+          "tipe_soal_contoh": ["HOTS Uraian: ½ vs ⅓ dengan gambar", "Isian: 0,75 ke persen"]
+        },
+        {
+          "id": "K4.B4",
+          "nama": "Pengukuran Luas dan Volume",
+          "sub_bab": [
+            "Konsep luas daerah",
+            "Luas persegi & persegi panjang",
+            "Volume satuan baku (l, ml)",
+            "Hubungan keliling & luas"
+          ],
+          "tipe_soal_contoh": ["PG: kolam 10×5 m, luas?", "PGK: pilih satuan untuk botol sirup"]
+        },
+        {
+          "id": "K4.B5",
+          "nama": "Bangun Datar dan Geometri",
+          "sub_bab": [
+            "Ciri segitiga",
+            "Komposisi & dekomposisi bangun datar gabungan",
+            "Pengukuran sudut dengan busur"
+          ],
+          "tipe_soal_contoh": ["Unjuk Kerja: gambar sudut 120°", "Penalaran: berapa persegi 1cm dapat menutupi 4×3?"]
+        },
+        {
+          "id": "K4.B6",
+          "nama": "Piktogram dan Diagram Batang",
+          "sub_bab": [
+            "Membuat piktogram",
+            "Menyajikan data dalam diagram batang",
+            "Menginterpretasi tren data sederhana"
+          ],
+          "tipe_soal_contoh": ["Proyek/Uraian: buat diagram batang panen jagung 5 bulan", "Analisis: bulan tertinggi?"]
+        },
+        {
+          "id": "K4.B7",
+          "nama": "Berpikir tentang Cara Berhitung (NEW di CP 046)",
+          "sub_bab": [
+            "Multi-strategi penyelesaian (banyak jalan ke jawaban benar)",
+            "Membandingkan efisiensi metode hitung"
+          ],
+          "tipe_soal_contoh": ["Soal: tunjukkan 2 cara berbeda untuk hitung keliling ruangan", "Evaluasi: strategi mana lebih cepat?"]
+        }
+      ]
+    },
+    {
+      "kelas": 5,
+      "fase": "C",
+      "fokus": "Operasi pecahan campuran + geometri bangun gabungan + pengukuran per kuantitas unit",
+      "bab": [
+        {
+          "id": "K5.B1",
+          "nama": "Bilangan Cacah sampai dengan 100.000",
+          "sub_bab": [
+            "Operasi hitung campuran",
+            "Sifat komutatif, asosiatif, distributif",
+            "Strategi hitung cepat",
+            "Pembulatan ke ribuan terdekat"
+          ],
+          "tipe_soal_contoh": ["Isian: (125+75)×4−500", "HOTS Uraian: 45×99 pakai distributif"]
+        },
+        {
+          "id": "K5.B2",
+          "nama": "KPK dan FPB Lanjutan",
+          "sub_bab": [
+            "Faktorisasi prima (pohon faktor)",
+            "KPK & FPB dari 3 bilangan",
+            "Aplikasi masalah jadwal & pembagian paket"
+          ],
+          "tipe_soal_contoh": ["Uraian: 24 apel + 36 jeruk per plastik", "Isian: KPK 12,15,20"]
+        },
+        {
+          "id": "K5.B3",
+          "nama": "Operasi Bilangan Pecahan",
+          "sub_bab": [
+            "Penjumlahan & pengurangan pecahan penyebut beda",
+            "Pecahan campuran",
+            "Desimal & persen",
+            "Membandingkan berbagai bentuk pecahan"
+          ],
+          "tipe_soal_contoh": ["PGK: urutkan 0,75; ½; 80%; ⅖", "Isian: 1½ + ¾ = ?"]
+        },
+        {
+          "id": "K5.B4",
+          "nama": "Sudut dan Bangun Datar",
+          "sub_bab": [
+            "Mengukur & melukis sudut",
+            "Sifat segitiga (sama kaki, sama sisi, siku-siku)",
+            "Sifat segiempat",
+            "Luas daerah bangun gabungan"
+          ],
+          "tipe_soal_contoh": ["HOTS Uraian: luas gabungan persegi+segitiga", "Unjuk Kerja: gambar segitiga 90,45,45"]
+        },
+        {
+          "id": "K5.B5",
+          "nama": "Pengukuran per Unit Kuantitas (NEW di CP 046)",
+          "sub_bab": [
+            "Konsep kepadatan",
+            "Rata-rata per unit luas",
+            "Membandingkan efisiensi/kapasitas"
+          ],
+          "tipe_soal_contoh": ["HOTS Analisis: karpet A 6m² 12 orang vs B 8m² 15 orang, mana lebih padat?"]
+        },
+        {
+          "id": "K5.B6",
+          "nama": "Analisis Data",
+          "sub_bab": [
+            "Mengumpulkan data primer",
+            "Piktogram & diagram batang",
+            "Membaca & menafsirkan data hasil pengukuran"
+          ],
+          "tipe_soal_contoh": ["Isian: rata-rata tinggi badan kelas 5", "Uraian: tren penjualan sepatu 6 bulan"]
+        }
+      ]
+    },
+    {
+      "kelas": 6,
+      "fase": "C",
+      "fokus": "Integrasi semua konsep + rasio/proporsi + kecepatan/debit + statistik & peluang",
+      "bab": [
+        {
+          "id": "K6.B1",
+          "nama": "Bilangan Cacah sampai dengan 1.000.000",
+          "sub_bab": [
+            "Bilangan jutaan",
+            "Nilai tempat",
+            "Operasi bilangan besar",
+            "Masalah uang & transaksi"
+          ],
+          "tipe_soal_contoh": ["Isian: 10 perusahaan × Rp 750.000 = ?", "PG: tulis 'sembilan ratus lima ribu empat puluh'"]
+        },
+        {
+          "id": "K6.B2",
+          "nama": "Perkalian dan Pembagian Pecahan",
+          "sub_bab": [
+            "Perkalian pecahan dgn bilangan asli",
+            "Pembagian pecahan dgn bilangan asli",
+            "Bilangan kebalikan",
+            "Operasi campuran pecahan & desimal"
+          ],
+          "tipe_soal_contoh": ["PG: ¾ × 36", "Uraian: tali 5m dipotong @½m, berapa potongan?"]
+        },
+        {
+          "id": "K6.B3",
+          "nama": "Rasio dan Proporsi (NEW di CP 046 K6)",
+          "sub_bab": [
+            "Konsep rasio sederhana",
+            "Kesamaan rasio",
+            "Penerapan rasio pada skala peta",
+            "Masalah proporsi sehari-hari"
+          ],
+          "tipe_soal_contoh": ["Isian: rasio gula:tepung 1:4, jika gula 100g, tepung?", "PG: skala 1:100.000, peta 5cm = ?km"]
+        },
+        {
+          "id": "K6.B4",
+          "nama": "Bangun Ruang: Kubus, Balok, dan Tabung",
+          "sub_bab": [
+            "Mengonstruksi & mengurai jaring-jaring",
+            "Visualisasi spasial (tampak depan/samping)",
+            "Volume bangun ruang sisi datar dan lengkung sederhana"
+          ],
+          "tipe_soal_contoh": ["Uraian: volume tabung r=7cm t=10cm", "PG Visual: jaring-jaring balok"]
+        },
+        {
+          "id": "K6.B5",
+          "nama": "Pengukuran: Kecepatan dan Debit (NEW di CP 046)",
+          "sub_bab": [
+            "Hubungan jarak, waktu, kecepatan",
+            "Menghitung debit air",
+            "Konversi satuan kecepatan (km/jam ke m/detik)"
+          ],
+          "tipe_soal_contoh": ["Isian: motor 60km/1,5 jam = kecepatan?", "PG: debit 2L/menit, isi bak 10L butuh?"]
+        },
+        {
+          "id": "K6.B6",
+          "nama": "Statistika dan Peluang",
+          "sub_bab": [
+            "Rata-rata (mean), median, modus",
+            "Diagram lingkaran",
+            "Skala peluang & kejadian yang mungkin terjadi"
+          ],
+          "tipe_soal_contoh": ["Uraian: data 7,8,8,9,7,10 — mean & modus", "PG: peluang angka vs gambar koin"]
+        },
+        {
+          "id": "K6.B7",
+          "nama": "Simetri dan Mozaik (Pengayaan)",
+          "sub_bab": [
+            "Simetri lipat & putar",
+            "Pola mozaik / tessellation",
+            "Sisi estetis matematika"
+          ],
+          "tipe_soal_contoh": ["Unjuk Kerja: buat mozaik dari bangun datar", "Identifikasi simetri pada gambar"]
+        }
+      ]
+    }
+  ],
+  "tipe_soal_global": [
+    {
+      "tipe": "Pilihan Ganda Berbasis Stimulus",
+      "deskripsi": "Tidak langsung tanya angka, diawali gambar/tabel/kutipan berita. Contoh: tabel harga pasar sebelum tanya total belanjaan."
+    },
+    {
+      "tipe": "Pilihan Ganda Kompleks (PGK)",
+      "deskripsi": "Pilih SEMUA pernyataan benar dari 4-5 pilihan. Efektif ukur pemahaman komprehensif (sifat bangun ruang, pecahan senilai)."
+    },
+    {
+      "tipe": "Menjodohkan",
+      "deskripsi": "Pasangkan 2 kolom (nama bangun ↔ gambar, hasil konversi satuan)"
+    },
+    {
+      "tipe": "Isian Singkat",
+      "deskripsi": "Jawaban angka/kata pendek, dominan K1-K3"
+    },
+    {
+      "tipe": "Uraian HOTS",
+      "deskripsi": "Menuntut analisis (C4), evaluasi (C5), atau menciptakan (C6). Instruksi 'Jelaskan alasanmu' / 'Tunjukkan langkah'."
+    },
+    {
+      "tipe": "Unjuk Kerja",
+      "deskripsi": "Praktik fisik (mengukur dgn jengkal, melukis sudut, membuat mozaik)"
+    },
+    {
+      "tipe": "Soal Cerita Kontekstual",
+      "deskripsi": "Konteks dunia nyata (jadwal lampu, denah rumah, biaya pengecatan)"
+    }
+  ],
+  "asesmen_format": [
+    {
+      "format": "Sumatif Harian",
+      "scope": "Setiap akhir bab"
+    },
+    {
+      "format": "STS (Sumatif Tengah Semester) / PTS",
+      "scope": "Tengah semester, mix PG+isian+uraian"
+    },
+    {
+      "format": "SAS (Sumatif Akhir Semester) / PAS",
+      "scope": "Akhir semester"
+    },
+    {
+      "format": "PAT (Penilaian Akhir Tahun)",
+      "scope": "Akhir tahun ajaran"
+    },
+    {
+      "format": "Asesmen Akhir Jenjang",
+      "scope": "K6 — portofolio + unjuk kerja + soal lintas materi (BUKAN UN model lama)"
+    },
+    {
+      "format": "ANBK / Asesmen Nasional",
+      "scope": "Sampling kelas 5 — numerasi"
+    }
+  ],
+  "kriteria_hots": [
+    "Stimulus menarik (infografis, denah, cerita pendek)",
+    "Kontekstual (masuk akal di dunia nyata)",
+    "Mengukur penalaran (hubungkan 2+ konsep)",
+    "Meminimalisir hafalan (info di stimulus, uji pengolahan)"
+  ],
+  "perubahan_kunci_dari_2024": [
+    "BSKAP 032/H/KR/2024 dicabut, ganti dengan 046/H/KR/2025 (mulai 16 Juli 2025)",
+    "Filosofi 'deep learning' (bukan transfer prosedural)",
+    "6 kemampuan fondasi PAUD-SD (nilai agama, kematangan emosi, sosial, kognitif)",
+    "Asesmen wajib HOTS (bukan hanya hafalan algoritma)",
+    "Materi NEW K4: 'Berpikir tentang Cara Berhitung' (multi-strategi)",
+    "Materi NEW K5: 'Pengukuran per Kuantitas Unit' (kepadatan, efisiensi)",
+    "Materi NEW K6: Rasio/Proporsi explicit + Kecepatan/Debit"
+  ]
+}

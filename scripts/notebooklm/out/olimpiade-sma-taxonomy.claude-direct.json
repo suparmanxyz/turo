@@ -1,0 +1,201 @@
+{
+  "domain": "Olimpiade Matematika SMA Indonesia",
+  "_meta": {
+    "source": "Claude direct (training knowledge, no live research)",
+    "model": "claude-opus-4-7",
+    "knowledge_cutoff": "2026-01",
+    "generated_date": "2026-05-02",
+    "scope": "OSN-K/P/N SMA, KSN, seleksi IMO Indonesia (Pelatnas), KSM, OMI MA, kompetisi universitas",
+    "method": "Generated dari prior knowledge tanpa akses sumber eksternal — untuk apple-to-apple comparison terhadap NotebookLM-research version"
+  },
+  "format_soal_global": [
+    {
+      "nama": "Pilihan Ganda (Penyisihan)",
+      "deskripsi": "Babak OSK SMA, 5 opsi",
+      "ciri_soal": "20 soal dalam 90-150 menit, fokus kecepatan akurat",
+      "skala_penilaian_lazim": "Benar +4, Salah −1, Kosong 0"
+    },
+    {
+      "nama": "Isian Singkat (Penyisihan-Lanjut)",
+      "deskripsi": "OSP / OSK lanjut",
+      "ciri_soal": "Jawaban angka eksak (kadang ekspresi)",
+      "skala_penilaian_lazim": "Benar +5/7, Salah 0"
+    },
+    {
+      "nama": "Uraian / Pembuktian (OSN/Pelatnas)",
+      "deskripsi": "Esai matematis lengkap dengan bukti formal",
+      "ciri_soal": "4-8 soal dalam 4-5 jam, partial credit per step",
+      "skala_penilaian_lazim": "Skala 0-7 per soal, total 28-56"
+    }
+  ],
+  "tingkat_kompetisi": [
+    {"level": "kabupaten/kota (OSK)", "deskripsi": "PG/Isian, eliminator awal"},
+    {"level": "provinsi (OSP)", "deskripsi": "Isian + Uraian"},
+    {"level": "nasional (OSN/KSN)", "deskripsi": "Pembuktian penuh, multi-day"},
+    {"level": "Pelatnas IMO", "deskripsi": "Seleksi tim Indonesia ke IMO"},
+    {"level": "IMO (international)", "deskripsi": "Olimpiade matematika internasional"}
+  ],
+  "kategori_materi": [
+    {
+      "nama": "Teori Bilangan",
+      "deskripsi": "Domain klasik IMO, teknik bukti formal",
+      "tipe": [
+        {
+          "nama": "Modular Arithmetic Lanjut",
+          "subtipe": ["Kongruensi linear", "Teorema Sisa Cina (CRT)", "Teorema Fermat Kecil & Euler", "Sistem kongruensi"],
+          "ciri_soal": "Pakai teorema-teorema klasik untuk simplify atau buktikan",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["a^p ≡ a (mod p)", "solusi sistem kongruensi", "fungsi Euler totient"]
+        },
+        {
+          "nama": "Persamaan Diophantine Lanjut",
+          "subtipe": ["Pell equation x² - Dy² = 1", "Triple Pythagoras parametrik", "Persamaan eksponensial", "Persamaan dengan kondisi keterbagian"],
+          "ciri_soal": "Cari semua solusi atau buktikan tidak ada",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["x² - 2y² = 1", "buktikan tidak ada solusi positif", "solusi parametrik triple"]
+        },
+        {
+          "nama": "Bilangan Prima Lanjut",
+          "subtipe": ["Sifat distribusi", "Pembuktian tak hingga prima dengan bentuk khusus", "Wilson's theorem", "Quadratic Residue"],
+          "ciri_soal": "Pembuktian formal sifat",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["buktikan ada tak hingga prima 4k+3", "QR (a/p)", "(p-1)! ≡ −1 (mod p)"]
+        },
+        {
+          "nama": "Fungsi Multiplikatif & Pembagi",
+          "subtipe": ["d(n), σ(n), φ(n)", "Fungsi Mobius dasar", "Sifat multiplikatif", "Faktorisasi unik"],
+          "ciri_soal": "Manipulasi fungsi multiplikatif",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["sigma fungsi pembagi", "φ(n) untuk komposit", "d(n) periodic"]
+        }
+      ]
+    },
+    {
+      "nama": "Aljabar",
+      "deskripsi": "Polinomial, fungsi, persamaan fungsional, inequality",
+      "tipe": [
+        {
+          "nama": "Polinomial",
+          "subtipe": ["Vieta's formulas", "Polinomial dengan akar bilangan bulat", "Polinomial irreducible", "Substitusi & faktorisasi"],
+          "ciri_soal": "Hubungan akar-koefisien, sifat polinomial",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["jumlah x_i^k dengan Vieta", "polinomial dengan koefisien bulat", "akar konjugat irrasional"]
+        },
+        {
+          "nama": "Persamaan Fungsional",
+          "subtipe": ["f(x+y) = f(x) + f(y) (Cauchy)", "f(xy) = f(x)f(y)", "Substitusi spesifik (x=0, y=0, x=y)", "Pembuktian f kontinu/monotonic"],
+          "ciri_soal": "Cari semua f memenuhi kondisi",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["Cauchy functional equation", "f(f(x)) = x²", "f mononton lalu f(x)=cx"]
+        },
+        {
+          "nama": "Inequality",
+          "subtipe": ["AM-GM lanjut (n variabel)", "Cauchy-Schwarz", "Power Mean", "Jensen's & convexity", "SOS (sum of squares)", "Schur's inequality"],
+          "ciri_soal": "Buktikan ketidaksamaan dengan kondisi simetri/normalisasi",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["AM-GM untuk 5 variabel", "Cauchy-Schwarz applied", "buktikan a²+b²+c² ≥ ab+bc+ca"]
+        },
+        {
+          "nama": "Barisan & Deret Lanjut",
+          "subtipe": ["Barisan rekursif", "Deret tak hingga (konvergensi)", "Telescoping series", "Pembangkit fungsi (generating function)"],
+          "ciri_soal": "Manipulasi rumus rekursif atau closed form",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["Fibonacci sifat", "telescoping sum 1/n(n+1)", "carikan rumus eksplisit barisan rekursif"]
+        }
+      ]
+    },
+    {
+      "nama": "Geometri",
+      "deskripsi": "Geometri sintetik klasik + analitik + trigonometri",
+      "tipe": [
+        {
+          "nama": "Geometri Sintetik (Klasik)",
+          "subtipe": ["Sifat lingkaran (power of point)", "Cyclic quadrilateral", "Garis berat, garis tinggi, garis bagi", "Kongruen-Sebangun (AA/SAS/SSS)", "Teorema Ptolemy/Menelaus/Ceva"],
+          "ciri_soal": "Bukti dengan deduksi geometris murni, tanpa koordinat",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["garis Euler segitiga", "lingkaran 9-titik", "Ptolemy untuk cyclic quad"]
+        },
+        {
+          "nama": "Geometri Analitik",
+          "subtipe": ["Vektor & dot/cross product", "Persamaan kurva (lingkaran, parabola, elips, hiperbola)", "Transformasi koordinat", "Polar coordinates dasar"],
+          "ciri_soal": "Pakai aljabar untuk solve geometri",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["persamaan elips dengan fokus", "vektor dalam pembuktian", "transformasi affine"]
+        },
+        {
+          "nama": "Trigonometri Lanjut",
+          "subtipe": ["Identitas trigonometri", "Persamaan trigonometri", "Aturan sinus & cosinus", "Rumus jumlah & selisih sudut", "Trigonometri komplex"],
+          "ciri_soal": "Identitas + persamaan dalam konteks geometri",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["identitas sin³+cos³", "persamaan trig dengan banyak solusi", "rumus De Moivre"]
+        },
+        {
+          "nama": "Geometri 3D & Vektor",
+          "subtipe": ["Bangun ruang lanjut", "Persamaan bidang & garis 3D", "Sudut antara bidang", "Volume tetrahedron"],
+          "ciri_soal": "Visualisasi 3D + manipulasi vektor",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["jarak antara dua garis silang", "volume polyhedron", "sudut antara bidang & garis"]
+        }
+      ]
+    },
+    {
+      "nama": "Kombinatorika",
+      "deskripsi": "Counting lanjut, kombinatorik graph, optimisasi",
+      "tipe": [
+        {
+          "nama": "Counting Lanjut",
+          "subtipe": ["Permutasi-Kombinasi multi-set", "Eksklusi-inklusi penuh", "Recurrence relations", "Burnside's Lemma", "Stars and bars"],
+          "ciri_soal": "Hitung jumlah dengan kondisi kompleks",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["surjection counting", "derangement", "lattice path counting"]
+        },
+        {
+          "nama": "Pigeonhole Principle Lanjut",
+          "subtipe": ["Generalized Pigeonhole", "Aplikasi geometris", "Aplikasi pada subset", "Erdős-Szekeres-like"],
+          "ciri_soal": "Bukti eksistensi dengan konstruksi cerdas",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["di antara n bilangan ada 2 yang selisih kelipatan k", "monotonic subseq panjang"]
+        },
+        {
+          "nama": "Graph Theory",
+          "subtipe": ["Bipartite graph", "Tree & forest", "Pewarnaan graf (Ramsey-type)", "Hamiltonian / Eulerian", "Tournament"],
+          "ciri_soal": "Bukti sifat atau cari konfigurasi optimal",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["Ramsey R(3,3)=6", "buktikan graph k-regular hasil bipartite", "tournament transitif"]
+        },
+        {
+          "nama": "Game Theory & Strategi",
+          "subtipe": ["Game pada papan", "Nim-like", "Strategi menang/kalah", "Invariant"],
+          "ciri_soal": "Bukti pemain pertama/kedua menang",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["game ambil koin", "permainan ubin", "strategi pencerminan"]
+        },
+        {
+          "nama": "Konstruksi & Eksistensi",
+          "subtipe": ["Bukti eksistensi dengan konstruksi", "Bukti tidak eksis (kontradiksi)", "Extremal arguments", "Probabilistic method dasar"],
+          "ciri_soal": "Bangun objek dengan sifat tertentu",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["konstruksi himpunan dengan sifat", "buktikan max ≤ k", "probabilistic existence"]
+        }
+      ]
+    }
+  ],
+  "teknik_pembuktian_khas": [
+    "Induksi matematika (regular, kuat, lompat, ke arah salah)",
+    "Kontradiksi (assume negation)",
+    "Kontrapositif",
+    "Konstruksi langsung",
+    "Pigeonhole Principle",
+    "Pembuktian by smallest counterexample (descent infinite)",
+    "Working backward dari kondisi target",
+    "Substitusi cerdas (variabel pengganti)",
+    "Symmetry argument & WLOG"
+  ],
+  "strategi_olimpiade_sma": [
+    "Manajemen waktu — 1 soal pembuktian = 30-60 menit",
+    "Substitusi normalisasi (mis. WLOG x+y+z=1)",
+    "Pakai inequality classics (AM-GM, Cauchy, Jensen)",
+    "Komputasi parsial untuk dapat poin parsial",
+    "Buat klaim antara (lemma) untuk struktur bukti"
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "domain": "Olimpiade Matematika SMP Indonesia",
+  "_meta": {
+    "source": "Claude direct (training knowledge, no live research)",
+    "model": "claude-opus-4-7",
+    "knowledge_cutoff": "2026-01",
+    "generated_date": "2026-05-02",
+    "scope": "OSN-K/P/N SMP, OMI MTs, KMNR SMP, kompetisi universitas (OMITS SMP, dll)",
+    "method": "Generated dari prior knowledge tanpa akses sumber eksternal — untuk apple-to-apple comparison terhadap NotebookLM-research version"
+  },
+  "format_soal_global": [
+    {
+      "nama": "Pilihan Ganda",
+      "deskripsi": "5 opsi A-E (OSN); 4 opsi A-D di kompetisi tertentu",
+      "ciri_soal": "Babak penyisihan, fokus kecepatan",
+      "skala_penilaian_lazim": "Benar +4, Salah −1, Kosong 0"
+    },
+    {
+      "nama": "Isian Singkat",
+      "deskripsi": "Jawaban berupa angka, tanpa opsi",
+      "ciri_soal": "Babak penyisihan KMNR/lanjut OSN",
+      "skala_penilaian_lazim": "Benar +5, Salah 0"
+    },
+    {
+      "nama": "Uraian Pendek",
+      "deskripsi": "Tunjukkan langkah, jawaban final + argumentasi singkat",
+      "ciri_soal": "Babak final, partial credit",
+      "skala_penilaian_lazim": "Skala 0-7 atau 0-10"
+    },
+    {
+      "nama": "Pembuktian (Esai)",
+      "deskripsi": "Bukti formal — induksi, kontradiksi, kontrapositif",
+      "ciri_soal": "OSN tingkat nasional SMP, sangat selektif",
+      "skala_penilaian_lazim": "Skala 0-7 dengan rubrik ketat"
+    }
+  ],
+  "tingkat_kompetisi": [
+    {"level": "sekolah", "deskripsi": "internal sekolah"},
+    {"level": "kabupaten/kota (OSK)", "deskripsi": "seleksi awal"},
+    {"level": "provinsi (OSP)", "deskripsi": "seleksi lanjut"},
+    {"level": "nasional (OSN)", "deskripsi": "tingkat tertinggi SMP"}
+  ],
+  "kategori_materi": [
+    {
+      "nama": "Teori Bilangan",
+      "deskripsi": "Sifat bilangan, modular arithmetic, persamaan diophantine dasar",
+      "tipe": [
+        {
+          "nama": "Sifat Bilangan & Keterbagian",
+          "subtipe": ["Bilangan bulat & rasional", "Sifat keterbagian", "Bilangan prima (sieve)", "FPB-KPK lanjut"],
+          "ciri_soal": "Manipulasi sifat untuk inferensi",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["sifat bilangan kuadrat", "FPB×KPK = a×b", "uji keterbagian 7,11,13"]
+        },
+        {
+          "nama": "Modular Arithmetic",
+          "subtipe": ["Sisa pembagian", "Pola sisa pangkat", "Sistem persamaan modular", "Hari ke-n / siklus"],
+          "ciri_soal": "Pakai pola periodik, sering pangkat besar",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["digit terakhir 7^2024", "sisa 100! dibagi prime", "tanggal hari yang sama"]
+        },
+        {
+          "nama": "Persamaan Diophantine Sederhana",
+          "subtipe": ["ax + by = c (linear)", "Persamaan dengan variabel bilangan bulat", "Faktorisasi solusi"],
+          "ciri_soal": "Cari semua solusi bulat positif",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["3x + 5y = 100", "x² - y² = 24", "solusi bulat persamaan rasional"]
+        },
+        {
+          "nama": "Bilangan Spesial",
+          "subtipe": ["Bilangan kuadrat sempurna", "Bilangan kubik", "Palindrom bertingkat", "Bilangan sempurna"],
+          "ciri_soal": "Cari bilangan dengan sifat unik dalam interval",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["palindrom 5-digit prima", "kuadrat sempurna dengan digit tertentu"]
+        }
+      ]
+    },
+    {
+      "nama": "Aljabar",
+      "deskripsi": "Persamaan, fungsi, manipulasi simbol formal",
+      "tipe": [
+        {
+          "nama": "Persamaan & Sistem Persamaan",
+          "subtipe": ["Persamaan kuadrat (akar, diskriminan, jumlah-hasil kali)", "SPLDV / SPLTV", "Persamaan tinggi dengan substitusi", "Persamaan dengan parameter"],
+          "ciri_soal": "Manipulasi simbol formal, sering pakai sifat akar",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["x²+px+q=0 jumlah-hasil kali", "sistem 3 persamaan", "akar persamaan rasional"]
+        },
+        {
+          "nama": "Pertidaksamaan",
+          "subtipe": ["Pertidaksamaan linear", "Pertidaksamaan kuadrat", "Pertidaksamaan rasional", "Pertidaksamaan AM-GM dasar"],
+          "ciri_soal": "Cari interval atau nilai ekstrem",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["nilai minimum a+b dengan ab=k", "AM-GM untuk 2-3 variabel"]
+        },
+        {
+          "nama": "Fungsi & Pemodelan",
+          "subtipe": ["Fungsi linear & kuadrat", "Fungsi komposisi", "Fungsi invers", "Pemodelan situasi nyata"],
+          "ciri_soal": "Translate situasi → fungsi → solve",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["titik impas usaha", "minimum biaya produksi", "(g∘f)(x)"]
+        },
+        {
+          "nama": "Pola Bilangan & Deret",
+          "subtipe": ["Deret aritmetika & geometri", "Deret tak hingga", "Deret bertingkat", "Sigma notation dasar"],
+          "ciri_soal": "Cari Un, Sn, atau pola tersembunyi",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["jumlah n suku pertama", "deret geometri tak hingga konvergen"]
+        }
+      ]
+    },
+    {
+      "nama": "Geometri",
+      "deskripsi": "Bidang, ruang, transformasi, geometri analitik dasar",
+      "tipe": [
+        {
+          "nama": "Geometri Bidang",
+          "subtipe": ["Segitiga (sifat khusus, garis tinggi/berat/bagi)", "Segiempat & poligon", "Lingkaran (busur, juring, tali busur)", "Daerah arsiran kompleks"],
+          "ciri_soal": "Manipulasi konfigurasi bangun, identifikasi segitiga sebangun/kongruen",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["luas arsir 3 lingkaran", "rasio segitiga sebangun", "jumlah sudut segibanyak"]
+        },
+        {
+          "nama": "Geometri Ruang",
+          "subtipe": ["Volume & luas permukaan", "Bangun gabungan", "Diagonal ruang", "Sudut antara garis & bidang"],
+          "ciri_soal": "Visualisasi 3D, sering tanpa gambar utuh",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["jarak titik ke bidang", "diagonal ruang kubus", "volume bangun tak biasa"]
+        },
+        {
+          "nama": "Geometri Analitik",
+          "subtipe": ["Jarak dua titik", "Persamaan garis lurus", "Hubungan antar garis", "Persamaan lingkaran"],
+          "ciri_soal": "Pakai koordinat untuk solve geometri klasik",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["jarak titik ke garis", "garis singgung lingkaran"]
+        },
+        {
+          "nama": "Transformasi & Simetri",
+          "subtipe": ["Refleksi, rotasi, translasi", "Komposisi transformasi", "Simetri lipat & putar", "Tessellation"],
+          "ciri_soal": "Identifikasi invariant atau bayangan",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["bayangan titik setelah rotasi 60°", "simetri putar persegi panjang"]
+        },
+        {
+          "nama": "Pythagoras & Kesebangunan Lanjut",
+          "subtipe": ["Pythagoras dengan kombinasi", "Triple Pythagoras", "Kesebangunan AA/SAS/SSS", "Tinggi dari koordinat"],
+          "ciri_soal": "Sering implisit, peserta identifikasi sendiri",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["jarak antar 3 titik", "tinggi pohon dari shadow ratio"]
+        }
+      ]
+    },
+    {
+      "nama": "Kombinatorika",
+      "deskripsi": "Counting, peluang, prinsip-prinsip pencacahan formal",
+      "tipe": [
+        {
+          "nama": "Pencacahan Lanjut",
+          "subtipe": ["Aturan perkalian-penjumlahan", "Permutasi P(n,r)", "Kombinasi C(n,r)", "Eksklusi-inklusi"],
+          "ciri_soal": "Pakai notasi formal P/C, kombinasi banyak prinsip",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["susunan kata dari ANGKA", "pilih 5 dari 10 dengan kondisi"]
+        },
+        {
+          "nama": "Pigeonhole Principle",
+          "subtipe": ["Pembuktian eksistensi dasar", "Generalisasi (m benda, n kotak, ⌈m/n⌉)", "Aplikasi geometris", "Aplikasi pada deret"],
+          "ciri_soal": "Bukti eksistensi, sering pakai konstruksi pigeon-hole",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["di antara n+1 titik dalam grid pasti ada 2 yang lebih dekat", "pasti ada 2 dengan sifat sama"]
+        },
+        {
+          "nama": "Peluang Diskret",
+          "subtipe": ["Peluang kejadian", "Peluang gabungan & bersyarat dasar", "Variabel acak diskret", "Ekspektasi sederhana"],
+          "ciri_soal": "Hitung dari ruang sampel terbatas",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["peluang dadu jumlah 7", "peluang ambil 2 kelereng sama warna"]
+        },
+        {
+          "nama": "Graf Sederhana & Logika Kombinatorik",
+          "subtipe": ["Graf bipartit", "Pewarnaan graf", "Jabat tangan", "Lintasan dalam grid"],
+          "ciri_soal": "Sering muncul di OSN tingkat lanjut",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["jumlah lintasan A→B di grid", "minimum warna pewarnaan peta"]
+        }
+      ]
+    }
+  ],
+  "strategi_khas_smp": [
+    "Substitusi untuk simplify persamaan tinggi",
+    "Pigeonhole untuk eksistensi",
+    "AM-GM untuk inequality",
+    "Working backward untuk konstruksi",
+    "Faktorisasi (terutama pembedaan kuadrat & kubik)",
+    "Vieta's untuk akar persamaan",
+    "Pembuktian dengan induksi sederhana"
+  ]
+}

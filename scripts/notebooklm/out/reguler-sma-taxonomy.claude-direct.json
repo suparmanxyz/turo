@@ -1,0 +1,304 @@
+{
+  "_meta": {
+    "source": "claude-direct",
+    "model": "claude-opus-4-7",
+    "domain": "reguler-sma",
+    "generated_at": "2026-05-03",
+    "kurikulum": "CP 046/H/KR/2025 Kurikulum Merdeka",
+    "scope": "SMA K10-K12 (Fase E: K10, Fase F: K11-K12). Catatan: K11-K12 ada 2 jalur — Matematika Umum (wajib) & Matematika Lanjut (peminatan/IPA).",
+    "note": "Claude-direct generation. NB deep research belum bisa dijalankan (rate limit)."
+  },
+  "elemen_cp046": [
+    "Bilangan",
+    "Aljabar dan Fungsi",
+    "Geometri",
+    "Trigonometri",
+    "Kalkulus (di Mat Lanjut)",
+    "Analisis Data dan Peluang"
+  ],
+  "kelas": [
+    {
+      "kelas": 10,
+      "fase": "E",
+      "jalur": "Wajib (semua siswa)",
+      "bab": [
+        {
+          "id": "K10.B1",
+          "nama": "Eksponen dan Logaritma",
+          "sub_bab": [
+            "Bilangan berpangkat bulat & rasional",
+            "Sifat eksponen lengkap",
+            "Bentuk akar & merasionalkan",
+            "Konsep logaritma (log a^x = x log a)",
+            "Sifat logaritma",
+            "Persamaan & pertidaksamaan eksponen-logaritma"
+          ],
+          "tipe_soal": ["Isian", "PG", "Soal cerita aplikasi (pertumbuhan, peluruhan)"]
+        },
+        {
+          "id": "K10.B2",
+          "nama": "Sistem Persamaan Linear Tiga Variabel (SPLTV)",
+          "sub_bab": [
+            "Konsep SPLTV",
+            "Metode eliminasi & substitusi",
+            "Determinan (cara cepat sederhana)",
+            "Aplikasi soal cerita ekonomi/fisika"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        },
+        {
+          "id": "K10.B3",
+          "nama": "Pertidaksamaan Linear & Nilai Mutlak",
+          "sub_bab": [
+            "Pertidaksamaan linear satu variabel lanjut",
+            "Persamaan & pertidaksamaan nilai mutlak |x|",
+            "Sifat |a + b| ≤ |a| + |b|"
+          ],
+          "tipe_soal": ["Isian", "PG"]
+        },
+        {
+          "id": "K10.B4",
+          "nama": "Fungsi Kuadrat & Komposisi Fungsi",
+          "sub_bab": [
+            "Fungsi kuadrat (review + lanjut)",
+            "Komposisi fungsi (f∘g)(x)",
+            "Fungsi invers",
+            "Domain & range fungsi"
+          ],
+          "tipe_soal": ["Isian", "PG"]
+        },
+        {
+          "id": "K10.B5",
+          "nama": "Trigonometri Dasar",
+          "sub_bab": [
+            "Perbandingan trigonometri segitiga siku-siku (sin, cos, tan)",
+            "Sudut istimewa (0°, 30°, 45°, 60°, 90°)",
+            "Identitas dasar (sin² + cos² = 1)",
+            "Aturan sinus & cosinus",
+            "Aplikasi sudut elevasi-depresi"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        },
+        {
+          "id": "K10.B6",
+          "nama": "Vektor di Bidang",
+          "sub_bab": [
+            "Konsep vektor (besaran & arah)",
+            "Operasi vektor (penjumlahan, perkalian skalar)",
+            "Vektor satuan, panjang vektor"
+          ],
+          "tipe_soal": ["Isian bergambar", "PG"]
+        },
+        {
+          "id": "K10.B7",
+          "nama": "Statistika Lanjut",
+          "sub_bab": [
+            "Mean, median, modus data berkelompok",
+            "Quartil, desil, persentil",
+            "Simpangan baku & varians",
+            "Histogram, ogive"
+          ],
+          "tipe_soal": ["Isian dari tabel/diagram"]
+        },
+        {
+          "id": "K10.B8",
+          "nama": "Peluang & Kombinatorik",
+          "sub_bab": [
+            "Aturan pengisian tempat (kaidah perkalian)",
+            "Permutasi & kombinasi",
+            "Peluang kejadian majemuk",
+            "Peluang bersyarat"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"]
+        }
+      ]
+    },
+    {
+      "kelas": 11,
+      "fase": "F",
+      "jalur": "Wajib + Lanjut (peminatan)",
+      "bab": [
+        {
+          "id": "K11.B1",
+          "nama": "Polinomial",
+          "sub_bab": [
+            "Operasi polinomial (penjumlahan, pengurangan, perkalian, pembagian)",
+            "Teorema sisa & teorema faktor",
+            "Akar-akar polinomial"
+          ],
+          "tipe_soal": ["Isian", "PG"],
+          "jalur": "Lanjut (Mat Peminatan)"
+        },
+        {
+          "id": "K11.B2",
+          "nama": "Trigonometri Lanjut",
+          "sub_bab": [
+            "Identitas trigonometri (jumlah-selisih sudut)",
+            "Persamaan trigonometri",
+            "Pertidaksamaan trigonometri sederhana",
+            "Grafik fungsi trigonometri"
+          ],
+          "tipe_soal": ["Isian", "PG bergrafik"],
+          "jalur": "Wajib + Lanjut"
+        },
+        {
+          "id": "K11.B3",
+          "nama": "Lingkaran (Geometri Analitik)",
+          "sub_bab": [
+            "Persamaan lingkaran (x-a)² + (y-b)² = r²",
+            "Persamaan umum x² + y² + Ax + By + C = 0",
+            "Garis singgung lingkaran"
+          ],
+          "tipe_soal": ["Isian", "PG"],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K11.B4",
+          "nama": "Limit Fungsi",
+          "sub_bab": [
+            "Konsep limit (intuitif)",
+            "Limit fungsi aljabar",
+            "Limit di tak hingga",
+            "Limit fungsi trigonometri"
+          ],
+          "tipe_soal": ["Isian", "PG"],
+          "jalur": "Wajib + Lanjut"
+        },
+        {
+          "id": "K11.B5",
+          "nama": "Turunan (Diferensial)",
+          "sub_bab": [
+            "Konsep turunan (definisi limit)",
+            "Aturan turunan (pangkat, jumlah, hasil kali, hasil bagi)",
+            "Aturan rantai",
+            "Turunan fungsi trigonometri",
+            "Aplikasi turunan: kemonotonan, ekstrim, optimasi"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita optimasi"],
+          "jalur": "Wajib + Lanjut"
+        },
+        {
+          "id": "K11.B6",
+          "nama": "Logika Matematika",
+          "sub_bab": [
+            "Pernyataan & nilai kebenaran",
+            "Operasi logika (negasi, konjungsi, disjungsi, implikasi, biimplikasi)",
+            "Tabel kebenaran",
+            "Penarikan kesimpulan (modus ponens, tollens, silogisme)"
+          ],
+          "tipe_soal": ["PG", "Isian"],
+          "jalur": "Wajib"
+        },
+        {
+          "id": "K11.B7",
+          "nama": "Geometri Ruang (Dimensi 3)",
+          "sub_bab": [
+            "Kedudukan titik, garis, bidang dalam ruang",
+            "Jarak titik ke titik/garis/bidang",
+            "Sudut antara garis-garis, garis-bidang, bidang-bidang"
+          ],
+          "tipe_soal": ["Isian bergambar 3D", "PG"],
+          "jalur": "Wajib + Lanjut"
+        }
+      ]
+    },
+    {
+      "kelas": 12,
+      "fase": "F",
+      "jalur": "Wajib + Lanjut",
+      "bab": [
+        {
+          "id": "K12.B1",
+          "nama": "Integral",
+          "sub_bab": [
+            "Antiderivative (integral tak tentu)",
+            "Integral fungsi aljabar & trigonometri",
+            "Integral substitusi",
+            "Integral parsial",
+            "Integral tentu",
+            "Aplikasi: luas daerah, volume benda putar"
+          ],
+          "tipe_soal": ["Isian", "PG"],
+          "jalur": "Wajib + Lanjut"
+        },
+        {
+          "id": "K12.B2",
+          "nama": "Matriks",
+          "sub_bab": [
+            "Konsep matriks & operasi (jumlah, kurang, kali skalar, kali matriks)",
+            "Determinan matriks 2×2 dan 3×3",
+            "Invers matriks",
+            "Aplikasi matriks untuk SPLTV"
+          ],
+          "tipe_soal": ["Isian", "PG"],
+          "jalur": "Wajib + Lanjut"
+        },
+        {
+          "id": "K12.B3",
+          "nama": "Vektor di Ruang (R³)",
+          "sub_bab": [
+            "Vektor dalam R³",
+            "Operasi vektor (jumlah, kurang, perkalian skalar)",
+            "Perkalian dot dan cross product",
+            "Sudut antara dua vektor",
+            "Proyeksi vektor"
+          ],
+          "tipe_soal": ["Isian", "PG bergambar 3D"],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K12.B4",
+          "nama": "Transformasi Geometri Lanjut",
+          "sub_bab": [
+            "Translasi, refleksi, rotasi, dilatasi (review SMP + lanjut)",
+            "Komposisi transformasi",
+            "Matriks transformasi"
+          ],
+          "tipe_soal": ["Isian bergambar", "PG"],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K12.B5",
+          "nama": "Statistika Inferensial",
+          "sub_bab": [
+            "Distribusi peluang variabel acak",
+            "Distribusi binomial",
+            "Distribusi normal (kurva normal)",
+            "Tabel z dan probabilitas"
+          ],
+          "tipe_soal": ["Isian", "Soal cerita"],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K12.B6",
+          "nama": "Limit Fungsi Trigonometri & L'Hopital",
+          "sub_bab": [
+            "Limit khusus trigonometri (lim sin x / x = 1)",
+            "Aturan L'Hopital (pengenalan)",
+            "Bentuk tak tentu 0/0, ∞/∞"
+          ],
+          "tipe_soal": ["Isian"],
+          "jalur": "Lanjut"
+        }
+      ]
+    }
+  ],
+  "tipe_soal_global": [
+    "Pilihan Ganda (PG) — 4-5 opsi (A-E di SMA, mengikuti pola UTBK)",
+    "Isian Singkat",
+    "Esai/Uraian dengan langkah penyelesaian (PTS/PAS/Sumatif)",
+    "Soal Cerita / Aplikasi (ekonomi, fisika, optimasi, biologi)",
+    "PG Bergambar (grafik fungsi, geometri analitik, ruang 3D)",
+    "Soal HOTS multi-step",
+    "Soal Numerasi & Penalaran (PISA-like, persiapan SNBT)",
+    "Tipe SNBT: penalaran kuantitatif, pengetahuan kuantitatif, literasi data"
+  ],
+  "asesmen_format": [
+    "Ulangan Harian per bab",
+    "PTS — 25-40 soal mix",
+    "PAS/PAT — 40-50 soal",
+    "Asesmen Sumatif Akhir Fase E (K10) & F (K12)",
+    "Ujian Sekolah K12",
+    "Try Out SNBT (banyak diadakan untuk K12)"
+  ]
+}

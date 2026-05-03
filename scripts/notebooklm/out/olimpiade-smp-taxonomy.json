@@ -1,0 +1,255 @@
+{
+  "domain": "Olimpiade Matematika SMP/MTs Indonesia",
+  "_meta": {
+    "source": "NotebookLM deep research, 35 sumber web",
+    "research_date": "2026-05-02",
+    "task_id": "06051207-df70-408f-bd82-595952358915",
+    "raw_report": "olimpiade-smp-report.md",
+    "sources_list": "olimpiade-smp-sources.json",
+    "query": "tipe dan kategori soal olimpiade matematika SMP MTs Indonesia, OSN-K SMP, OSP, OMI MTs, KMNR SMP, materi teori bilangan aljabar geometri kombinatorika tingkat menengah pertama, contoh soal dengan pembahasan"
+  },
+  "format_soal_global": [
+    {
+      "nama": "Pilihan Ganda / Isian Singkat (CBT)",
+      "deskripsi": "Computer-Based Test, 20-25 soal",
+      "ciri_soal": "Babak penyisihan kabupaten OSN-K SMP — CBT, durasi terbatas, kecepatan-akurasi",
+      "skala_penilaian": "OSN-K: Benar +1, Salah/Kosong 0; KMNR: Benar +4, Salah −1, Kosong 0"
+    },
+    {
+      "nama": "Uraian / Essay",
+      "deskripsi": "Tunjukkan langkah + alur logika",
+      "ciri_soal": "Babak provinsi OSP, partial credit, focus argumentasi runtut",
+      "skala_penilaian": "Skor parsial; jawaban benar tanpa penjelasan = poin minimal"
+    },
+    {
+      "nama": "Pembuktian Formal",
+      "deskripsi": "Bukti dengan deduksi formal",
+      "ciri_soal": "OSP & OSN nasional, alur lengkap & elegan",
+      "skala_penilaian": "Skala 0-7 atau 0-10 per soal, rubrik berdasar kelengkapan & keindahan"
+    },
+    {
+      "nama": "Eksplorasi (Investigasi)",
+      "deskripsi": "Diberikan definisi/pola baru, cari sifat umum / generalisasi",
+      "ciri_soal": "OSN nasional 2 hari, 4-4.5 jam per hari",
+      "skala_penilaian": "Rubrik kedalaman investigasi"
+    }
+  ],
+  "kompetisi_utama": [
+    {
+      "nama": "OSN/KSN SMP (Olimpiade Sains Nasional - Kompetisi Sains Nasional)",
+      "penyelenggara": "BPTI - Kemendikbudristek",
+      "tujuan": "Seleksi delegasi Indonesia untuk IMO & APMO (Asia-Pacific)",
+      "tahapan": [
+        {"tingkat": "Sekolah", "format": "Mandiri sekolah, fokus dasar kurikulum"},
+        {"tingkat": "OSN-K (Kabupaten)", "format": "CBT, 20-25 isian singkat, durasi terbatas"},
+        {"tingkat": "OSN-P (Provinsi)", "format": "Hybrid/Online: Bagian A isian + Bagian B uraian/pembuktian"},
+        {"tingkat": "OSN Nasional", "format": "Luring 2 hari, eksplorasi & uraian kompleks, 4-4.5 jam per hari"}
+      ]
+    },
+    {
+      "nama": "KSM (Kompetisi Sains Madrasah) & OMI (Olimpiade Madrasah Indonesia)",
+      "penyelenggara": "Kemenag RI",
+      "tujuan": "Pengembangan madrasah, integrasi sains + nilai keislaman",
+      "tema_omi_2025": "Innovation and Research in Science Youth and Digital Technology",
+      "tahapan_2025": [
+        {"tingkat": "Satuan Pendidikan", "tanggal": "11-16 Agustus 2025"},
+        {"tingkat": "Kabupaten/Kota", "tanggal": "2-5 September 2025"},
+        {"tingkat": "Provinsi", "tanggal": "2-3 Oktober 2025"},
+        {"tingkat": "Nasional", "tanggal": "4-5 November 2025"}
+      ],
+      "keunikan": "Soal terintegrasi dengan parameter dari Al-Qur'an, Fiqh, Sejarah Islam, Tajwid"
+    },
+    {
+      "nama": "KMNR SMP (Kompetisi Matematika Nalaria Realistik)",
+      "penyelenggara": "Klinik Pendidikan MIPA (KPM) - Raden Ridwan Hasan Saputra",
+      "filosofi": "Suprarasional: ilmu + iman/takwa, Sistem Metode Seikhlasnya (SMS) untuk biaya",
+      "tahapan": ["Uji Soal MNR (sekolah)", "Babak Penyisihan (kab/kota)", "Babak Semifinal (provinsi)", "Babak Final (nasional)"],
+      "ciri_soal": "HOTS dikaitkan dengan masalah nyata; sistem penalti +4/-1/0"
+    }
+  ],
+  "soal_terintegrasi_madrasah": [
+    {"komponen": "Al-Qur'an", "contoh_parameter": "Nomor surat (mis. Al-Baqarah=286 ayat) sebagai variabel"},
+    {"komponen": "Fiqh Ibadah", "contoh_parameter": "Kadar zakat 2.5%, rakaat shalat wajib total 17 (Subuh 2 + Dzuhur 4 + Ashar 4 + Maghrib 3 + Isya 4), kambing aqiqah"},
+    {"komponen": "Sejarah Islam", "contoh_parameter": "Tahun peristiwa penting, jumlah anggota keluarga Nabi"},
+    {"komponen": "Tajwid & Hadits", "contoh_parameter": "Jumlah hukum bacaan (ikhfa, idgham) dalam surat sebagai data statistik"}
+  ],
+  "kategori_materi": [
+    {
+      "nama": "Teori Bilangan",
+      "deskripsi": "Eksplorasi sifat bilangan bulat, fondasi olimpiade",
+      "tipe": [
+        {
+          "nama": "Sifat Keterbagian & Aturan Pembagi",
+          "subtipe": ["Aturan keterbagian 8 (3 digit terakhir)", "Aturan keterbagian 9 (jumlah digit)", "Aturan keterbagian 11 (selang-seling)", "Keterbagian komposit (faktorisasi pembagi)"],
+          "ciri_soal": "Cari nilai variabel agar bilangan habis dibagi N, sering N komposit",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["a679b habis dibagi 72 (= 8×9, FPB=1)", "5-digit habis dibagi 99"]
+        },
+        {
+          "nama": "Bilangan Prima & FPB-KPK",
+          "subtipe": ["Bilangan prima sieve", "FPB×KPK = a×b", "Faktorisasi prima", "Bilangan komposit"],
+          "ciri_soal": "Pakai sifat untuk inferensi atau hitung",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["bilangan dengan jumlah pembagi tertentu", "prima 4-digit dengan sifat khusus"]
+        },
+        {
+          "nama": "Aritmatika Modular & Sisa Pembagian",
+          "subtipe": ["Sisa pangkat besar", "Pola sisa periodik", "Teorema Kecil Fermat (a^(p-1) ≡ 1 mod p)", "Teorema Sisa Cina (CRT) dasar"],
+          "ciri_soal": "Pangkat besar tidak hitung penuh — pakai pola sisa",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["2^13 mod 13 (= 2)", "3^100 mod 7", "digit terakhir 7^2024"]
+        },
+        {
+          "nama": "Persamaan Diophantine Sederhana",
+          "subtipe": ["ax + by = c (linear)", "Persamaan dengan sisa", "Solusi bulat positif", "Variabel terbatas interval"],
+          "ciri_soal": "Cari semua (atau jumlah) solusi bulat",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["3x + 7y = 100, x,y > 0", "kombinasi pecahan menjadi 1"]
+        },
+        {
+          "nama": "Basis Bilangan",
+          "subtipe": ["Konversi basis-10 ↔ basis-N", "Operasi aritmatika di basis non-standar", "Sifat bilangan di basis berbeda"],
+          "ciri_soal": "Konversi + operasi langsung di basis target",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["bilangan basis 7 jadi basis 10", "tambah-kurang dalam basis 5"]
+        }
+      ]
+    },
+    {
+      "nama": "Aljabar",
+      "deskripsi": "Manipulasi simbol formal melampaui kurikulum sekolah",
+      "tipe": [
+        {
+          "nama": "Identitas Aljabar",
+          "subtipe": ["(a+b)², (a-b)², a²-b² = (a-b)(a+b)", "(a+b+c)² = a²+b²+c²+2(ab+bc+ca)", "(a+b)³, (a-b)³", "Faktorisasi suku banyak derajat tinggi"],
+          "ciri_soal": "Tanpa hitung akar — manipulasi simbol",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["expand (a+b+c)² untuk syarat tertentu", "faktor x³+y³+z³-3xyz"]
+        },
+        {
+          "nama": "Persamaan & Sistem Persamaan",
+          "subtipe": ["Persamaan kuadrat (rumus jumlah-hasil kali)", "Persamaan rasional", "SPLDV / SPLTV", "Persamaan dengan parameter"],
+          "ciri_soal": "Cari nilai ekspresi tanpa cari akar individual",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["x_1+x_2 dan x_1·x_2 dari x²+px+q", "SPLDV soal cerita"]
+        },
+        {
+          "nama": "Reduksi Derajat Polinomial (Substitusi Rekursif)",
+          "subtipe": ["Pakai persamaan diketahui untuk simplify", "Hindari hitung akar irrasional", "Ekspansi & faktor ulang"],
+          "ciri_soal": "TEKNIK KUNCI olimpiade — kreativitas mengubah bentuk",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["dari 3x²+x=1 cari 6x³-x²-3x+2010 (= 2009)", "polinomial derajat tinggi → derajat rendah pakai relasi"]
+        },
+        {
+          "nama": "Pertidaksamaan",
+          "subtipe": ["Pertidaksamaan linear & kuadrat", "AM-GM dasar (2-3 variabel)", "Pertidaksamaan rasional", "Nilai ekstrim"],
+          "ciri_soal": "Buktikan atau cari nilai max/min",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["min a+b dengan ab=k", "AM-GM: a²+b² ≥ 2ab"]
+        },
+        {
+          "nama": "Barisan & Deret + Fungsi",
+          "subtipe": ["Aritmatika & geometri (Un, Sn)", "Barisan rekursif", "Sifat fungsi (domain, range)", "Grafik fungsi linear & kuadrat"],
+          "ciri_soal": "Analisis sifat lebih dari sekadar Un/Sn",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["barisan a_n = a_{n-1} + a_{n-2}", "range fungsi kuadrat"]
+        }
+      ]
+    },
+    {
+      "nama": "Geometri",
+      "deskripsi": "Visualisasi spasial + logika pembuktian",
+      "tipe": [
+        {
+          "nama": "Geometri Bidang Klasik",
+          "subtipe": ["Sifat segitiga (kongruen, sebangun, AA/SAS/SSS)", "Sifat segiempat (paralelogram, trapesium)", "Pythagoras + triple", "Garis-garis istimewa (tinggi, berat, bagi, sumbu)"],
+          "ciri_soal": "Bukti tanpa koordinat, manipulasi konfigurasi",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["panjang ruas dari kesebangunan", "jenis segitiga dari sifat khusus"]
+        },
+        {
+          "nama": "Lingkaran",
+          "subtipe": ["Sudut pusat & sudut keliling", "Panjang busur & luas juring", "Tali busur, garis singgung", "Lingkaran luar/dalam segitiga"],
+          "ciri_soal": "Sudut & panjang, sering dengan kombinasi segitiga",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["sudut pusat = 2× sudut keliling", "garis singgung dari titik luar"]
+        },
+        {
+          "nama": "Bangun Ruang",
+          "subtipe": ["Volume & luas permukaan (kubus, balok, prisma, tabung, kerucut, bola)", "Jaring-jaring", "Irisan bangun ruang", "Diagonal ruang"],
+          "ciri_soal": "Visualisasi 3D, irisan & diagonal sering",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["bidang irisan kubus oleh 3 titik", "rusuk bola dalam kubus"]
+        },
+        {
+          "nama": "Rasio Luas (Pembuktian)",
+          "subtipe": ["Rasio luas dari titik tengah", "Rasio dari diagonal", "Rasio dari garis berat", "Aplikasi kesebangunan"],
+          "ciri_soal": "Bukti perbandingan tanpa hitung absolut",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["jajargenjang ABCD: E titik tengah AB, DE potong AC di P → ABCD : AEP = 12 : 1"]
+        },
+        {
+          "nama": "Trigonometri Dasar & Teorema Lanjut",
+          "subtipe": ["Sin/cos sudut khusus", "Aturan sinus/cosinus dasar", "Teorema Ceva & Menelaus", "Teorema Pick"],
+          "ciri_soal": "Lanjutan — jarang di kurikulum reguler",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["Ceva untuk konkurensi 3 garis", "Pick: A = i + b/2 - 1"]
+        }
+      ]
+    },
+    {
+      "nama": "Kombinatorika & Statistika",
+      "deskripsi": "Pencacahan & analisis data + peluang",
+      "tipe": [
+        {
+          "nama": "Prinsip Pencacahan Dasar",
+          "subtipe": ["Aturan penjumlahan & perkalian", "Permutasi P(n,r)", "Kombinasi C(n,r)", "Permutasi multi-set"],
+          "ciri_soal": "Kombinasi banyak prinsip + kondisi",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["susunan kata tertentu", "pilih dengan kondisi"]
+        },
+        {
+          "nama": "Pigeonhole Principle (Prinsip Sarang Merpati)",
+          "subtipe": ["Versi dasar", "Generalized (m benda, n kotak)", "Skenario terburuk (worst case)", "Aplikasi geometris"],
+          "ciri_soal": "Bukti eksistensi atau cari batas minimum/maksimum agar pasti",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["25 baju (5S+4M+6L+10XL): minimal ambil 22 untuk pasti dapat 7 ukuran sama (5+4+6+6+1=22)"]
+        },
+        {
+          "nama": "Eksklusi-Inklusi",
+          "subtipe": ["2 himpunan: |A∪B| = |A|+|B|-|A∩B|", "3 himpunan", "Generalisasi n himpunan"],
+          "ciri_soal": "Sering soal Venn-diagram-style",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["siswa ikut 3 ekstrakurikuler", "bilangan habis dibagi 2 atau 3 atau 5"]
+        },
+        {
+          "nama": "Statistika Data",
+          "subtipe": ["Mean, median, modus", "Diagram batang/garis/lingkaran/piktogram", "Manipulasi data (mean baru setelah perubahan)"],
+          "ciri_soal": "Manipulasi data, inferensi dari ringkasan",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["mean baru tambah/hapus elemen", "modus dari diagram"]
+        },
+        {
+          "nama": "Peluang",
+          "subtipe": ["Peluang kejadian tunggal", "Peluang gabungan (lepas/bebas)", "Frekuensi harapan", "Peluang bersyarat dasar"],
+          "ciri_soal": "Hitung dari ruang sampel terbatas",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["peluang dadu jumlah 7", "peluang 2 kelereng warna sama"]
+        }
+      ]
+    }
+  ],
+  "teknik_pembuktian_khas": [
+    "Reduksi derajat polinomial (substitusi rekursif)",
+    "Aturan keterbagian komposit (faktorisasi pembagi)",
+    "Pola sisa periodik (modular)",
+    "Teorema Kecil Fermat untuk pangkat besar mod prima",
+    "Pigeonhole Principle untuk eksistensi & worst case",
+    "Kesebangunan untuk rasio luas",
+    "Eksplorasi pola → generalisasi (untuk soal eksplorasi nasional)"
+  ],
+  "referensi_belajar_terkenal": [
+    {"nama": "MatikZone (Wahyu)", "isi": "Buku 'Siap OSN Matematika SMP', kompilasi soal OSN 2003-2014 + solusi"},
+    {"nama": "Mathcyber1997", "isi": "Ribuan soal latihan dasar-mahir, termasuk Teorema Ceva/Menelaus/Pick"}
+  ]
+}

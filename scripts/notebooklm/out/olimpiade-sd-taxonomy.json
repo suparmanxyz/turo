@@ -1,0 +1,261 @@
+{
+  "domain": "Olimpiade Matematika SD Indonesia",
+  "_meta": {
+    "source": "NotebookLM deep research, 31 sumber web",
+    "research_date": "2026-05-02",
+    "task_id": "0a33b8c8-e942-4fa5-b0d8-5a5248c7965e",
+    "raw_report": "olimpiade-sd-report.md",
+    "sources_list": "olimpiade-sd-sources.json",
+    "query": "tipe dan kategori soal olimpiade matematika SD Indonesia, KMNR Klinik Pendidikan MIPA, OSN-K SD, Matnasoa, OMI, soal nalaria realistik, contoh soal kompetisi sekolah dasar"
+  },
+  "format_soal_global": [
+    {
+      "nama": "Pilihan Ganda",
+      "deskripsi": "Tersedia opsi A, B, C, D (kadang E)",
+      "ciri_soal": "Babak penyisihan, fokus kecepatan & eliminasi",
+      "skala_penilaian": "Benar +4/5, Salah −1/2, Kosong 0"
+    },
+    {
+      "nama": "Isian Singkat",
+      "deskripsi": "Jawaban berupa angka / unit tertentu, tanpa opsi",
+      "ciri_soal": "Babak final OSN-K, KMNR — presisi kalkulasi tanpa bantuan opsi",
+      "skala_penilaian": "Benar +5/10, Salah 0"
+    },
+    {
+      "nama": "Uraian (Essay)",
+      "deskripsi": "Tunjukkan langkah penyelesaian sistematis, jawaban final + alur logika",
+      "ciri_soal": "Penilaian parsial 1-10 per soal; argumen & simbol matematis",
+      "skala_penilaian": "Skala 1-10 per soal (parsial)"
+    },
+    {
+      "nama": "Eksplorasi (Investigation)",
+      "deskripsi": "Investigasi masalah non-rutin dengan banyak solusi; penilaian rubrik kedalaman",
+      "ciri_soal": "Generalisasi pola, kreativitas; bukan hanya jawaban final",
+      "skala_penilaian": "Rubrik gradasi (mis. konfigurasi 21 titik = 6 poin, 15-17 titik = 1 poin)"
+    }
+  ],
+  "kompetisi_utama": [
+    {
+      "nama": "OSN-K (Olimpiade Sains Nasional - Matematika SD)",
+      "penyelenggara": "Puspresnas (Kemendikbud)",
+      "gaya_bahasa": "Formal & Akademis",
+      "tingkat_abstraksi": "Tinggi (fokus teoretis)",
+      "keterkaitan_kurikulum": "Melampaui kurikulum nasional",
+      "target": "Seleksi elite nasional (proyeksi internasional)",
+      "tahapan": ["Sekolah", "Kabupaten/Kota (OSK)", "Provinsi (OSP)", "Nasional"],
+      "format_lazim": "20 isian singkat + 5 uraian, 120 menit (OSN-K)",
+      "materi_dominan": "Teori Bilangan & Aljabar"
+    },
+    {
+      "nama": "KMNR (Kompetisi Matematika Nalaria Realistik)",
+      "penyelenggara": "Klinik Pendidikan MIPA (KPM) - Raden Ridwan Hasan Saputra",
+      "gaya_bahasa": "Kontekstual & Naratif",
+      "tingkat_abstraksi": "Sedang (fokus penalaran)",
+      "keterkaitan_kurikulum": "Pengayaan nalar (MNR)",
+      "target": "Masif & inklusif (Sistem Metode Seikhlasnya)",
+      "filosofi": "Mulai dari masalah nyata → konsep matematika → komunikasi matematis",
+      "materi_dominan": "Logika & Masalah Realistik"
+    },
+    {
+      "nama": "OMI (Olimpiade Madrasah Indonesia)",
+      "penyelenggara": "Ditjen Pendis Kemenag RI",
+      "gaya_bahasa": "Integratif & Religius",
+      "tingkat_abstraksi": "Sedang (fokus terapan)",
+      "keterkaitan_kurikulum": "Integrasi mapel agama (Islam)",
+      "target": "MI/MTs/MA, pengembangan madrasah",
+      "tahapan": ["Satuan Pendidikan", "Kabupaten/Kota", "Provinsi", "Nasional"],
+      "keunikan": "Konteks ibadah/sejarah Islam, SDGs, transformasi digital",
+      "materi_dominan": "Geometri & Aritmatika Zakat"
+    },
+    {
+      "nama": "Matnas / OMITS (perguruan tinggi)",
+      "penyelenggara": "Universitas (ITS, UNNES, UNESA, dll)",
+      "gaya_bahasa": "Variatif",
+      "format_unik": "Kompetisi beregu/tim (OMITS) — kolaborasi & strategi",
+      "kompetitif_sekali": "OMITS 2022 SD: 75 tim → 10 semifinal → 5 final",
+      "tujuan": "Talent scouting universitas, promosi departemen matematika"
+    }
+  ],
+  "kategori_materi": [
+    {
+      "nama": "Teori Bilangan & Aritmatika Kompleks",
+      "deskripsi": "Fondasi sifat bilangan, keterbagian, manipulasi cerdas",
+      "tipe": [
+        {
+          "nama": "Sistem Bilangan & Sifat Dasar",
+          "subtipe": ["Bilangan bulat-rasional-cacah", "Keterbagian", "Bilangan prima < 100", "Faktorisasi prima"],
+          "ciri_soal": "Manipulasi sifat untuk inferensi",
+          "tingkat_kesulitan": "easy",
+          "contoh_topik": ["pola bilangan prima", "sifat bilangan ganjil-genap"]
+        },
+        {
+          "nama": "FPB-KPK Lanjut",
+          "subtipe": ["FPB-KPK 2-3 bilangan", "FPB-KPK soal cerita (lonceng/sinkronisasi)", "Hubungan FPB×KPK = a×b"],
+          "ciri_soal": "Konteks: jadwal, pembagian, sinkronisasi periodik",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["3 lampu menyala bareng", "minimum siswa per kelompok", "siklus tugas piket"]
+        },
+        {
+          "nama": "Manipulasi Aritmatika Cerdas",
+          "subtipe": ["Pencacahan sistematis (mis. bilangan 1000-2000 dengan sifat khusus)", "Persamaan diophantine sederhana", "Manipulasi digit"],
+          "ciri_soal": "Bukan hanya hitung — perlu pendekatan kreatif",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["bilangan 4-digit dengan jumlah 2 digit pertama = jumlah 2 digit terakhir", "menebak digit berdasarkan sifat"]
+        },
+        {
+          "nama": "Modular Arithmetic Dasar",
+          "subtipe": ["Sisa pembagian", "Pola sisa periodik", "Hari ke-n (mod 7)", "Digit terakhir pangkat tinggi"],
+          "ciri_soal": "Pakai pola periodik untuk simplify; pembeda peserta nasional",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["digit satuan dari 7^100", "dua digit terakhir dari ekspresi pangkat besar"]
+        }
+      ]
+    },
+    {
+      "nama": "Aljabar & Pola Penalaran",
+      "deskripsi": "Pengenalan variabel, persamaan, deret",
+      "tipe": [
+        {
+          "nama": "Persamaan & Pertidaksamaan",
+          "subtipe": ["Persamaan linear 1 variabel", "Pertidaksamaan linear", "SPLDV (soal cerita)", "Sistem persamaan tersembunyi"],
+          "ciri_soal": "Translate kalimat → model matematika → solve",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["umur ayah & anak", "campuran beli barang", "pembagian hadiah"]
+        },
+        {
+          "nama": "Pola Bilangan & Deret",
+          "subtipe": ["Deret aritmetika (Un, Sn)", "Deret geometri", "Pola induktif (observasi suku awal)", "Deret bertingkat"],
+          "ciri_soal": "Diberikan beberapa suku awal → cari rumus / suku ke-n",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["jumlah n suku pertama", "deret berselang-seling", "pola gabungan ganjil/genap"]
+        }
+      ]
+    },
+    {
+      "nama": "Geometri & Visualisasi Spasial",
+      "deskripsi": "Bangun datar, ruang, transformasi — fokus visualisasi bukan rumus mentah",
+      "tipe": [
+        {
+          "nama": "Bangun Datar (Manipulasi)",
+          "subtipe": ["Segitiga (sembarang/sama sisi/sama kaki)", "Segiempat (persegi, persegi panjang, jajaran genjang, trapesium)", "Lingkaran & juring", "Daerah arsiran (luas total - luas dalam)"],
+          "ciri_soal": "Manipulasi bentuk, bukan plug-and-play rumus",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["luas daerah arsir antara persegi & lingkaran", "luas bangun gabungan"]
+        },
+        {
+          "nama": "Bangun Ruang & Jaring-jaring",
+          "subtipe": ["Kubus, balok", "Tabung, kerucut", "Jaring-jaring", "Volume gabungan"],
+          "ciri_soal": "Visualisasi 3D, sering dengan elemen tersembunyi",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["jumlah kubus kecil dalam balok", "permukaan terbuka kotak"]
+        },
+        {
+          "nama": "Sudut, Simetri, Transformasi",
+          "subtipe": ["Sudut dalam segibanyak", "Simetri lipat & putar", "Refleksi & rotasi", "Sudut jam"],
+          "ciri_soal": "Persepsi spasial, kadang tanpa gambar pendukung",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["simetri putar persegi panjang", "sudut antara dua jarum jam"]
+        },
+        {
+          "nama": "Pythagoras & Kesebangunan",
+          "subtipe": ["Teorema Pythagoras (jarak)", "Kesebangunan segitiga", "Kongruen", "Perbandingan ukuran"],
+          "ciri_soal": "Sering implisit — peserta harus identifikasi sendiri segitiga siku-siku/sebangun",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["jarak antar titik koordinat", "tinggi pohon dari bayangan"]
+        }
+      ]
+    },
+    {
+      "nama": "Statistika, Pengukuran & Peluang",
+      "deskripsi": "Penyajian data + manipulasi data + besaran turunan",
+      "tipe": [
+        {
+          "nama": "Penyajian & Pemusatan Data",
+          "subtipe": ["Tabel & diagram batang/garis/lingkaran/piktogram", "Mean, median, modus", "Manipulasi data (tambah/hapus elemen)"],
+          "ciri_soal": "Tantangan: cari mean baru setelah elemen berubah, atau elemen yang hilang",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["rata-rata baru setelah tambah 2 data", "modus dari diagram batang"]
+        },
+        {
+          "nama": "Pengukuran & Besaran Turunan",
+          "subtipe": ["Konversi satuan baku (km, kg, jam)", "Kecepatan v=s/t", "Debit D=V/t", "Skala & peta"],
+          "ciri_soal": "Aplikasi praktis, sering soal cerita multi-step",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["dua mobil berpapasan", "pengisian bak air", "jarak peta vs sebenarnya"]
+        }
+      ]
+    },
+    {
+      "nama": "Kombinatorika & Logika Pencacahan",
+      "deskripsi": "Counting & logika murni, paling menantang karena tidak banyak rumus tetap",
+      "tipe": [
+        {
+          "nama": "Prinsip Pencacahan",
+          "subtipe": ["Aturan perkalian", "Aturan penjumlahan", "Diagram pohon", "Eksklusi-inklusi sederhana"],
+          "ciri_soal": "Hitung jumlah cara/susunan dari aturan dasar",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["banyaknya angka 0 saat menulis nomor 21-120", "rute dari A ke B"]
+        },
+        {
+          "nama": "Permutasi-Kombinasi (intuitif)",
+          "subtipe": ["Susunan tanpa pengulangan", "Memilih dari sekelompok", "Susunan dengan kondisi", "Susunan melingkar dasar"],
+          "ciri_soal": "Belum pakai notasi P/C formal, tapi konsep sama",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["jabat tangan n orang", "pilih k dari n buku berbeda"]
+        },
+        {
+          "nama": "Pigeonhole Principle (Prinsip Sarang Merpati)",
+          "subtipe": ["Pembuktian eksistensi", "Perluasan: m kotak n>m benda", "Aplikasi pada deret bilangan", "Aplikasi geometris"],
+          "ciri_soal": "Buktikan keberadaan kondisi dalam himpunan; konsep penting tingkat lanjut",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["di antara 13 orang pasti ada 2 yang lahir bulan sama", "ada 2 bilangan yang selisihnya kelipatan n"]
+        }
+      ]
+    }
+  ],
+  "tipe_eksplorasi_khas_olimpiade_sd": [
+    {
+      "nama": "Eksplorasi Penjumlahan Bilangan Berurutan",
+      "deskripsi": "Cari semua cara menulis suatu bilangan sebagai jumlah bilangan asli berurutan",
+      "kunci_strategi": "Faktorisasi target → identifikasi nilai tengah ganjil = faktor",
+      "contoh": "84 = 27+28+29 (jumlah 3 suku, nilai tengah 28); generalisasi: 84/k harus jadi nilai tengah valid"
+    },
+    {
+      "nama": "Eksplorasi Visual-Kombinatorial",
+      "deskripsi": "Konfigurasi maksimum di grid dengan constraint",
+      "kunci_strategi": "Coba sistematis + pembuktian maksimalitas",
+      "contoh": "Grid 7×7: tempatkan max titik tanpa 4 titik membentuk persegi/persegi panjang (jawaban max ~21)"
+    },
+    {
+      "nama": "Piramida Bilangan Aturan Operasi",
+      "deskripsi": "Isi sel piramida dengan aturan (mis. sel atas = sel bawah kiri × bawah kanan); arah maju & terbalik",
+      "kunci_strategi": "Faktorisasi nilai puncak → enumerate kombinasi dasar valid",
+      "contoh": "Diberikan nilai puncak, cari semua kemungkinan angka di dasar yang berupa bilangan asli berbeda"
+    }
+  ],
+  "soal_kontekstual_khas_kompetisi": [
+    {
+      "kompetisi": "OSN",
+      "contoh": "Bilangan 3461 mempunyai sifat jumlah dua angka pertama = jumlah dua angka terakhir (3+4=6+1). Berapa banyak bilangan antara 1000-2000 dengan sifat itu?",
+      "tipe": "Teori Bilangan / Pencacahan Sistematis"
+    },
+    {
+      "kompetisi": "KMNR / MNR",
+      "contoh": "Tukang sablon membuat nomor dada 21-120. Berapa banyak angka 0 yang ia buat?",
+      "tipe": "Logika Realistik / Counting"
+    },
+    {
+      "kompetisi": "OMI",
+      "contoh": "Ibu Siti menyiapkan 20 liter santan untuk Maulid Nabi. Digunakan 3/5 bagian untuk gulai. Berapa sisa santan?",
+      "tipe": "Aritmetika Pecahan / Konteks Religius"
+    }
+  ],
+  "strategi_penyelesaian_khas": [
+    "Working backward — mulai dari kondisi akhir & lacak balik",
+    "Pigeonhole Principle — pembuktian eksistensi",
+    "Faktorisasi & generalisasi dari kasus kecil",
+    "Pencacahan sistematis (kasus per kasus)",
+    "Visualisasi via diagram/sketsa",
+    "Manajemen waktu & strategi penalti (jika ada -1/2 untuk salah)"
+  ]
+}

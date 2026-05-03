@@ -1,0 +1,147 @@
+{
+  "domain": "UTBK Matematika SNBT 2024-2025",
+  "_meta": {
+    "source": "Claude direct (training knowledge, no live research, no NotebookLM)",
+    "model": "claude-opus-4-7",
+    "knowledge_cutoff": "2026-01",
+    "generated_date": "2026-05-02",
+    "method": "Generated from prior knowledge tanpa akses sumber eksternal — untuk apple-to-apple comparison terhadap NotebookLM-research version"
+  },
+  "format_soal_global": [
+    {
+      "nama": "Pilihan Ganda Konvensional",
+      "deskripsi": "5 opsi A-E, satu jawaban benar",
+      "ciri_soal": "Format standar SBMPTN/SNBT lama, masih dominan"
+    },
+    {
+      "nama": "Pilihan Ganda Kompleks",
+      "deskripsi": "Multi-pernyataan dievaluasi (Benar/Salah, Ya/Tidak)",
+      "ciri_soal": "Salah satu baris salah biasanya hilang seluruh poin soal"
+    },
+    {
+      "nama": "Isian Singkat",
+      "deskripsi": "Ketik angka sebagai jawaban (numerik)",
+      "ciri_soal": "Format baru sejak ~2024, menghilangkan faktor tebak"
+    }
+  ],
+  "subtes": [
+    {
+      "nama_subtes": "Penalaran Kuantitatif (sub-komponen Penalaran Umum)",
+      "kode": "PU-K",
+      "kategori_tes": "TPS",
+      "jumlah_soal": 10,
+      "durasi_menit": 10,
+      "tujuan_ukur": "Penalaran cepat berbasis angka & data sederhana, fokus logika numerik bukan rumus",
+      "tipe": [
+        {
+          "nama": "Logika Aritmetika",
+          "deskripsi": "Operasi hitung dasar untuk inferensi cepat",
+          "subtipe": ["Operasi campuran", "Persen-pecahan", "Rasio sederhana"],
+          "ciri_soal": "Soal pendek, jawaban dalam <60 detik",
+          "tingkat_kesulitan": "easy",
+          "contoh_topik": ["diskon berlapis", "pembagian sumber daya", "konversi unit"]
+        },
+        {
+          "nama": "Pola & Deret",
+          "deskripsi": "Identifikasi pola numerik & lanjutkan",
+          "subtipe": ["Barisan aritmetika", "Barisan geometri", "Pola kombinasi"],
+          "ciri_soal": "5-6 angka diberikan, cari berikutnya / aturan umum",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["deret bertingkat", "pola gabungan ganjil/genap", "deret fibonacci-like"]
+        },
+        {
+          "nama": "Inferensi Data Sederhana",
+          "deskripsi": "Tarik kesimpulan dari mini-tabel atau diagram",
+          "subtipe": ["Bandingkan dua kategori", "Hitung selisih", "Identifikasi tren"],
+          "ciri_soal": "Stimulus visual kecil + 1 pertanyaan",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["grafik batang penjualan", "tabel cuaca", "diagram lingkaran preferensi"]
+        }
+      ]
+    },
+    {
+      "nama_subtes": "Pengetahuan Kuantitatif",
+      "kode": "PK",
+      "kategori_tes": "TPS",
+      "jumlah_soal": 20,
+      "durasi_menit": 20,
+      "tujuan_ukur": "Penguasaan konsep matematika sekolah; manipulasi simbol formal",
+      "tipe": [
+        {
+          "nama": "Bilangan",
+          "deskripsi": "Sifat & operasi bilangan",
+          "subtipe": ["Bilangan bulat & rasional", "Bilangan prima", "FPB-KPK", "Pecahan kompleks"],
+          "ciri_soal": "Manipulasi numerik, kadang dengan operator simbol kustom",
+          "tingkat_kesulitan": "easy",
+          "contoh_topik": ["sifat bilangan ganjil-genap", "operasi pecahan campuran", "FPB tiga bilangan"]
+        },
+        {
+          "nama": "Aljabar",
+          "deskripsi": "Persamaan, fungsi, manipulasi simbol",
+          "subtipe": ["Persamaan linear & kuadrat", "Sistem persamaan", "Eksponen-logaritma", "Fungsi komposisi & invers"],
+          "ciri_soal": "Notasi formal, fokus manipulasi cepat",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["akar persamaan kuadrat", "(f∘g)(x)", "sifat logaritma", "SPLDV soal cerita"]
+        },
+        {
+          "nama": "Geometri",
+          "deskripsi": "Bidang, ruang, dan analitik",
+          "subtipe": ["Bangun datar", "Bangun ruang", "Geometri koordinat", "Trigonometri dasar"],
+          "ciri_soal": "Sering tanpa gambar, butuh visualisasi mental",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["luas segitiga dengan koordinat", "volume kerucut", "Pythagoras"]
+        },
+        {
+          "nama": "Statistika & Peluang",
+          "deskripsi": "Analisis data dan peluang dasar",
+          "subtipe": ["Mean-median-modus", "Kuartil & jangkauan", "Permutasi-kombinasi", "Peluang kejadian"],
+          "ciri_soal": "Data terbatas, hitung statistik atau probabilitas",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["median data berkelompok", "C(n,k) dengan kondisi", "peluang gabungan"]
+        },
+        {
+          "nama": "Perbandingan Kuantitas (Quant Comparison)",
+          "deskripsi": "Tipe khas PK: bandingkan dua nilai/ekspresi",
+          "subtipe": ["P > Q", "P < Q", "P = Q", "Tidak dapat ditentukan"],
+          "ciri_soal": "Tidak perlu hitung exact, cukup tentukan relasi",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["bandingkan nilai aljabar", "bandingkan probabilitas dua skenario"]
+        }
+      ]
+    },
+    {
+      "nama_subtes": "Penalaran Matematika",
+      "kode": "PM",
+      "kategori_tes": "Tes Literasi",
+      "jumlah_soal": 20,
+      "durasi_menit": 42.5,
+      "tujuan_ukur": "Literasi numerasi dalam konteks kehidupan nyata (mirip PISA/AKM)",
+      "tipe": [
+        {
+          "nama": "Soal Cerita Kontekstual",
+          "deskripsi": "Stimulus naratif panjang dari konteks sehari-hari",
+          "subtipe": ["Konteks personal", "Konteks sosial", "Konteks pekerjaan", "Konteks ilmiah"],
+          "ciri_soal": "Teks 100-300 kata + 1-3 pertanyaan, butuh translate ke matematika",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["belanja optimal", "perbandingan paket telepon", "biaya proyek"]
+        },
+        {
+          "nama": "Interpretasi Visualisasi Data",
+          "deskripsi": "Stimulus berupa tabel/grafik kompleks",
+          "subtipe": ["Tabel multi-dimensi", "Grafik garis ganda", "Diagram batang berkelompok", "Infografis"],
+          "ciri_soal": "1 visual dipakai untuk multi-pertanyaan",
+          "tingkat_kesulitan": "medium",
+          "contoh_topik": ["data demografi", "tren ekonomi", "statistik olahraga"]
+        },
+        {
+          "nama": "Pemodelan Matematis",
+          "deskripsi": "Bangun model dari deskripsi situasi",
+          "subtipe": ["Model linear", "Model fungsi kuadrat", "Optimasi", "Pertumbuhan eksponensial"],
+          "ciri_soal": "Dari narasi → ekspresi → solve",
+          "tingkat_kesulitan": "hard",
+          "contoh_topik": ["bunga majemuk", "titik impas usaha", "minimum biaya"]
+        }
+      ]
+    }
+  ]
+}
