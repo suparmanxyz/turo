@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DAFTAR_MATERI,
   materiOlimpiadePerJenjang,
@@ -104,32 +104,32 @@ function HeroSection() {
             mainmaku.id · belajar matematika adaptif
           </div>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
-            Belajar matematika<br />
-            dari <span className="text-teal-300">dasar</span> sampai <span className="text-cyan-300">olimpiade</span>.
+            Sistem yang ngerti<br />
+            <span className="text-teal-300">level anak Anda</span> — bukan one-size-fits-all.
           </h1>
           <p className="text-lg sm:text-xl text-teal-50/90 mb-8 leading-relaxed max-w-2xl">
-            Sekolah reguler, persiapan SNBT, atau latihan olimpiade — semua dalam satu platform.
-            Peta prasyarat & bantuan visual AI bantu kamu naik level dari titik yang tepat.
+            Diagnostik adaptif 4 tahap (15-30 menit) → langsung tahu posisi anak. Sistem otomatis
+            arahkan ke topik yang DIBUTUHKAN, bukan urutan kaku. SD sampai SNBT &amp; olimpiade.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/login?mode=register"
               className="inline-flex items-center gap-2 bg-white text-teal-700 hover:bg-teal-50 px-6 py-3.5 rounded-xl font-semibold shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all"
             >
-              Mulai gratis →
+              Coba 7 hari gratis →
             </Link>
             <Link
-              href="/login"
+              href="#harga"
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur ring-1 ring-white/30 hover:bg-white/20 text-white px-6 py-3.5 rounded-xl font-semibold transition"
             >
-              Sudah punya akun? Masuk
+              Lihat harga
             </Link>
           </div>
 
           <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-teal-50/80">
-            <span className="flex items-center gap-1.5">✓ Tanpa biaya</span>
-            <span className="flex items-center gap-1.5">✓ Diagnostik adaptif</span>
-            <span className="flex items-center gap-1.5">✓ Bantuan AI per soal</span>
+            <span className="flex items-center gap-1.5">✓ Trial 7 hari tanpa CC</span>
+            <span className="flex items-center gap-1.5">✓ Diagnostik adaptif IRT</span>
+            <span className="flex items-center gap-1.5">✓ Family pack (3 anak)</span>
             <span className="flex items-center gap-1.5">✓ SD · SMP · SMA · SNBT · Olimpiade</span>
           </div>
         </div>
@@ -195,33 +195,33 @@ function FiturSection() {
   const fitur = [
     {
       e: "🎯",
-      t: "Soal adaptif",
-      d: "Tingkat kesulitan menyesuaikan kemampuanmu lewat sistem IRT. Tidak terlalu mudah, tidak bikin frustrasi.",
+      t: "Diagnostik adaptif IRT",
+      d: "4 tahap (Locator → Coverage → Deep → Drilling) tentukan level kelas, area lemah, dan path belajar yang tepat dalam 15-30 menit.",
+    },
+    {
+      e: "🛣️",
+      t: "Path Routing 4-tier",
+      d: "Sistem kasih jalur drilling sesuai hasil: Advanced (verifikasi), Standard (gap repair), Comprehensive (foundation rebuild), atau Intensive (foundation emergency).",
     },
     {
       e: "🗺️",
-      t: "Peta prasyarat",
-      d: "Tahu pasti sub-materi mana yang perlu diperbaiki sebelum lanjut. Tidak ada lagi belajar dari materi yang tidak siap.",
+      t: "Peta prasyarat 472 sub",
+      d: "Tahu pasti sub-materi mana yang perlu diperbaiki sebelum lanjut. Pohon prasyarat dari SD K1 sampai SMA K12 dengan relasi prerequisite.",
     },
     {
       e: "🤖",
       t: "Bantuan visual AI",
-      d: "Penjelasan bertahap dan visual untuk soal yang sulit. AI bantu sampai kamu paham, bukan sekedar kasih jawaban.",
+      d: "Penjelasan bertahap, plot fungsi, hint progresif. AI bantu sampai paham, bukan sekedar kasih jawaban.",
     },
     {
-      e: "📊",
-      t: "Estimasi skor UTBK",
-      d: "Lapis 1.5 cek kesiapan tiap bab dengan estimasi skor SNBT. Targetmu jelas, latihanmu fokus.",
+      e: "🏷️",
+      t: "Label kurikulum cerdas",
+      d: "Tiap topik ditandai 📘 Inti (CP 046), 🌉 Pendukung, 🚀 Tantangan, atau 🎯 UTBK — anak tahu mana yang prioritas.",
     },
     {
-      e: "📚",
-      t: "Dual-track kurikulum",
-      d: "Pilih mode Strict CP 046 (sesuai sekolah) atau Comprehensive Full untuk pendalaman lebih luas.",
-    },
-    {
-      e: "✨",
-      t: "Sepenuhnya gratis",
-      d: "Semua fitur tersedia tanpa biaya. Bagian dari ekosistem mainmaku.id untuk pendidikan terbuka.",
+      e: "👨‍👩‍👧",
+      t: "Family pack",
+      d: "Satu langganan untuk 3 anak. Cocok untuk keluarga dengan beberapa anak sekolah — jauh lebih hemat dari per-akun.",
     },
   ];
   return (
@@ -261,9 +261,9 @@ function FiturSection() {
 
 function CaraKerjaSection() {
   const langkah = [
-    { n: "1", t: "Daftar & cek kemampuan", d: "Diagnostik adaptif 3 tahap (~15-30 menit) menentukan level kelas dan area lemah." },
-    { n: "2", t: "Ikuti rekomendasi", d: "Sistem kasih sub-materi yang perlu diperbaiki dulu, sesuai peta prasyaratmu." },
-    { n: "3", t: "Latihan & naik level", d: "Soal adaptif + bantuan AI per langkah. Cek kesiapan bab sebelum lanjut." },
+    { n: "1", t: "Daftar & coba 7 hari gratis", d: "Sign up dengan email — tidak perlu kartu kredit. Akses penuh semua fitur Premium selama trial." },
+    { n: "2", t: "Diagnostik 4 tahap", d: "Locator → Coverage → Deep → Drilling adaptif (~15-30 menit). Sistem tahu posisi anak Anda dengan presisi." },
+    { n: "3", t: "Ikuti path tailored", d: "Drilling Engine kasih path Advanced/Standard/Comprehensive/Intensive sesuai hasil. Latihan fokus, naik level cepat." },
   ];
   return (
     <section className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
@@ -296,6 +296,164 @@ function CaraKerjaSection() {
   );
 }
 
+// ============================================================
+// Pricing — fetch live dari Firestore via /api/pricing/public
+// ============================================================
+
+type PublicPlan = {
+  key: string;
+  label: string;
+  price: number;
+  periodDays: number;
+  maxUsers: number;
+  recurring: boolean;
+  description: string | null;
+};
+
+type PublicPricing = {
+  plans: PublicPlan[];
+  currency: string;
+  trial: { durationDays: number; requireCreditCard: boolean };
+  freeTier: { subMateriPerDay: number; soalPerDay: number };
+};
+
+function formatRupiah(n: number): string {
+  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
+}
+
+function PricingSection() {
+  const [pricing, setPricing] = useState<PublicPricing | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/pricing/public")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.error) throw new Error(data.error);
+        setPricing(data);
+      })
+      .catch((e) => setError(e instanceof Error ? e.message : String(e)));
+  }, []);
+
+  if (error) return null; // silent fail — landing tetap usable
+  if (!pricing) {
+    return (
+      <section id="harga" className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
+        <div className="text-center text-slate-400">Memuat harga...</div>
+      </section>
+    );
+  }
+
+  const trialDays = pricing.trial.durationDays;
+
+  return (
+    <section id="harga" className="relative bg-slate-50 border-y border-slate-200/70">
+      <div className="bg-grid absolute inset-0 opacity-30" />
+      <div className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
+        <div className="text-center mb-10 sm:mb-12 animate-rise">
+          <div className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong mb-3">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+            harga
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+            Pilih yang sesuai keluarga<span className="text-brand">.</span>
+          </h2>
+          <p className="text-muted mt-2 max-w-xl mx-auto">
+            Trial {trialDays} hari gratis tanpa kartu kredit. Bisa cancel kapan saja.
+          </p>
+        </div>
+
+        {/* Solo & Family side-by-side */}
+        <div className="grid gap-5 sm:grid-cols-2 mb-5">
+          {pricing.plans.filter((p) => p.recurring).map((plan, i) => {
+            const isFamily = plan.maxUsers > 1;
+            const monthly = plan.periodDays > 30 ? Math.round((plan.price / plan.periodDays) * 30) : plan.price;
+            const isYearly = plan.periodDays > 30;
+            return (
+              <div
+                key={plan.key}
+                style={{ animationDelay: `${i * 60}ms` }}
+                className={`relative rounded-2xl bg-white p-6 border-2 transition-all animate-pop ${
+                  isFamily ? "border-brand shadow-lg shadow-brand/10" : "border-slate-200 hover:border-slate-300"
+                }`}
+              >
+                {isFamily && (
+                  <div className="absolute -top-3 left-6 inline-flex items-center text-xs font-bold uppercase tracking-wider rounded-full bg-brand text-white px-3 py-1">
+                    Hemat untuk keluarga
+                  </div>
+                )}
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <div className="text-2xl">{isFamily ? "👨‍👩‍👧" : "👤"}</div>
+                    <h3 className="font-bold text-xl mt-2">{plan.label}</h3>
+                    {plan.description && (
+                      <p className="text-sm text-slate-600 mt-1">{plan.description}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-4 mb-2">
+                  <span className="text-3xl font-extrabold">{formatRupiah(plan.price)}</span>
+                  <span className="text-slate-500 text-sm ml-1">
+                    / {plan.periodDays === 30 ? "bulan" : plan.periodDays === 365 ? "tahun" : `${plan.periodDays} hari`}
+                  </span>
+                  {isYearly && (
+                    <div className="text-xs text-emerald-700 font-semibold mt-1">
+                      ~{formatRupiah(monthly)}/bulan · hemat dibanding bulanan
+                    </div>
+                  )}
+                </div>
+                <ul className="text-sm text-slate-700 space-y-1.5 mt-4 mb-5">
+                  <li>✓ Akses penuh semua materi (SD-SMA)</li>
+                  <li>✓ Diagnostik adaptif 4 tahap unlimited</li>
+                  <li>✓ Drilling Engine (Path Routing 4-tier)</li>
+                  <li>✓ AI tutor + bantuan visual + plot fungsi</li>
+                  <li>✓ {plan.maxUsers === 1 ? "1 akun siswa" : `${plan.maxUsers} akun anak`}</li>
+                </ul>
+                <Link
+                  href="/login?mode=register"
+                  className={`block w-full text-center px-4 py-2.5 rounded-xl font-semibold transition ${
+                    isFamily
+                      ? "bg-brand text-white hover:bg-brand-strong shadow-md"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                  }`}
+                >
+                  Coba {trialDays} hari gratis
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* UTBK Pack one-time */}
+        {pricing.plans.filter((p) => !p.recurring).map((plan) => (
+          <div key={plan.key} className="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 p-6 flex items-center gap-4 flex-wrap">
+            <div className="text-3xl">🎯</div>
+            <div className="flex-1 min-w-[200px]">
+              <h3 className="font-bold text-lg">{plan.label}</h3>
+              {plan.description && <p className="text-sm text-amber-800 mt-0.5">{plan.description}</p>}
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-extrabold text-amber-900">{formatRupiah(plan.price)}</div>
+              <div className="text-xs text-amber-700">one-time · {Math.round(plan.periodDays/30)} bulan akses</div>
+            </div>
+            <Link
+              href="/login?mode=register"
+              className="inline-flex items-center gap-1 bg-amber-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-amber-700 transition"
+            >
+              Beli →
+            </Link>
+          </div>
+        ))}
+
+        {/* Free tier note */}
+        <div className="mt-6 text-center text-sm text-slate-500">
+          Trial habis? Tetap bisa pakai <strong>free tier</strong> ({pricing.freeTier.subMateriPerDay} sub-materi + {pricing.freeTier.soalPerDay} soal per hari) atau upgrade ke paid.
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CtaSection() {
   return (
     <section className="relative mx-auto max-w-6xl px-6 sm:px-10 pb-16 sm:pb-24">
@@ -304,16 +462,16 @@ function CtaSection() {
         <FloatingMath />
         <div className="relative animate-rise">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-            Siap mulai dari titik yang tepat?
+            Mulai dari titik yang tepat. Hari ini.
           </h2>
           <p className="text-teal-50/90 max-w-xl mx-auto mb-7">
-            Daftar gratis, ikuti diagnostik singkat, dan dapatkan jalur belajar yang sesuai kemampuanmu hari ini.
+            Coba 7 hari gratis tanpa kartu kredit. Diagnostik singkat, lihat path belajar yang sesuai untuk anak Anda.
           </p>
           <Link
             href="/login?mode=register"
             className="inline-flex items-center gap-2 bg-white text-teal-700 hover:bg-teal-50 px-7 py-4 rounded-xl font-semibold shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all"
           >
-            Buat akun gratis →
+            Coba 7 hari gratis →
           </Link>
           <p className="text-sm text-teal-100/70 mt-5">
             Sudah punya akun?{" "}
@@ -357,6 +515,7 @@ function LandingPage() {
       <JalurSection />
       <FiturSection />
       <CaraKerjaSection />
+      <PricingSection />
       <CtaSection />
       <LandingFooter />
     </main>
