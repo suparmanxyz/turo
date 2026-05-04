@@ -1,0 +1,2709 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Comparison SD — Strict Tagging Audit</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    margin: 0;
+    background: #f1f5f9;
+    color: #0f172a;
+    font-size: 14px;
+  }
+  header.app-header {
+    background: linear-gradient(135deg, #0f766e, #14b8a6);
+    color: white;
+    padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  header.app-header h1 {
+    margin: 0 0 4px 0;
+    font-size: 24px;
+  }
+  header.app-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 13px;
+  }
+  .toolbar {
+    background: white;
+    padding: 12px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .tab-btn {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .tab-btn.active {
+    background: #0f766e;
+    color: white;
+    border-color: #0f766e;
+  }
+  .tab-btn:hover:not(.active) {
+    background: #e2e8f0;
+  }
+  .export-btn {
+    margin-left: auto;
+    background: #fbbf24;
+    color: #78350f;
+    border: 1px solid #f59e0b;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .export-btn:hover { background: #f59e0b; color: white; }
+
+  .tab-content { display: none; padding: 16px 24px; }
+  .tab-content.active { display: block; }
+
+  .kelas-header {
+    margin-bottom: 16px;
+  }
+  .kelas-header h2 {
+    margin: 0 0 4px 0;
+    color: #0f172a;
+  }
+  .fase { color: #64748b; font-weight: normal; font-size: 16px; }
+  .fokus { color: #64748b; margin: 4px 0; font-size: 13px; }
+  .counts {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #475569;
+    margin-top: 8px;
+  }
+  .counts span {
+    background: #e0f2fe;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 1100px) {
+    .three-col { grid-template-columns: 1fr; }
+  }
+
+  .col {
+    min-width: 0;
+  }
+  .col h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: white;
+    position: sticky;
+    top: 60px;
+    z-index: 5;
+  }
+  .col-nb h3 { background: #ecfdf5; color: #065f46; }
+  .col-turo h3 { background: #eff6ff; color: #1e40af; }
+  .col-cd h3 { background: #fef3c7; color: #78350f; }
+
+  .bab-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.15s;
+  }
+  .bab-card:hover {
+    border-color: #94a3b8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .nb-card { border-left: 4px solid #10b981; }
+  .turo-card { border-left: 4px solid #3b82f6; }
+  .cd-card { border-left: 4px solid #f59e0b; }
+
+  .bab-card.marked-untag { background: #fef2f2; border-color: #fca5a5; }
+  .bab-card.marked-keep { background: #f0fdf4; border-color: #86efac; }
+  .bab-card.marked-add { background: #fef3c7; border-color: #fbbf24; }
+
+  .bab-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .bab-id {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .bab-name {
+    font-weight: 600;
+    flex: 1;
+    min-width: 0;
+  }
+  .badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .badge-jalur { background: #ddd6fe; color: #5b21b6; }
+  .badge-strict { background: #d1fae5; color: #065f46; }
+  .badge-bridge { background: #dbeafe; color: #1e40af; }
+  .badge-mixed { background: #fef3c7; color: #78350f; }
+
+  .sub-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: #334155;
+  }
+  .sub-list li { margin-bottom: 3px; }
+  .sub-list code {
+    font-size: 10px;
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-right: 4px;
+  }
+  .sub-strict { }
+  .sub-bridge { color: #1e40af; opacity: 0.85; }
+
+  .actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    border: 1px solid;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    background: white;
+  }
+  .btn-untag { color: #b91c1c; border-color: #fca5a5; }
+  .btn-untag:hover { background: #fee2e2; }
+  .btn-untag.active { background: #ef4444; color: white; border-color: #ef4444; }
+  .btn-keep { color: #15803d; border-color: #86efac; }
+  .btn-keep:hover { background: #dcfce7; }
+  .btn-keep.active { background: #16a34a; color: white; border-color: #16a34a; }
+  .btn-add { color: #b45309; border-color: #fbbf24; }
+  .btn-add:hover { background: #fef3c7; }
+  .btn-add.active { background: #f59e0b; color: white; border-color: #f59e0b; }
+
+  .empty { color: #94a3b8; font-style: italic; padding: 12px; }
+
+  /* Export modal */
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal.show { display: flex; }
+  .modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .modal-content h2 { margin-top: 0; }
+  .modal-content textarea {
+    width: 100%;
+    min-height: 250px;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+  }
+  .modal-actions { margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end; }
+  .modal-actions button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    background: white;
+  }
+  .modal-actions button.primary { background: #0f766e; color: white; border-color: #0f766e; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Comparison SD — Strict Tagging Audit</h1>
+  <p>NB CP 046/2025 (autoritatif) vs Peta Turo (195 sub) vs Claude-direct (referensi). Tandai keputusan UNTAG/KEEP/ADD lalu export.</p>
+</header>
+
+<div class="toolbar">
+  
+    <button class="tab-btn active" data-kelas="1">K1</button>
+  
+    <button class="tab-btn " data-kelas="2">K2</button>
+  
+    <button class="tab-btn " data-kelas="3">K3</button>
+  
+    <button class="tab-btn " data-kelas="4">K4</button>
+  
+    <button class="tab-btn " data-kelas="5">K5</button>
+  
+    <button class="tab-btn " data-kelas="6">K6</button>
+  
+  <button class="export-btn" onclick="showExport()">📋 Export Decisions</button>
+</div>
+
+
+    <div class="tab-content active" data-kelas="1">
+      
+    <section class="kelas-section" data-kelas="1">
+      <header class="kelas-header">
+        <h2>Kelas 1 <span class="fase">(Fase A)</span></h2>
+        <p class="fokus">Building number sense, intuisi bilangan via benda konkret</p>
+        <div class="counts">
+          <span>NB: 5 bab</span>
+          <span>Turo: 9 bab</span>
+          <span>Claude-direct: 6 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K1.B1">
+        <div class="bab-header">
+          <span class="bab-id">K1.B1</span>
+          <span class="bab-name">Bilangan Cacah sampai dengan 20</span>
+          
+        </div>
+        <ul class="sub-list"><li>Membilang benda konkret</li><li>Membaca dan menulis lambang bilangan</li><li>Pasangan bilangan (number bonds)</li><li>Membandingkan jumlah benda (lebih banyak/sedikit/sama)</li><li>Nilai tempat puluhan dan satuan</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K1.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K1.B2">
+        <div class="bab-header">
+          <span class="bab-id">K1.B2</span>
+          <span class="bab-name">Penjumlahan dan Pengurangan Dasar</span>
+          
+        </div>
+        <ul class="sub-list"><li>Konsep penjumlahan sebagai penggabungan</li><li>Konsep pengurangan sebagai pengambilan</li><li>Strategi menghitung maju &amp; mundur</li><li>Hubungan antara penjumlahan dan pengurangan</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K1.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K1.B3">
+        <div class="bab-header">
+          <span class="bab-id">K1.B3</span>
+          <span class="bab-name">Mengenal Bentuk Geometri dan Posisi</span>
+          
+        </div>
+        <ul class="sub-list"><li>Bangun datar (segitiga, segiempat, lingkaran)</li><li>Bangun ruang sederhana (kubus, balok, bola, kerucut)</li><li>Posisi benda (atas-bawah, depan-belakang, kanan-kiri)</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K1.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K1.B4">
+        <div class="bab-header">
+          <span class="bab-id">K1.B4</span>
+          <span class="bab-name">Pengukuran dan Pola Sederhana</span>
+          
+        </div>
+        <ul class="sub-list"><li>Membandingkan panjang &amp; berat secara langsung</li><li>Mengukur dengan satuan tidak baku (jengkal, klip kertas)</li><li>Melanjutkan pola gambar dan warna</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K1.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K1.B5">
+        <div class="bab-header">
+          <span class="bab-id">K1.B5</span>
+          <span class="bab-name">Analisis Data Sederhana</span>
+          
+        </div>
+        <ul class="sub-list"><li>Mengumpulkan data benda sekitar</li><li>Menyortir dan mengelompokkan objek</li><li>Membaca piktogram dan turus sederhana</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K1.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current)</h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Bilangan 1 sampai 10</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.1.B1.01</code> Subitasi — mengenali jumlah 1-5 sekilas tanpa menghitung
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B1.02</code> Membilang dengan korespondensi 1-1
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B1.03</code> Membaca dan menulis lambang 1-10
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B1.04</code> Membandingkan jumlah: lebih banyak, lebih sedikit, sama banyak
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B1.05</code> Mengurutkan bilangan 1-10 di garis bilangan
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B1.06</code> Pasangan bilangan (number bond) — dekomposisi 1-10
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">Penjumlahan Bilangan Cacah</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.1.B2.01</code> Makna penjumlahan — menggabungkan 2 kelompok
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B2.02</code> Penjumlahan s.d. 10 dengan ten-frame (bingkai 10)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B2.03</code> Doubles (penjumlahan sama) 1+1, 2+2, ..., 5+5
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B2.04</code> Strategi 'teman sepuluh' (make 10)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B2.05</code> Soal cerita penjumlahan
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Pengurangan Bilangan Cacah</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.1.B3.01</code> Makna pengurangan — dua cara: mengambil &amp; selisih
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B3.02</code> Pengurangan s.d. 10 dengan ten-frame
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B3.03</code> Hubungan penjumlahan &amp; pengurangan (fact family)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B3.04</code> Soal cerita pengurangan
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Mengenal Bentuk (Bangun Datar dan Ruang)</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.1.B4.01</code> Mengenal bangun datar — lingkaran, segitiga, persegi, persegi panjang
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B4.02</code> Mengelompokkan benda berdasarkan bentuk
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B4.03</code> Menyusun bentuk — komposisi tangram sederhana
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B4.04</code> Mengenal bangun ruang — kubus, balok, bola, tabung
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B4.05</code> Posisi benda — kanan, kiri, depan, belakang, atas, bawah
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Bilangan 11 sampai 20</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.1.B5.01</code> Membilang 11-20 dengan struktur '10 + n'
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B5.02</code> Membaca, menulis, mengurutkan 11-20
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B5.03</code> Nilai tempat puluhan dan satuan (pengantar)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Penjumlahan &amp; Pengurangan sampai 20</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.1.B6.01</code> Penjumlahan 11-20 tanpa 'menyeberangi' 10
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B6.02</code> Penjumlahan 'menyeberangi 10' — 8+5, 9+6, dll
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B6.03</code> Pengurangan 11-20 dengan pinjam
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B6.04</code> Soal cerita campuran +/− s.d. 20
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Pengukuran Panjang &amp; Berat dengan Satuan Tidak Baku</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.1.B7.01</code> Membandingkan panjang secara langsung
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B7.02</code> Mengukur panjang dengan satuan tidak baku (jengkal, langkah, pensil)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B7.03</code> Membandingkan berat — lebih berat, lebih ringan
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B7.04</code> Membandingkan durasi waktu
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 8">
+        <div class="bab-header">
+          <span class="bab-id">Bab 8</span>
+          <span class="bab-name">Data dan Piktogram</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.1.B8.01</code> Mengumpulkan dan mengelompokkan data
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B8.02</code> Turus (tally marks) — menghitung sambil mencatat
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B8.03</code> Piktogram — 1 gambar = 1 benda (maks 4 kategori)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 9">
+        <div class="bab-header">
+          <span class="bab-id">Bab 9</span>
+          <span class="bab-name">Pola (Bukan Bilangan)</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.1.B9.01</code> Pola AB — dua elemen berulang
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B9.02</code> Pola ABB, AAB, ABC — pola lebih kompleks
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.1.B9.03</code> Menciptakan pola sendiri
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 9">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 9">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K1.B1</span>
+          <span class="bab-name">Bilangan Cacah sampai 10</span>
+        </div>
+        <ul class="sub-list"><li>Subitasi (mengenali jumlah 1-5 sekilas)</li><li>Membilang dengan korespondensi 1-1</li><li>Membaca dan menulis lambang bilangan 1-10</li><li>Membandingkan jumlah (lebih banyak/sedikit/sama)</li><li>Mengurutkan bilangan di garis bilangan</li><li>Pasangan bilangan / number bond (dekomposisi 1-10)</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K1.B2</span>
+          <span class="bab-name">Penjumlahan dan Pengurangan sampai 10</span>
+        </div>
+        <ul class="sub-list"><li>Makna penjumlahan (menggabungkan)</li><li>Penjumlahan dengan ten-frame</li><li>Doubles (1+1, 2+2, 5+5)</li><li>Strategi 'teman sepuluh' (make 10)</li><li>Soal cerita penjumlahan &amp; pengurangan</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K1.B3</span>
+          <span class="bab-name">Bilangan Cacah sampai 20</span>
+        </div>
+        <ul class="sub-list"><li>Membilang 11-20 dengan struktur '10 + n'</li><li>Place value puluhan &amp; satuan</li><li>Penjumlahan &amp; pengurangan sampai 20</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K1.B4</span>
+          <span class="bab-name">Geometri Bangun Datar &amp; Ruang</span>
+        </div>
+        <ul class="sub-list"><li>Mengenal bangun datar (lingkaran, segitiga, persegi)</li><li>Mengenal bangun ruang (kubus, balok, bola, tabung)</li><li>Membandingkan bentuk</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K1.B5</span>
+          <span class="bab-name">Pengukuran Sederhana</span>
+        </div>
+        <ul class="sub-list"><li>Membandingkan panjang (lebih panjang/pendek)</li><li>Membandingkan berat (lebih berat/ringan)</li><li>Mengukur dengan satuan tidak baku</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K1.B6</span>
+          <span class="bab-name">Pola dan Pengurutan</span>
+        </div>
+        <ul class="sub-list"><li>Pola AB (dua elemen berulang)</li><li>Pola ABC (tiga elemen berulang)</li><li>Melengkapi pola</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+    <div class="tab-content " data-kelas="2">
+      
+    <section class="kelas-section" data-kelas="2">
+      <header class="kelas-header">
+        <h2>Kelas 2 <span class="fase">(Fase A)</span></h2>
+        <p class="fokus">Pemantapan konsep + operasi bersusun + pengenalan pecahan</p>
+        <div class="counts">
+          <span>NB: 5 bab</span>
+          <span>Turo: 9 bab</span>
+          <span>Claude-direct: 7 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K2.B1">
+        <div class="bab-header">
+          <span class="bab-id">K2.B1</span>
+          <span class="bab-name">Bilangan Cacah sampai dengan 1.000</span>
+          
+        </div>
+        <ul class="sub-list"><li>Membaca &amp; menulis bilangan tiga angka</li><li>Nilai tempat (ratusan, puluhan, satuan)</li><li>Membandingkan &amp; mengurutkan bilangan</li><li>Bilangan loncat</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K2.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K2.B2">
+        <div class="bab-header">
+          <span class="bab-id">K2.B2</span>
+          <span class="bab-name">Operasi Hitung Bersusun</span>
+          
+        </div>
+        <ul class="sub-list"><li>Penjumlahan bersusun teknik menyimpan</li><li>Pengurangan bersusun teknik meminjam</li><li>Masalah kontekstual penjumlahan &amp; pengurangan</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K2.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K2.B3">
+        <div class="bab-header">
+          <span class="bab-id">K2.B3</span>
+          <span class="bab-name">Pengukuran Baku: Panjang, Berat, dan Waktu</span>
+          
+        </div>
+        <ul class="sub-list"><li>Mengukur panjang dengan penggaris &amp; meteran</li><li>Satuan berat (kg, g)</li><li>Membaca jam analog &amp; durasi waktu</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K2.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K2.B4">
+        <div class="bab-header">
+          <span class="bab-id">K2.B4</span>
+          <span class="bab-name">Pecahan Sederhana</span>
+          
+        </div>
+        <ul class="sub-list"><li>Konsep setengah (½)</li><li>Konsep seperempat (¼)</li><li>Membagi benda menjadi bagian sama besar</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K2.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K2.B5">
+        <div class="bab-header">
+          <span class="bab-id">K2.B5</span>
+          <span class="bab-name">Geometri dan Pola Bilangan</span>
+          
+        </div>
+        <ul class="sub-list"><li>Unsur bangun datar (sisi, sudut)</li><li>Menyusun &amp; mengurai bangun datar</li><li>Pola bilangan membesar/mengecil sampai 100</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K2.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current)</h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Bilangan Cacah sampai 1.000</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.2.B1.01</code> Subitasi puluhan &amp; ratusan — '10 sepuluhan = 100'
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B1.02</code> Nilai tempat ratusan dengan papan nilai tempat
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B1.03</code> Membaca dan menulis bilangan 100-999
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B1.04</code> Membandingkan dan mengurutkan bilangan 3-digit
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B1.05</code> Komposisi-dekomposisi bilangan 3-digit
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">Penjumlahan dan Pengurangan Bersusun</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.2.B2.01</code> Strategi mental +/- dengan dekomposisi
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B2.02</code> +/- bersusun tanpa menyimpan/meminjam
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B2.03</code> + bersusun dengan menyimpan (regrouping)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B2.04</code> − bersusun dengan meminjam
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B2.05</code> Soal cerita +/- dengan konteks nyata
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Perkalian Dasar</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.2.B3.01</code> Perkalian sebagai array (baris × kolom)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B3.02</code> Perkalian sebagai penjumlahan berulang
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B3.03</code> Sifat komutatif perkalian
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B3.04</code> Tabel perkalian 1-5 dengan pola
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B3.05</code> Tabel perkalian 6-9 — strategi
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Pembagian Dasar</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.2.B4.01</code> Pembagian sebagai berbagi adil (partition)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B4.02</code> Pembagian sebagai pengukuran (quotition)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B4.03</code> Hubungan perkalian &amp; pembagian (fact family)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B4.04</code> Pembagian dengan sisa (pengantar)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Pecahan Sederhana (Pecahan Satuan)</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.2.B5.01</code> Pecahan sebagai bagian yang SAMA dari keseluruhan
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B5.02</code> Pecahan satuan ½, ⅓, ¼, ⅕, ⅛
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B5.03</code> Membandingkan pecahan satuan (konter-intuitif)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Pengukuran dengan Satuan Baku</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.2.B6.01</code> Mistar dan cm — satuan baku panjang
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B6.02</code> Hubungan cm dan m (100 cm = 1 m)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B6.03</code> Timbangan dan gram
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B6.04</code> Hubungan g dan kg (1000 g = 1 kg)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Waktu — Jam, Hari, Kalender</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.2.B7.01</code> Membaca jam analog (jam bulat &amp; setengah)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B7.02</code> Membaca jam analog (per-15-menit)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B7.03</code> Hari, minggu, bulan, tahun
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B7.04</code> Durasi sederhana dalam jam &amp; hari
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 8">
+        <div class="bab-header">
+          <span class="bab-id">Bab 8</span>
+          <span class="bab-name">Bangun Datar dan Ruang — Sifat</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.2.B8.01</code> Sifat bangun datar — sisi dan sudut
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B8.02</code> Simetri lipat
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B8.03</code> Komposisi-dekomposisi bangun datar
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B8.04</code> Sifat bangun ruang — muka dan rusuk
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 9">
+        <div class="bab-header">
+          <span class="bab-id">Bab 9</span>
+          <span class="bab-name">Data dan Diagram Batang</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.2.B9.01</code> Tabel data dari survei sederhana
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B9.02</code> Diagram batang — 1 kotak = 1 benda
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.2.B9.03</code> Membaca &amp; menginterpretasi diagram batang
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 9">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 9">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K2.B1</span>
+          <span class="bab-name">Bilangan Cacah sampai 1.000</span>
+        </div>
+        <ul class="sub-list"><li>Place value ratusan (papan nilai tempat)</li><li>Membaca &amp; menulis lambang sampai 1000</li><li>Membandingkan &amp; mengurutkan bilangan</li><li>Membilang loncat (2, 5, 10)</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K2.B2</span>
+          <span class="bab-name">Operasi Penjumlahan dan Pengurangan</span>
+        </div>
+        <ul class="sub-list"><li>Penjumlahan dengan teknik menyimpan</li><li>Pengurangan dengan teknik meminjam</li><li>Strategi mental aritmetika</li><li>Soal cerita penjumlahan &amp; pengurangan</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K2.B3</span>
+          <span class="bab-name">Pengenalan Perkalian dan Pembagian</span>
+        </div>
+        <ul class="sub-list"><li>Perkalian sebagai array (baris × kolom)</li><li>Perkalian sebagai penjumlahan berulang</li><li>Pembagian sebagai pengurangan berulang</li><li>Pembagian sebagai distribusi/grouping</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K2.B4</span>
+          <span class="bab-name">Geometri Datar &amp; Sifat Bangun</span>
+        </div>
+        <ul class="sub-list"><li>Sifat dasar segitiga, segiempat, lingkaran</li><li>Simetri putar dan simetri lipat</li><li>Pencerminan sederhana</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K2.B5</span>
+          <span class="bab-name">Pengenalan Pecahan</span>
+        </div>
+        <ul class="sub-list"><li>Pecahan satuan (½, ⅓, ¼, ⅕, ⅛)</li><li>Membandingkan pecahan dengan visual</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K2.B6</span>
+          <span class="bab-name">Pengukuran Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Satuan baku panjang (cm, m)</li><li>Satuan baku berat (gram, kg)</li><li>Konversi sederhana</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K2.B7</span>
+          <span class="bab-name">Waktu</span>
+        </div>
+        <ul class="sub-list"><li>Membaca jam analog (jam bulat &amp; setengah)</li><li>Hari, bulan, tahun</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+    <div class="tab-content " data-kelas="3">
+      
+    <section class="kelas-section" data-kelas="3">
+      <header class="kelas-header">
+        <h2>Kelas 3 <span class="fase">(Fase B)</span></h2>
+        <p class="fokus">Otomatisasi perkalian/pembagian dasar (1-10) + konversi satuan</p>
+        <div class="counts">
+          <span>NB: 6 bab</span>
+          <span>Turo: 8 bab</span>
+          <span>Claude-direct: 6 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K3.B1">
+        <div class="bab-header">
+          <span class="bab-id">K3.B1</span>
+          <span class="bab-name">Bilangan Cacah sampai dengan 1.000</span>
+          
+        </div>
+        <ul class="sub-list"><li>Membaca &amp; menulis lambang bilangan</li><li>Nilai tempat ribuan</li><li>Penjumlahan &amp; pengurangan sampai 1.000</li><li>Masalah cerita kompleks</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K3.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K3.B2">
+        <div class="bab-header">
+          <span class="bab-id">K3.B2</span>
+          <span class="bab-name">Perkalian dan Pembagian Dasar</span>
+          
+        </div>
+        <ul class="sub-list"><li>Tabel perkalian 1-10</li><li>Pembagian sebagai pengurangan berulang</li><li>Pembagian dengan sisa</li><li>Masalah distribusi merata</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K3.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K3.B3">
+        <div class="bab-header">
+          <span class="bab-id">K3.B3</span>
+          <span class="bab-name">Kalimat Matematika</span>
+          
+        </div>
+        <ul class="sub-list"><li>Penjumlahan &amp; pengurangan dengan simbol titik-titik</li><li>Mencari nilai tidak diketahui dalam operasi</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K3.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K3.B4">
+        <div class="bab-header">
+          <span class="bab-id">K3.B4</span>
+          <span class="bab-name">Pengukuran Panjang dan Berat Baku</span>
+          
+        </div>
+        <ul class="sub-list"><li>Satuan baku m, cm, km</li><li>Satuan baku kg, g</li><li>Hubungan antar-satuan (konversi sederhana)</li><li>Estimasi hasil pengukuran</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K3.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K3.B5">
+        <div class="bab-header">
+          <span class="bab-id">K3.B5</span>
+          <span class="bab-name">Geometri: Bangun Datar dan Sudut</span>
+          
+        </div>
+        <ul class="sub-list"><li>Jenis sudut (lancip, siku-siku, tumpul)</li><li>Sisi &amp; sudut pada bangun datar</li><li>Garis sejajar &amp; tegak lurus</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K3.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K3.B6">
+        <div class="bab-header">
+          <span class="bab-id">K3.B6</span>
+          <span class="bab-name">Penyajian Data dalam Tabel</span>
+          
+        </div>
+        <ul class="sub-list"><li>Mengumpulkan &amp; mengurutkan data</li><li>Membuat tabel frekuensi sederhana</li><li>Membaca informasi dari tabel</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K3.B6">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current)</h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Bilangan Cacah sampai 10.000</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.3.B1.01</code> 1000 = 10 ratusan — perluasan nilai tempat
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B1.02</code> Nilai tempat ribuan dengan papan nilai tempat
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B1.03</code> Membaca dan menulis bilangan 4-digit
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B1.04</code> Membandingkan dan mengurutkan bilangan 4-digit
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B1.05</code> Komposisi-dekomposisi bilangan 4-digit
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">Operasi Hitung Campuran</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.3.B2.01</code> +/− bersusun bilangan 3-4 digit
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B2.02</code> Perkalian bersusun 2-digit × 1-digit
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B2.03</code> Perkalian bersusun 2-digit × 2-digit
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B2.04</code> Pembagian bersusun (divide by 1-digit)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B2.05</code> Operasi campuran dengan urutan
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Pecahan Biasa dan Pecahan Senilai</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.3.B3.01</code> Pecahan biasa — 2/3, 3/4, 5/8
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B3.02</code> Pecahan campuran (mixed number)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B3.03</code> Pecahan senilai (equivalent fractions)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B3.04</code> Membandingkan pecahan dengan penyebut sama
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Pengenalan Desimal Sederhana</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.3.B4.01</code> Persepuluhan sebagai pecahan 1/10
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B4.02</code> Notasi desimal 0,1 — 0,9
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B4.03</code> Membandingkan desimal 1-angka
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Mata Uang Rupiah</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.3.B5.01</code> Mengenal nominal uang (Rp500, Rp1.000, Rp5.000, Rp10.000)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B5.02</code> Kesetaraan nominal
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B5.03</code> Belanja dan menghitung total
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B5.04</code> Kembalian dari transaksi
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Konversi Satuan Panjang, Berat, dan Waktu</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.3.B6.01</code> Tangga satuan panjang (km, hm, dam, m, dm, cm, mm)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B6.02</code> Konversi panjang — km, m, cm
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B6.03</code> Tangga satuan berat (ton, kuintal, kg, hg, dag, g, dg, cg, mg)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B6.04</code> Konversi waktu (jam-menit-detik)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Kalimat Matematika dengan Kotak Kosong</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.3.B7.01</code> Kalimat matematika dengan ☐ (+/−)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B7.02</code> Kalimat matematika dengan ☐ (×/÷)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B7.03</code> Pola bilangan tingkat lanjut
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 8">
+        <div class="bab-header">
+          <span class="bab-id">Bab 8</span>
+          <span class="bab-name">Diagram Garis dan Tabel Frekuensi</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.3.B8.01</code> Tabel frekuensi dari data
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B8.02</code> Diagram garis (data berubah waktu)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.3.B8.03</code> Memilih jenis diagram (batang vs garis vs piktogram)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K3.B1</span>
+          <span class="bab-name">Bilangan Cacah sampai 10.000</span>
+        </div>
+        <ul class="sub-list"><li>Place value ribuan</li><li>Membaca, menulis, membandingkan</li><li>Pembulatan ke ratusan/ribuan terdekat</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K3.B2</span>
+          <span class="bab-name">Operasi Hitung Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Penjumlahan &amp; pengurangan bilangan besar</li><li>Perkalian susun</li><li>Pembagian dengan sisa</li><li>Operasi campuran (×÷ sebelum +−)</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K3.B3</span>
+          <span class="bab-name">Pecahan</span>
+        </div>
+        <ul class="sub-list"><li>Pecahan biasa (2/3, 3/4, 5/8)</li><li>Pecahan ekuivalen sederhana</li><li>Membandingkan pecahan dengan denominator sama</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K3.B4</span>
+          <span class="bab-name">Geometri &amp; Sifat Bangun</span>
+        </div>
+        <ul class="sub-list"><li>Sifat segi banyak (segi-3, 4, 5, 6)</li><li>Sudut: lancip, siku, tumpul (visual)</li><li>Klasifikasi bangun datar</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K3.B5</span>
+          <span class="bab-name">Pengukuran</span>
+        </div>
+        <ul class="sub-list"><li>Satuan panjang (mm, cm, dm, m, km)</li><li>Konversi satuan panjang</li><li>Keliling bangun datar sederhana</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K3.B6</span>
+          <span class="bab-name">Data dan Diagram</span>
+        </div>
+        <ul class="sub-list"><li>Tabel sederhana</li><li>Diagram batang</li><li>Membaca pictogram</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+    <div class="tab-content " data-kelas="4">
+      
+    <section class="kelas-section" data-kelas="4">
+      <header class="kelas-header">
+        <h2>Kelas 4 <span class="fase">(Fase B)</span></h2>
+        <p class="fokus">Eksplorasi bilangan besar (10.000) + faktor/kelipatan + konsep luas/volume formal</p>
+        <div class="counts">
+          <span>NB: 7 bab</span>
+          <span>Turo: 8 bab</span>
+          <span>Claude-direct: 7 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K4.B1">
+        <div class="bab-header">
+          <span class="bab-id">K4.B1</span>
+          <span class="bab-name">Bilangan Cacah sampai dengan 10.000</span>
+          
+        </div>
+        <ul class="sub-list"><li>Membaca &amp; menulis bilangan besar</li><li>Komposisi &amp; dekomposisi</li><li>Operasi campuran</li><li>Pembulatan dan taksiran</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K4.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K4.B2">
+        <div class="bab-header">
+          <span class="bab-id">K4.B2</span>
+          <span class="bab-name">Faktor dan Kelipatan</span>
+          
+        </div>
+        <ul class="sub-list"><li>Mencari faktor</li><li>Kelipatan persekutuan</li><li>Bilangan prima</li><li>Konsep dasar KPK &amp; FPB melalui himpunan</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K4.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K4.B3">
+        <div class="bab-header">
+          <span class="bab-id">K4.B3</span>
+          <span class="bab-name">Pecahan, Desimal, dan Persen</span>
+          
+        </div>
+        <ul class="sub-list"><li>Pecahan senilai</li><li>Membandingkan pecahan penyebut sama</li><li>Desimal persepuluhan</li><li>Menghubungkan desimal dengan persen</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K4.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K4.B4">
+        <div class="bab-header">
+          <span class="bab-id">K4.B4</span>
+          <span class="bab-name">Pengukuran Luas dan Volume</span>
+          
+        </div>
+        <ul class="sub-list"><li>Konsep luas daerah</li><li>Luas persegi &amp; persegi panjang</li><li>Volume satuan baku (l, ml)</li><li>Hubungan keliling &amp; luas</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K4.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K4.B5">
+        <div class="bab-header">
+          <span class="bab-id">K4.B5</span>
+          <span class="bab-name">Bangun Datar dan Geometri</span>
+          
+        </div>
+        <ul class="sub-list"><li>Ciri segitiga</li><li>Komposisi &amp; dekomposisi bangun datar gabungan</li><li>Pengukuran sudut dengan busur</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K4.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K4.B6">
+        <div class="bab-header">
+          <span class="bab-id">K4.B6</span>
+          <span class="bab-name">Piktogram dan Diagram Batang</span>
+          
+        </div>
+        <ul class="sub-list"><li>Membuat piktogram</li><li>Menyajikan data dalam diagram batang</li><li>Menginterpretasi tren data sederhana</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K4.B6">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K4.B7">
+        <div class="bab-header">
+          <span class="bab-id">K4.B7</span>
+          <span class="bab-name">Berpikir tentang Cara Berhitung (NEW di CP 046)</span>
+          
+        </div>
+        <ul class="sub-list"><li>Multi-strategi penyelesaian (banyak jalan ke jawaban benar)</li><li>Membandingkan efisiensi metode hitung</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K4.B7">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current)</h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Bilangan Cacah Besar dan Faktor</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.4.B1.01</code> Bilangan cacah sampai 1.000.000
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B1.02</code> Faktor dan kelipatan
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B1.03</code> Bilangan prima — Saringan Eratosthenes
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B1.04</code> Faktorisasi prima (pohon faktor)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">KPK dan FPB</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.4.B2.01</code> FPB (Faktor Persekutuan Terbesar)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B2.02</code> KPK (Kelipatan Persekutuan Terkecil)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B2.03</code> KPK &amp; FPB dengan faktorisasi prima
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B2.04</code> Aplikasi KPK &amp; FPB (jadwal, pembagian)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Operasi Pecahan</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.4.B3.01</code> +/− pecahan penyebut SAMA
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B3.02</code> +/− pecahan penyebut BEDA (samakan penyebut)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B3.03</code> × pecahan — model luas (area model)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B3.04</code> ÷ pecahan — model pengukuran
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B3.05</code> Aturan 'balik &amp; kalikan' (dari mana asalnya)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Pecahan Desimal</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.4.B4.01</code> Desimal persepuluhan dan perseratusan
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B4.02</code> Konversi pecahan ↔ desimal
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B4.03</code> Membandingkan &amp; mengurutkan desimal
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B4.04</code> +/− desimal (pembelajaran awal)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Persen</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.4.B5.01</code> Persen — pecahan per seratus
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B5.02</code> Konversi pecahan ↔ desimal ↔ persen
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B5.03</code> Mencari persen dari suatu bilangan
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Sudut — Pengenalan dan Pengukuran</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.4.B6.01</code> Sudut sebagai rotasi (bukan dua garis)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B6.02</code> Jenis sudut (lancip, siku-siku, tumpul, lurus)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B6.03</code> Mengukur sudut dengan busur derajat
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Segitiga — Jenis dan Sifat</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.4.B7.01</code> Jenis segitiga berdasarkan sisi (samasisi, samakaki, sembarang)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B7.02</code> Jenis segitiga berdasarkan sudut (lancip, siku-siku, tumpul)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B7.03</code> Jumlah sudut dalam segitiga = 180°
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 8">
+        <div class="bab-header">
+          <span class="bab-id">Bab 8</span>
+          <span class="bab-name">Segi Empat — Jenis dan Luas</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.4.B8.01</code> Hierarki segi empat (dari trapesium ke persegi)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B8.02</code> Luas persegi panjang — perluasan dari K3
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B8.03</code> Luas jajargenjang — dekomposisi
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B8.04</code> Luas segitiga — setengah jajargenjang
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.4.B8.05</code> Luas trapesium dan layang-layang
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K4.B1</span>
+          <span class="bab-name">Bilangan Cacah sampai 1.000.000</span>
+        </div>
+        <ul class="sub-list"><li>Place value sampai jutaan</li><li>Pembulatan</li><li>Estimasi hasil operasi</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K4.B2</span>
+          <span class="bab-name">Faktor, Kelipatan, KPK &amp; FPB</span>
+        </div>
+        <ul class="sub-list"><li>Faktor &amp; kelipatan bilangan</li><li>Bilangan prima (sampai 100)</li><li>Faktorisasi prima (pohon faktor)</li><li>KPK &amp; FPB dengan faktorisasi</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K4.B3</span>
+          <span class="bab-name">Pecahan Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Pecahan campuran</li><li>Pecahan ekuivalen lengkap</li><li>Penjumlahan &amp; pengurangan pecahan (denominator sama)</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K4.B4</span>
+          <span class="bab-name">Pengenalan Desimal</span>
+        </div>
+        <ul class="sub-list"><li>Desimal persepuluhan &amp; perseratusan</li><li>Hubungan desimal-pecahan</li><li>Membandingkan desimal</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K4.B5</span>
+          <span class="bab-name">Konversi Pecahan ↔ Desimal ↔ Persen</span>
+        </div>
+        <ul class="sub-list"><li>Konversi pecahan → desimal (¼ = 0,25)</li><li>Konversi desimal → pecahan</li><li>Pengenalan persen sederhana (50%, 25%)</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K4.B6</span>
+          <span class="bab-name">Geometri &amp; Pengukuran</span>
+        </div>
+        <ul class="sub-list"><li>Keliling persegi, persegi panjang</li><li>Luas persegi, persegi panjang (rumus)</li><li>Sudut: jenis &amp; pengukuran (busur)</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K4.B7</span>
+          <span class="bab-name">Data: Mean &amp; Modus</span>
+        </div>
+        <ul class="sub-list"><li>Diagram batang &amp; garis</li><li>Modus dari data</li><li>Rata-rata (mean) sederhana</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+    <div class="tab-content " data-kelas="5">
+      
+    <section class="kelas-section" data-kelas="5">
+      <header class="kelas-header">
+        <h2>Kelas 5 <span class="fase">(Fase C)</span></h2>
+        <p class="fokus">Operasi pecahan campuran + geometri bangun gabungan + pengukuran per kuantitas unit</p>
+        <div class="counts">
+          <span>NB: 6 bab</span>
+          <span>Turo: 9 bab</span>
+          <span>Claude-direct: 7 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K5.B1">
+        <div class="bab-header">
+          <span class="bab-id">K5.B1</span>
+          <span class="bab-name">Bilangan Cacah sampai dengan 100.000</span>
+          
+        </div>
+        <ul class="sub-list"><li>Operasi hitung campuran</li><li>Sifat komutatif, asosiatif, distributif</li><li>Strategi hitung cepat</li><li>Pembulatan ke ribuan terdekat</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K5.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K5.B2">
+        <div class="bab-header">
+          <span class="bab-id">K5.B2</span>
+          <span class="bab-name">KPK dan FPB Lanjutan</span>
+          
+        </div>
+        <ul class="sub-list"><li>Faktorisasi prima (pohon faktor)</li><li>KPK &amp; FPB dari 3 bilangan</li><li>Aplikasi masalah jadwal &amp; pembagian paket</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K5.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K5.B3">
+        <div class="bab-header">
+          <span class="bab-id">K5.B3</span>
+          <span class="bab-name">Operasi Bilangan Pecahan</span>
+          
+        </div>
+        <ul class="sub-list"><li>Penjumlahan &amp; pengurangan pecahan penyebut beda</li><li>Pecahan campuran</li><li>Desimal &amp; persen</li><li>Membandingkan berbagai bentuk pecahan</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K5.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K5.B4">
+        <div class="bab-header">
+          <span class="bab-id">K5.B4</span>
+          <span class="bab-name">Sudut dan Bangun Datar</span>
+          
+        </div>
+        <ul class="sub-list"><li>Mengukur &amp; melukis sudut</li><li>Sifat segitiga (sama kaki, sama sisi, siku-siku)</li><li>Sifat segiempat</li><li>Luas daerah bangun gabungan</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K5.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K5.B5">
+        <div class="bab-header">
+          <span class="bab-id">K5.B5</span>
+          <span class="bab-name">Pengukuran per Unit Kuantitas (NEW di CP 046)</span>
+          
+        </div>
+        <ul class="sub-list"><li>Konsep kepadatan</li><li>Rata-rata per unit luas</li><li>Membandingkan efisiensi/kapasitas</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K5.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K5.B6">
+        <div class="bab-header">
+          <span class="bab-id">K5.B6</span>
+          <span class="bab-name">Analisis Data</span>
+          
+        </div>
+        <ul class="sub-list"><li>Mengumpulkan data primer</li><li>Piktogram &amp; diagram batang</li><li>Membaca &amp; menafsirkan data hasil pengukuran</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K5.B6">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current)</h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Bilangan Cacah Besar &amp; Operasi</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.5.B1.01</code> Bilangan sampai 100.000 — nilai tempat &amp; membaca
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B1.02</code> Bilangan sampai 1.000.000 — juta-an
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B1.03</code> Operasi +/− bilangan besar
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B1.04</code> Perkalian 3-digit × 2-digit
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B1.05</code> Pembagian 3-digit ÷ 2-digit
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">Operasi Pecahan Lanjutan</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.5.B2.01</code> +/− pecahan campuran
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B2.02</code> × pecahan campuran
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B2.03</code> Pecahan → desimal (semua pecahan)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B2.04</code> Soal cerita pecahan (proporsi)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Operasi Desimal</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.5.B3.01</code> × desimal dengan bilangan bulat
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B3.02</code> × desimal dengan desimal
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B3.03</code> ÷ desimal
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B3.04</code> Estimasi dengan desimal
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Keliling dan Luas Bangun Datar Lanjutan</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.5.B4.01</code> Keliling bangun datar (segitiga, segi empat)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B4.02</code> Luas bangun gabungan (dekomposisi)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B4.03</code> Hubungan keliling &amp; luas
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Volume Kubus dan Balok</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.5.B5.01</code> Volume kubus satuan (counting)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B5.02</code> Rumus volume balok V = p × l × t
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B5.03</code> Volume kubus V = s³
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B5.04</code> Volume bangun gabungan
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B5.05</code> Jaring-jaring kubus dan balok
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B5.06</code> Luas permukaan kubus dan balok
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Mean, Median, Modus</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.5.B6.01</code> Mean (rata-rata) — 'meratakan'
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B6.02</code> Median — nilai tengah
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B6.03</code> Modus — yang paling sering muncul
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B6.04</code> Kapan pakai mean vs median?
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Pengukuran Sudut pada Bangun</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.5.B7.01</code> Mengukur sudut bangun datar
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B7.02</code> Jumlah sudut segi empat = 360°
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B7.03</code> Mencari sudut tidak diketahui
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 8">
+        <div class="bab-header">
+          <span class="bab-id">Bab 8</span>
+          <span class="bab-name">Diagram Lingkaran</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.5.B8.01</code> Membaca diagram lingkaran
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B8.02</code> Membuat diagram lingkaran dengan busur derajat
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 9">
+        <div class="bab-header">
+          <span class="bab-id">Bab 9</span>
+          <span class="bab-name">Kecepatan dan Debit</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.5.B9.01</code> Kecepatan sebagai rasio jarak/waktu
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B9.02</code> Mencari jarak dan waktu
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.5.B9.03</code> Debit sebagai rasio volume/waktu
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 9">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 9">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K5.B1</span>
+          <span class="bab-name">Operasi Bilangan Cacah &amp; Bilangan Bulat</span>
+        </div>
+        <ul class="sub-list"><li>Pengenalan bilangan bulat (positif &amp; negatif)</li><li>Garis bilangan bilangan bulat</li><li>Operasi penjumlahan/pengurangan bilangan bulat</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K5.B2</span>
+          <span class="bab-name">Pecahan &amp; Operasi</span>
+        </div>
+        <ul class="sub-list"><li>Penjumlahan &amp; pengurangan pecahan (denominator beda)</li><li>Perkalian pecahan</li><li>Pembagian pecahan</li><li>Soal cerita pecahan</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K5.B3</span>
+          <span class="bab-name">Desimal Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Penjumlahan &amp; pengurangan desimal</li><li>Perkalian &amp; pembagian desimal</li><li>Konversi desimal periodik</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K5.B4</span>
+          <span class="bab-name">Persen &amp; Aplikasi</span>
+        </div>
+        <ul class="sub-list"><li>Konversi pecahan ↔ desimal ↔ persen lengkap</li><li>Persen dari nilai (e.g. 25% dari 80)</li><li>Diskon, untung-rugi sederhana</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K5.B5</span>
+          <span class="bab-name">Geometri &amp; Volume</span>
+        </div>
+        <ul class="sub-list"><li>Luas segitiga, jajaran genjang, trapesium, layang-layang</li><li>Volume kubus &amp; balok (V = p × l × t)</li><li>Jaring-jaring bangun ruang</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K5.B6</span>
+          <span class="bab-name">Skala dan Perbandingan</span>
+        </div>
+        <ul class="sub-list"><li>Skala peta sederhana</li><li>Perbandingan 2 besaran (rasio)</li><li>Perbandingan senilai</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K5.B7</span>
+          <span class="bab-name">Data: Mean, Median, Modus</span>
+        </div>
+        <ul class="sub-list"><li>Mean, median, modus</li><li>Diagram lingkaran sederhana</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+    <div class="tab-content " data-kelas="6">
+      
+    <section class="kelas-section" data-kelas="6">
+      <header class="kelas-header">
+        <h2>Kelas 6 <span class="fase">(Fase C)</span></h2>
+        <p class="fokus">Integrasi semua konsep + rasio/proporsi + kecepatan/debit + statistik &amp; peluang</p>
+        <div class="counts">
+          <span>NB: 7 bab</span>
+          <span>Turo: 7 bab</span>
+          <span>Claude-direct: 7 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K6.B1">
+        <div class="bab-header">
+          <span class="bab-id">K6.B1</span>
+          <span class="bab-name">Bilangan Cacah sampai dengan 1.000.000</span>
+          
+        </div>
+        <ul class="sub-list"><li>Bilangan jutaan</li><li>Nilai tempat</li><li>Operasi bilangan besar</li><li>Masalah uang &amp; transaksi</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K6.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K6.B2">
+        <div class="bab-header">
+          <span class="bab-id">K6.B2</span>
+          <span class="bab-name">Perkalian dan Pembagian Pecahan</span>
+          
+        </div>
+        <ul class="sub-list"><li>Perkalian pecahan dgn bilangan asli</li><li>Pembagian pecahan dgn bilangan asli</li><li>Bilangan kebalikan</li><li>Operasi campuran pecahan &amp; desimal</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K6.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K6.B3">
+        <div class="bab-header">
+          <span class="bab-id">K6.B3</span>
+          <span class="bab-name">Rasio dan Proporsi (NEW di CP 046 K6)</span>
+          
+        </div>
+        <ul class="sub-list"><li>Konsep rasio sederhana</li><li>Kesamaan rasio</li><li>Penerapan rasio pada skala peta</li><li>Masalah proporsi sehari-hari</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K6.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K6.B4">
+        <div class="bab-header">
+          <span class="bab-id">K6.B4</span>
+          <span class="bab-name">Bangun Ruang: Kubus, Balok, dan Tabung</span>
+          
+        </div>
+        <ul class="sub-list"><li>Mengonstruksi &amp; mengurai jaring-jaring</li><li>Visualisasi spasial (tampak depan/samping)</li><li>Volume bangun ruang sisi datar dan lengkung sederhana</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K6.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K6.B5">
+        <div class="bab-header">
+          <span class="bab-id">K6.B5</span>
+          <span class="bab-name">Pengukuran: Kecepatan dan Debit (NEW di CP 046)</span>
+          
+        </div>
+        <ul class="sub-list"><li>Hubungan jarak, waktu, kecepatan</li><li>Menghitung debit air</li><li>Konversi satuan kecepatan (km/jam ke m/detik)</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K6.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K6.B6">
+        <div class="bab-header">
+          <span class="bab-id">K6.B6</span>
+          <span class="bab-name">Statistika dan Peluang</span>
+          
+        </div>
+        <ul class="sub-list"><li>Rata-rata (mean), median, modus</li><li>Diagram lingkaran</li><li>Skala peluang &amp; kejadian yang mungkin terjadi</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K6.B6">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K6.B7">
+        <div class="bab-header">
+          <span class="bab-id">K6.B7</span>
+          <span class="bab-name">Simetri dan Mozaik (Pengayaan)</span>
+          
+        </div>
+        <ul class="sub-list"><li>Simetri lipat &amp; putar</li><li>Pola mozaik / tessellation</li><li>Sisi estetis matematika</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K6.B7">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current)</h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Bilangan Bulat — Pengenalan Negatif</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-bridge">
+        <code>SD.6.B1.01</code> Bilangan negatif dalam konteks nyata
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SD.6.B1.02</code> Garis bilangan bilangan bulat (negatif &amp; positif)
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SD.6.B1.03</code> Membandingkan bilangan bulat (termasuk negatif)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B1.04</code> +/− bilangan bulat sederhana
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">Rasio dan Perbandingan</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.6.B2.01</code> Rasio sebagai perbandingan
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B2.02</code> Rasio ekuivalen &amp; skala
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B2.03</code> Masalah rasio dengan bar model
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Lingkaran — π, Keliling, Luas</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.6.B3.01</code> Unsur-unsur lingkaran (pusat, jari-jari, diameter)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B3.02</code> Menemukan π — eksperimen pengukuran
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B3.03</code> Keliling lingkaran K = π × d
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B3.04</code> Luas lingkaran — dari juring ke jajar genjang
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Prisma dan Tabung</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.6.B4.01</code> Volume prisma — V = Luas alas × tinggi
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B4.02</code> Volume tabung — prisma dengan alas lingkaran
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B4.03</code> Luas permukaan prisma
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B4.04</code> Luas permukaan tabung
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Koordinat Kartesius</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.6.B5.01</code> Bidang koordinat — sumbu x dan y
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SD.6.B5.02</code> Plot titik dalam 4 kuadran
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B5.03</code> Bangun datar di bidang koordinat
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Pola Bilangan &amp; Generalisasi</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.6.B6.01</code> Pola bilangan kompleks
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B6.02</code> Suku ke-n dari barisan aritmetika
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SD.6.B6.03</code> Variabel x — dari kotak kosong ke huruf
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SD.6.B6.04</code> PLSV sederhana (persamaan linear 1 variabel)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Peluang Sederhana</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SD.6.B7.01</code> Peluang teoretik (teori)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B7.02</code> Peluang empirik (eksperimen)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SD.6.B7.03</code> Ruang sampel sederhana
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K6.B1</span>
+          <span class="bab-name">Bilangan Bulat &amp; Operasi</span>
+        </div>
+        <ul class="sub-list"><li>Operasi 4 dasar bilangan bulat (aturan tanda)</li><li>Operasi campuran bilangan bulat</li><li>Garis bilangan bilangan bulat negatif &amp; positif</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K6.B2</span>
+          <span class="bab-name">Pecahan, Desimal, Persen Terintegrasi</span>
+        </div>
+        <ul class="sub-list"><li>Operasi gabungan pecahan-desimal-persen</li><li>Soal cerita finansial (laba-rugi, diskon, bunga sederhana)</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K6.B3</span>
+          <span class="bab-name">Geometri Lingkaran</span>
+        </div>
+        <ul class="sub-list"><li>Unsur lingkaran (jari-jari, diameter, busur, juring)</li><li>Keliling lingkaran (K = πd)</li><li>Luas lingkaran (L = πr²)</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K6.B4</span>
+          <span class="bab-name">Geometri Bangun Ruang</span>
+        </div>
+        <ul class="sub-list"><li>Volume prisma &amp; limas</li><li>Volume tabung, kerucut, bola</li><li>Luas permukaan bangun ruang</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K6.B5</span>
+          <span class="bab-name">Pola &amp; Pengenalan Aljabar Awal</span>
+        </div>
+        <ul class="sub-list"><li>Pola bilangan (aritmetika, geometri sederhana)</li><li>Variabel sebagai simbol</li><li>Persamaan linear satu variabel sederhana</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K6.B6</span>
+          <span class="bab-name">Pengolahan Data</span>
+        </div>
+        <ul class="sub-list"><li>Mean, median, modus dari data berkelompok sederhana</li><li>Membaca &amp; membuat diagram batang/garis/lingkaran</li><li>Interpretasi data dari diagram</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K6.B7</span>
+          <span class="bab-name">Pengenalan Peluang</span>
+        </div>
+        <ul class="sub-list"><li>Konsep kejadian pasti, mungkin, mustahil</li><li>Peluang sederhana (P = banyak kejadian / total)</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+
+<div class="modal" id="exportModal">
+  <div class="modal-content">
+    <h2>Export Decisions</h2>
+    <p style="color:#64748b; font-size:13px;">Copy text di bawah → kirim ke Claude untuk apply ke peta-prasyarat.json.</p>
+    <textarea id="exportText" readonly></textarea>
+    <div class="modal-actions">
+      <button onclick="copyExport()">📋 Copy</button>
+      <button class="primary" onclick="document.getElementById('exportModal').classList.remove('show')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const decisions = { untag: [], keep: [], add: [] };
+
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const k = btn.dataset.kelas;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.kelas === k));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.dataset.kelas === k));
+      window.scrollTo(0, 0);
+    });
+  });
+
+  // Action button toggling
+  document.querySelectorAll('button[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      const key = btn.dataset.key;
+      const card = btn.closest('.bab-card');
+      const wasActive = btn.classList.contains('active');
+
+      // Untuk turo card: untag & keep mutually exclusive
+      if (action === 'untag' || action === 'keep') {
+        card.querySelectorAll('button[data-action="untag"], button[data-action="keep"]').forEach(b => b.classList.remove('active'));
+        card.classList.remove('marked-untag', 'marked-keep');
+        // Remove from arrays
+        decisions.untag = decisions.untag.filter(d => d.key !== key.replace(/^(untag|keep):/, 'untag:').replace(/^keep:/, 'untag:'));
+        decisions.keep = decisions.keep.filter(d => d.key !== key.replace(/^(untag|keep):/, 'keep:'));
+      }
+
+      if (!wasActive) {
+        btn.classList.add('active');
+        if (action === 'untag') {
+          card.classList.add('marked-untag');
+          decisions.untag.push({ key, babKode: card.dataset.babKode });
+        } else if (action === 'keep') {
+          card.classList.add('marked-keep');
+          decisions.keep.push({ key, babKode: card.dataset.babKode });
+        } else if (action === 'add') {
+          card.classList.add('marked-add');
+          decisions.add.push({ key, babId: card.dataset.babId });
+        }
+      } else if (action === 'add') {
+        card.classList.remove('marked-add');
+        decisions.add = decisions.add.filter(d => d.key !== key);
+      }
+
+      updateExport();
+    });
+  });
+
+  function updateExport() {
+    const out = {
+      jenjang: 'SD',
+      generated: new Date().toISOString(),
+      untag_bab_kodes: decisions.untag.map(d => d.babKode),
+      keep_strict_bab_kodes: decisions.keep.map(d => d.babKode),
+      add_nb_bab_ids: decisions.add.map(d => d.babId),
+    };
+    document.getElementById('exportText').value = JSON.stringify(out, null, 2);
+  }
+
+  function showExport() {
+    updateExport();
+    document.getElementById('exportModal').classList.add('show');
+  }
+
+  function copyExport() {
+    const ta = document.getElementById('exportText');
+    ta.select();
+    document.execCommand('copy');
+    alert('Copied!');
+  }
+</script>
+
+</body>
+</html>

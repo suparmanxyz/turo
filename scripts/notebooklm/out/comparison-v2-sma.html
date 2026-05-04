@@ -1,0 +1,2406 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Comparison v2 SMA — Strict Audit + AI Verdict</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    margin: 0;
+    background: #f1f5f9;
+    color: #0f172a;
+    font-size: 14px;
+  }
+  header.app-header {
+    background: linear-gradient(135deg, #0f766e, #14b8a6);
+    color: white;
+    padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  header.app-header h1 { margin: 0 0 4px 0; font-size: 24px; }
+  header.app-header p { margin: 0; opacity: 0.9; font-size: 13px; }
+  header.app-header .ai-stats {
+    display: flex; gap: 14px; margin-top: 10px; font-size: 12px;
+    background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 8px;
+    width: fit-content;
+  }
+  header.app-header .ai-stats .stat { color: white; }
+  header.app-header .ai-stats .stat-no { color: #fee2e2; font-weight: 600; }
+
+  .toolbar {
+    background: white;
+    padding: 12px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    align-items: center;
+  }
+  .tab-btn {
+    background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 16px;
+    border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px;
+  }
+  .tab-btn.active { background: #0f766e; color: white; border-color: #0f766e; }
+  .tab-btn:hover:not(.active) { background: #e2e8f0; }
+
+  .filter-divider { width: 1px; height: 28px; background: #cbd5e1; margin: 0 4px; }
+  .filter-group {
+    display: flex; gap: 4px; align-items: center;
+    font-size: 12px; color: #475569;
+  }
+  .filter-group label { font-weight: 600; margin-right: 4px; }
+  .filter-btn {
+    background: #f1f5f9; border: 1px solid #cbd5e1; padding: 5px 10px;
+    border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600;
+  }
+  .filter-btn.active { background: #1e40af; color: white; border-color: #1e40af; }
+  .filter-btn:hover:not(.active) { background: #e2e8f0; }
+
+  .export-btn {
+    margin-left: auto; background: #fbbf24; color: #78350f;
+    border: 1px solid #f59e0b; padding: 8px 16px; border-radius: 8px;
+    cursor: pointer; font-weight: 600;
+  }
+  .export-btn:hover { background: #f59e0b; color: white; }
+
+  .tab-content { display: none; padding: 16px 24px; }
+  .tab-content.active { display: block; }
+
+  .kelas-header { margin-bottom: 16px; }
+  .kelas-header h2 { margin: 0 0 4px 0; color: #0f172a; }
+  .fase { color: #64748b; font-weight: normal; font-size: 16px; }
+  .fokus { color: #64748b; margin: 4px 0; font-size: 13px; }
+  .counts {
+    display: flex; gap: 12px; font-size: 12px; color: #475569; margin-top: 8px;
+  }
+  .counts span { background: #e0f2fe; padding: 4px 10px; border-radius: 4px; }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 1100px) {
+    .three-col { grid-template-columns: 1fr; }
+  }
+
+  .col { min-width: 0; }
+  .col h3 {
+    margin: 0 0 12px 0; font-size: 14px; padding: 8px 12px; border-radius: 8px;
+    background: white; position: sticky; top: 60px; z-index: 5;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .col-nb h3 { background: #ecfdf5; color: #065f46; }
+  .col-turo h3 { background: #eff6ff; color: #1e40af; }
+  .col-cd h3 { background: #fef3c7; color: #78350f; }
+  .ai-hint {
+    margin-left: auto; font-size: 10px; font-weight: normal;
+    color: #64748b; padding: 2px 6px; background: #f1f5f9; border-radius: 4px;
+  }
+
+  .bab-card {
+    background: white; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 12px; margin-bottom: 10px; transition: all 0.15s;
+  }
+  .bab-card:hover { border-color: #94a3b8; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .nb-card { border-left: 4px solid #10b981; }
+  .turo-card { border-left: 4px solid #3b82f6; }
+  .cd-card { border-left: 4px solid #f59e0b; }
+
+  .bab-card.marked-untag { background: #fef2f2; border-color: #fca5a5; }
+  .bab-card.marked-keep { background: #f0fdf4; border-color: #86efac; }
+  .bab-card.marked-add { background: #fef3c7; border-color: #fbbf24; }
+
+  .bab-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .bab-id {
+    font-family: ui-monospace, SFMono-Regular, monospace; font-size: 11px;
+    background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px;
+  }
+  .bab-name { font-weight: 600; flex: 1; min-width: 0; }
+  .badge {
+    font-size: 10px; padding: 2px 8px; border-radius: 12px;
+    font-weight: 600; text-transform: uppercase;
+  }
+  .badge-jalur { background: #ddd6fe; color: #5b21b6; }
+  .badge-strict { background: #d1fae5; color: #065f46; }
+  .badge-bridge { background: #dbeafe; color: #1e40af; }
+  .badge-mixed { background: #fef3c7; color: #78350f; }
+
+  .verdict-summary {
+    display: flex; gap: 6px; margin: 4px 0 8px 0; font-size: 11px;
+  }
+  .vs {
+    padding: 3px 8px; border-radius: 12px; font-weight: 600;
+  }
+  .vs-same { background: #d1fae5; color: #065f46; }
+  .vs-other { background: #fef3c7; color: #78350f; }
+  .vs-no { background: #fee2e2; color: #991b1b; }
+
+  .sub-list {
+    margin: 0; padding: 0; list-style: none;
+    font-size: 13px; color: #334155;
+  }
+  .sub-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 6px; margin: 2px 0; border-radius: 4px;
+    cursor: pointer; transition: background 0.1s;
+  }
+  .sub-item:hover { background: #f8fafc; }
+  .sub-item.hidden { display: none; }
+
+  .verdict-NO_MATCH { background: rgba(254, 226, 226, 0.4); }
+  .verdict-MATCH_OTHER_KELAS { background: rgba(254, 243, 199, 0.4); }
+
+  .sub-name { flex: 1; }
+  .sub-list code {
+    font-size: 10px; background: #f1f5f9; color: #64748b;
+    padding: 1px 4px; border-radius: 3px;
+  }
+  .sub-bridge { color: #1e40af; opacity: 0.9; }
+
+  .vbadge {
+    flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; font-size: 11px; border-radius: 50%; font-weight: 600;
+  }
+  .vbadge-same { background: #d1fae5; color: #065f46; }
+  .vbadge-other { background: #fef3c7; color: #78350f; }
+  .vbadge-no { background: #fee2e2; color: #991b1b; }
+  .vbadge-none { background: #f1f5f9; color: #94a3b8; }
+
+  .nb-card .sub-list { padding-left: 18px; list-style: disc; }
+  .cd-card .sub-list { padding-left: 18px; list-style: disc; }
+  .nb-card .sub-list li, .cd-card .sub-list li { margin-bottom: 3px; padding: 0; }
+
+  .actions {
+    margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .btn {
+    border: 1px solid; padding: 4px 10px; border-radius: 6px;
+    cursor: pointer; font-size: 12px; font-weight: 600; background: white;
+  }
+  .btn-untag { color: #b91c1c; border-color: #fca5a5; }
+  .btn-untag:hover { background: #fee2e2; }
+  .btn-untag.active { background: #ef4444; color: white; border-color: #ef4444; }
+  .btn-keep { color: #15803d; border-color: #86efac; }
+  .btn-keep:hover { background: #dcfce7; }
+  .btn-keep.active { background: #16a34a; color: white; border-color: #16a34a; }
+  .btn-add { color: #b45309; border-color: #fbbf24; }
+  .btn-add:hover { background: #fef3c7; }
+  .btn-add.active { background: #f59e0b; color: white; border-color: #f59e0b; }
+
+  .empty { color: #94a3b8; font-style: italic; padding: 12px; }
+
+  /* Detail panel modal */
+  .modal {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .modal.show { display: flex; }
+  .modal-content {
+    background: white; border-radius: 12px; padding: 20px;
+    max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
+  }
+  .modal-content h2 { margin-top: 0; }
+  .modal-content textarea {
+    width: 100%; min-height: 250px; font-family: ui-monospace, monospace;
+    font-size: 12px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px;
+  }
+  .modal-actions {
+    margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;
+  }
+  .modal-actions button {
+    padding: 8px 16px; border-radius: 6px; border: 1px solid #cbd5e1;
+    cursor: pointer; background: white;
+  }
+  .modal-actions button.primary { background: #0f766e; color: white; border-color: #0f766e; }
+
+  .audit-detail {
+    background: #f8fafc; border-radius: 8px; padding: 12px; margin: 12px 0;
+    font-size: 13px; line-height: 1.5;
+  }
+  .audit-detail .field { margin: 6px 0; }
+  .audit-detail .label { font-weight: 600; color: #475569; min-width: 100px; display: inline-block; }
+  .audit-detail .reasoning {
+    margin-top: 10px; padding: 10px; background: white; border-radius: 6px;
+    border-left: 3px solid #3b82f6; font-style: italic;
+  }
+  .conf-high { color: #15803d; font-weight: 600; }
+  .conf-medium { color: #b45309; font-weight: 600; }
+  .conf-low { color: #b91c1c; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Comparison v2 SMA — Strict Audit + AI Verdict</h1>
+  <p>NB CP 046/2025 (autoritatif) vs Peta Turo (147 sub) vs Claude-direct (referensi). Klik sub Turo strict untuk lihat alasan AI.</p>
+  
+    <div class="ai-stats">
+      <span class="stat">AI Audit: 129/129 sub strict</span>
+      <span class="stat">✓ 45 (35%)</span>
+      <span class="stat">⚠ 49 (38%)</span>
+      <span class="stat-no">🚨 35 (27%)</span>
+    </div>
+  
+</header>
+
+<div class="toolbar">
+  
+    <button class="tab-btn active" data-kelas="10">K10</button>
+  
+    <button class="tab-btn " data-kelas="11">K11</button>
+  
+    <button class="tab-btn " data-kelas="12">K12</button>
+  
+  <div class="filter-divider"></div>
+  <div class="filter-group">
+    <label>Filter:</label>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="NO_MATCH">🚨 NO_MATCH</button>
+    <button class="filter-btn" data-filter="MATCH_OTHER_KELAS">⚠ Other kelas</button>
+    <button class="filter-btn" data-filter="MATCH_SAME_KELAS">✓ Same kelas</button>
+  </div>
+  <button class="export-btn" onclick="showExport()">📋 Export Decisions</button>
+</div>
+
+
+    <div class="tab-content active" data-kelas="10">
+      
+    <section class="kelas-section" data-kelas="10">
+      <header class="kelas-header">
+        <h2>Kelas 10 <span class="fase">(Fase E)</span></h2>
+        <p class="fokus">Fase E — fondasi literasi numerasi: eksponen, vektor, trigonometri, statistika</p>
+        <div class="counts">
+          <span>NB: 8 bab</span>
+          <span>Turo: 9 bab</span>
+          <span>Claude-direct: 8 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K10.B1">
+        <div class="bab-header">
+          <span class="bab-id">K10.B1</span>
+          <span class="bab-name">Eksponen dan Logaritma</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Definisi dan Sifat Eksponen</li><li>Fungsi Eksponen (Pertumbuhan &amp; Peluruhan)</li><li>Bentuk Akar</li><li>Merasionalkan Akar</li><li>Definisi dan Sifat Logaritma</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B2">
+        <div class="bab-header">
+          <span class="bab-id">K10.B2</span>
+          <span class="bab-name">Barisan dan Deret</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Barisan Aritmetika</li><li>Barisan Geometri</li><li>Deret Aritmetika dan Geometri</li><li>Deret Geometri Tak Hingga</li><li>Aplikasi Bunga Tunggal dan Majemuk Dasar</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B3">
+        <div class="bab-header">
+          <span class="bab-id">K10.B3</span>
+          <span class="bab-name">Vektor dan Operasinya</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Notasi dan Terminologi Vektor</li><li>Vektor di R^2 dan R^3</li><li>Operasi Penjumlahan</li><li>Pengurangan, dan Perkalian Skalar Vektor</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B4">
+        <div class="bab-header">
+          <span class="bab-id">K10.B4</span>
+          <span class="bab-name">Trigonometri</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Perbandingan Trigonometri Segitiga Siku-siku</li><li>Tan \theta dan Aplikasinya</li><li>Sudut Istimewa</li><li>Pemanfaatan Trigonometri pada Piramida dan Konstruksi</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B5">
+        <div class="bab-header">
+          <span class="bab-id">K10.B5</span>
+          <span class="bab-name">Sistem Persamaan dan Pertidaksamaan Linear</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Sistem Persamaan Linear Tiga Variabel (SPLTV)</li><li>Sistem Pertidaksamaan Linear Dua Variabel (SPtLDV)</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B6">
+        <div class="bab-header">
+          <span class="bab-id">K10.B6</span>
+          <span class="bab-name">Fungsi Kuadrat</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Karakteristik Grafik Parabola</li><li>Titik Puncak dan Sumbu Simetri</li><li>Mengonstruksi Fungsi Kuadrat</li><li>Aplikasi Masalah Maksimum-Minimum</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B6">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B7">
+        <div class="bab-header">
+          <span class="bab-id">K10.B7</span>
+          <span class="bab-name">Statistika</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Histogram</li><li>Ukuran Pemusatan (Mean</li><li>Median</li><li>Modus)</li><li>Ukuran Penempatan (Kuartil</li><li>Persentil)</li><li>Ukuran Penyebaran (Varian</li><li>Simpangan Baku)</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B7">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B8">
+        <div class="bab-header">
+          <span class="bab-id">K10.B8</span>
+          <span class="bab-name">Peluang</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Distribusi Peluang</li><li>Aturan Penjumlahan</li><li>Kejadian Saling Lepas dan Tidak Saling Lepas</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B8">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current) <span class="ai-hint">AI verdict on each sub</span></h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Eksponen dan Fungsi Eksponen</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 4</span>
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 1</span>
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 1</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Eksponen dan Logaritma&quot;,&quot;matched_sub&quot;:&quot;Definisi dan Sifat Eksponen&quot;,&quot;reasoning&quot;:&quot;Review pangkat (bulat positif, nol, negatif, pecahan) secara semantik mencakup definisi dan sifat-sifat eksponen yang menjadi sub-bab pertama K10.B1 di NB CP 046. Pangkat nol, negatif, dan pecahan adalah bagian dari definisi eksponen yang dibahas di kelas 10.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B1.01</code>
+          <span class="sub-name">Review pangkat (bulat positif, nol, negatif, pecahan)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Eksponen dan Logaritma&quot;,&quot;matched_sub&quot;:&quot;Definisi dan Sifat Eksponen&quot;,&quot;reasoning&quot;:&quot;Persamaan eksponen dengan basis sama merupakan aplikasi langsung dari sifat-sifat eksponen yang tercakup dalam K10.B1 CP 046. Penyelesaian persamaan basis sama (a^f(x) = a^g(x) → f(x) = g(x)) adalah bagian inti dari topik eksponen di kelas 10.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B1.02</code>
+          <span class="sub-name">Persamaan eksponen — basis sama</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Eksponen dan Logaritma&quot;,&quot;matched_sub&quot;:&quot;Definisi dan Sifat Eksponen&quot;,&quot;reasoning&quot;:&quot;Persamaan eksponen dengan teknik faktorisasi merupakan bagian dari penerapan sifat-sifat eksponen di K10.B1 NB CP 046. Faktorisasi adalah strategi aljabar standar dalam menyelesaikan persamaan eksponen yang tercakup dalam sub-bab &#39;Definisi dan Sifat Eksponen&#39;.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B1.03</code>
+          <span class="sub-name">Persamaan eksponen — faktorisasi</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Eksponen dan Logaritma&quot;,&quot;matched_sub&quot;:&quot;Fungsi Eksponen (Pertumbuhan &amp; Peluruhan)&quot;,&quot;reasoning&quot;:&quot;Grafik fungsi eksponen f(x) = a^x merupakan bagian inti dari sub-bab Fungsi Eksponen di K10.B1 NB CP 046, mencakup pemahaman bentuk grafik pertumbuhan dan peluruhan.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B1.04</code>
+          <span class="sub-name">Fungsi eksponen f(x) = a^x — grafik</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;NB CP 046 K10.B1 (Eksponen dan Logaritma) mencakup definisi, sifat, fungsi eksponen, bentuk akar, dan logaritma — tetapi tidak menyebutkan pertidaksamaan eksponen sebagai sub-topik. Pertidaksamaan eksponen adalah topik pengayaan/K2013 yang tidak tercantum secara eksplisit dalam CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.10.B1.05</code>
+          <span class="sub-name">Pertidaksamaan eksponen</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Matematika Keuangan&quot;,&quot;matched_sub&quot;:&quot;Bunga Tunggal dan Majemuk&quot;,&quot;reasoning&quot;:&quot;Bunga majemuk memang berkaitan dengan fungsi eksponen, namun dalam NB CP 046, topik ini secara eksplisit ditempatkan di K12.B1 Matematika Keuangan. Di K10.B1 (Eksponen dan Logaritma) tidak disebutkan aplikasi bunga majemuk; K10.B2 hanya menyebutkan &#39;Aplikasi Bunga Tunggal dan Majemuk Dasar&#39; sebagai bagian dari Barisan dan Deret, bukan Bab 1.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B1.06</code>
+          <span class="sub-name">Aplikasi — pertumbuhan bunga majemuk</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">Logaritma</span>
+          <span class="badge badge-bridge">Bridge</span>
+        </div>
+        
+        <ul class="sub-list">
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.10.B2.01</code>
+          <span class="sub-name">Logaritma — invers eksponen</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.10.B2.02</code>
+          <span class="sub-name">Sifat-sifat logaritma (perkalian, pembagian, pangkat)</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.10.B2.03</code>
+          <span class="sub-name">Persamaan logaritma</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.10.B2.04</code>
+          <span class="sub-name">Fungsi logaritma — grafik</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.10.B2.05</code>
+          <span class="sub-name">Aplikasi logaritma (pH, skala Richter, desibel)</span>
+        </li>
+      </ul>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Sistem Persamaan Linear Tiga Variabel (SPLTV) dan Nilai Mutlak</span>
+          <span class="badge badge-bridge">Bridge</span>
+        </div>
+        
+        <ul class="sub-list">
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.10.B3.01</code>
+          <span class="sub-name">SPLTV — 3 persamaan, 3 variabel</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.10.B3.02</code>
+          <span class="sub-name">Aplikasi SPLTV (soal cerita)</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.10.B3.03</code>
+          <span class="sub-name">Nilai mutlak — definisi dan makna geometri</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.10.B3.04</code>
+          <span class="sub-name">Persamaan nilai mutlak</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.10.B3.05</code>
+          <span class="sub-name">Pertidaksamaan nilai mutlak</span>
+        </li>
+      </ul>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Barisan dan Deret Lanjutan</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 1</span>
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 3</span>
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 1</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Barisan dan Deret&quot;,&quot;matched_sub&quot;:&quot;Barisan Aritmetika &amp; Barisan Geometri&quot;,&quot;reasoning&quot;:&quot;Barisan dan deret aritmetika-geometri ada di NB CP 046 K10.B2 (&#39;Barisan Aritmetika&#39;, &#39;Barisan Geometri&#39;). Meskipun Turo menyebutnya sebagai &#39;review dari K8&#39;, NB CP 046 menempatkan topik ini di K10 sehingga placement kelas sama.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B4.01</code>
+          <span class="sub-name">Review barisan &amp; deret aritmetika-geometri (dari K8)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Notasi sigma (Σ) tidak disebutkan secara eksplisit sebagai sub-topik di NB CP 046 manapun. Meskipun deret aritmetika dan geometri ada di K10.B2, CP 046 tidak secara spesifik mencantumkan notasi sigma sebagai materi tersendiri; topik ini lebih merupakan pengayaan/tools notasi yang bukan bagian dari capaian pembelajaran CP 046.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.10.B4.02</code>
+          <span class="sub-name">Notasi sigma (Σ)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Barisan dan Deret&quot;,&quot;matched_sub&quot;:&quot;Deret Geometri Tak Hingga&quot;,&quot;reasoning&quot;:&quot;Deret Geometri Tak Hingga secara eksplisit tercantum di K10.B2 NB CP 046 (bukan Bab 4). Turo menempatkan topik ini di Bab 4 sementara NB menempatkannya di Bab 2 (Barisan dan Deret), namun kelas-nya sama yaitu K10.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B4.03</code>
+          <span class="sub-name">Deret geometri tak hingga konvergen</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.10.B4.04</code>
+          <span class="sub-name">Induksi matematika sederhana (pengantar)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Matematika Keuangan&quot;,&quot;matched_sub&quot;:&quot;Bunga Tunggal dan Majemuk&quot;,&quot;reasoning&quot;:&quot;Topik bunga majemuk secara semantik ada di NB CP 046, namun ditempatkan di K12 Wajib (Matematika Keuangan), bukan K10. Di K10 hanya ada &#39;Aplikasi Bunga Tunggal dan Majemuk Dasar&#39; sebagai sub-bab minor dalam Barisan dan Deret, tetapi placement utama topik bunga majemuk secara penuh ada di K12.B1.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B4.05</code>
+          <span class="sub-name">Bunga majemuk (perluasan K7)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Matematika Keuangan&quot;,&quot;matched_sub&quot;:&quot;Anuitas (Tetap &amp; Menurun)&quot;,&quot;reasoning&quot;:&quot;Anuitas ada di NB CP 046 tetapi ditempatkan di K12 dalam bab Matematika Keuangan, bukan di K10. Turo menempatkannya di K10 sebagai bagian dari Barisan dan Deret Lanjutan, yang berbeda dari penempatan NB.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B4.06</code>
+          <span class="sub-name">Anuitas sederhana</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Vektor</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 5</span>
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 2</span>
+        
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;K10.B3 Vektor dan Operasinya&quot;,&quot;matched_sub&quot;:&quot;Notasi dan Terminologi Vektor&quot;,&quot;reasoning&quot;:&quot;Topik &#39;pengertian vektor — besar dan arah&#39; secara semantik cocok dengan sub-bab &#39;Notasi dan Terminologi Vektor&#39; di K10.B3 NB CP 046. Namun di Turo ini ditempatkan di Bab 5, sedangkan di NB CP 046 vektor adalah Bab 3 (K10.B3). Kelas tetap sama (10), hanya nomor bab berbeda.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B5.01</code>
+          <span class="sub-name">Pengertian vektor — besar dan arah</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Vektor dan Operasinya&quot;,&quot;matched_sub&quot;:&quot;Vektor di R^2 dan R^3&quot;,&quot;reasoning&quot;:&quot;Topik vektor di bidang koordinat beserta komponennya secara semantik sesuai dengan sub-bab &#39;Vektor di R^2 dan R^3&#39; pada K10.B3 NB CP 046, yang membahas representasi vektor dalam sistem koordinat beserta komponen-komponennya.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B5.02</code>
+          <span class="sub-name">Vektor di bidang koordinat — komponen</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Vektor dan Operasinya&quot;,&quot;matched_sub&quot;:&quot;Operasi Penjumlahan dan Pengurangan Vektor&quot;,&quot;reasoning&quot;:&quot;Sub-materi penjumlahan dan pengurangan vektor secara semantik sesuai dengan K10.B3 NB CP 046 yang secara eksplisit mencakup &#39;Operasi Penjumlahan&#39; dan &#39;Pengurangan ... Vektor&#39; di kelas 10.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B5.03</code>
+          <span class="sub-name">Operasi vektor — penjumlahan &amp; pengurangan</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Vektor dan Operasinya&quot;,&quot;matched_sub&quot;:&quot;Pengurangan, dan Perkalian Skalar Vektor&quot;,&quot;reasoning&quot;:&quot;Perkalian skalar dengan vektor secara semantik identik dengan sub-bab &#39;Perkalian Skalar Vektor&#39; yang tercantum di K10.B3 NB CP 046, di kelas yang sama (Kelas 10).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B5.04</code>
+          <span class="sub-name">Perkalian skalar dengan vektor</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;K10.B3 Vektor dan Operasinya&quot;,&quot;matched_sub&quot;:&quot;Vektor di R^2 dan R^3&quot;,&quot;reasoning&quot;:&quot;Magnitude/besar vektor dengan Pythagoras adalah konsep inti dalam pembahasan Vektor di R^2 dan R^3, yang secara eksplisit ada di K10.B3 NB CP 046. Kelas placement Turo (K10) sama dengan NB.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B5.05</code>
+          <span class="sub-name">Besar (magnitude) vektor — Pythagoras</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Vektor dan Operasinya&quot;,&quot;matched_sub&quot;:&quot;Vektor di R^2 dan R^3&quot;,&quot;reasoning&quot;:&quot;Sub-materi &#39;Vektor di ruang R³ (pengantar)&#39; secara semantik identik dengan sub-bab &#39;Vektor di R^2 dan R^3&#39; pada K10.B3 NB CP 046, yang memang mencakup representasi vektor di ruang tiga dimensi.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B5.06</code>
+          <span class="sub-name">Vektor di ruang R³ (pengantar)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Vektor dan Operasinya&quot;,&quot;matched_sub&quot;:&quot;Operasi Penjumlahan, Pengurangan, dan Perkalian Skalar Vektor&quot;,&quot;reasoning&quot;:&quot;Perkalian dot (skalar) secara semantik termasuk dalam operasi vektor yang ada di K10.B3 NB CP 046. Namun di NB, bab Vektor adalah Bab 3 (K10.B3), sedangkan Turo menempatkannya di Bab 5 — perbedaan ini hanya pada penomoran bab internal Turo, bukan kelas, sehingga konten sebenarnya MATCH di kelas yang sama (K10).&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B5.07</code>
+          <span class="sub-name">Perkalian dot (skalar) pengantar</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Fungsi Kuadrat (Lanjutan)</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 3</span>
+        
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 1</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Fungsi Kuadrat&quot;,&quot;matched_sub&quot;:&quot;Karakteristik Grafik Parabola&quot;,&quot;reasoning&quot;:&quot;Review fungsi kuadrat dari K9 adalah bagian pengantar/fondasi dari bab Fungsi Kuadrat K10 NB CP 046, yang mencakup karakteristik grafik parabola dan titik puncak. Secara semantik, konten review ini selaras dengan sub-bab awal bab tersebut di kelas 10.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B6.01</code>
+          <span class="sub-name">Review fungsi kuadrat (dari K9)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Fungsi Kuadrat&quot;,&quot;matched_sub&quot;:&quot;Titik Puncak dan Sumbu Simetri&quot;,&quot;reasoning&quot;:&quot;Bentuk kanonik y = a(x−h)²+k adalah representasi fungsi kuadrat yang secara langsung mengungkapkan titik puncak (h,k) dan sumbu simetri, sehingga secara semantik merupakan bagian inti dari sub-bab &#39;Titik Puncak dan Sumbu Simetri&#39; di K10.B6 NB CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B6.02</code>
+          <span class="sub-name">Bentuk kanonik — y = a(x − h)² + k</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;K10.B6 NB CP 046 mencakup karakteristik grafik parabola, titik puncak, sumbu simetri, mengonstruksi fungsi kuadrat, dan aplikasi maksimum-minimum — tidak ada sub-bab pertidaksamaan kuadrat. Pertidaksamaan yang ada di K10 hanya SPtLDV (pertidaksamaan linear dua variabel) dalam K10.B5, bukan pertidaksamaan kuadrat.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.10.B6.03</code>
+          <span class="sub-name">Pertidaksamaan kuadrat</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Fungsi Kuadrat&quot;,&quot;matched_sub&quot;:&quot;Aplikasi Masalah Maksimum-Minimum&quot;,&quot;reasoning&quot;:&quot;Aplikasi optimasi seperti luas maksimum dan tinggi lemparan adalah bagian langsung dari sub-bab &#39;Aplikasi Masalah Maksimum-Minimum&#39; dalam K10.B6 Fungsi Kuadrat NB CP 046, yang memang mencakup penerapan titik puncak parabola untuk masalah optimasi.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B6.04</code>
+          <span class="sub-name">Aplikasi optimasi (luas maksimum, tinggi lemparan)</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Trigonometri Dasar</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 1</span>
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 2</span>
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 3</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;K10.B4 Trigonometri&quot;,&quot;matched_sub&quot;:&quot;Perbandingan Trigonometri Segitiga Siku-siku&quot;,&quot;reasoning&quot;:&quot;Topik ini ada di NB CP 046 K10.B4 (Trigonometri), namun Turo meletakkannya di Bab 7 sementara NB menempatkannya di Bab 4 — kelas sama tapi bab/urutan berbeda. Secara konten merupakan match langsung (semantik identik).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B7.01</code>
+          <span class="sub-name">Perbandingan trigonometri di segitiga siku-siku</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;K10.B4 Trigonometri&quot;,&quot;matched_sub&quot;:&quot;Sudut Istimewa&quot;,&quot;reasoning&quot;:&quot;Topik &#39;Nilai trigonometri sudut istimewa (0°, 30°, 45°, 60°, 90°)&#39; cocok secara semantik dengan sub-bab &#39;Sudut Istimewa&#39; di K10.B4 NB CP 046. Namun Turo menempatkan ini di Bab 7, sedangkan NB menempatkan Trigonometri di Bab 4 (K10.B4). Kelas sama (K10), tapi nomor bab berbeda — verdict MATCH_OTHER_KELAS merujuk pada perbedaan bab placement, bukan kelas.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B7.02</code>
+          <span class="sub-name">Nilai trigonometri sudut istimewa (0°, 30°, 45°, 60°, 90°)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;NB CP 046 K10.B4 Trigonometri hanya mencakup perbandingan trigonometri pada segitiga siku-siku, sudut istimewa, tan θ, dan aplikasi konstruksi — tidak membahas perluasan sudut ke kuadran II-IV (0°-360°) atau sistem koordinat. Perluasan ke empat kuadran tidak ada di kelas manapun dalam NB CP 046 SMA.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.10.B7.03</code>
+          <span class="sub-name">Trigonometri sudut di kuadran (perluasan 0-360°)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;NB CP 046 K10.B4 Trigonometri hanya mencakup perbandingan trigonometri segitiga siku-siku, tan θ, sudut istimewa, dan aplikasi pada piramida/konstruksi — tidak ada grafik fungsi trigonometri y=sin x atau y=cos x. Grafik fungsi trigonometri baru muncul di K11 Lanjut (K11.B8 Fungsi dan Pemodelan) sebagai &#39;Fungsi Trigonometri&#39;.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.10.B7.04</code>
+          <span class="sub-name">Grafik fungsi y = sin x dan y = cos x</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;K10.B4 (Trigonometri) di NB CP 046 hanya mencakup perbandingan trigonometri, sudut istimewa, tan θ, dan aplikasi pada piramida/konstruksi — tidak ada persamaan trigonometri. Persamaan trigonometri (sin x = a, cos x = a, dst.) adalah topik yang secara semantik lebih cocok masuk K11.B8 (Fungsi Trigonometri dalam Fungsi dan Pemodelan) atau tidak ada eksplisit di CP 046 sama sekali.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.10.B7.05</code>
+          <span class="sub-name">Persamaan trigonometri sederhana</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Trigonometri&quot;,&quot;matched_sub&quot;:&quot;Pemanfaatan Trigonometri pada Piramida dan Konstruksi&quot;,&quot;reasoning&quot;:&quot;Aplikasi trigonometri untuk menghitung tinggi dan jarak tidak langsung secara semantik sesuai dengan sub-bab &#39;Pemanfaatan Trigonometri pada Piramida dan Konstruksi&#39; di K10.B4 NB CP 046, yang mencakup penggunaan perbandingan trigonometri pada konteks nyata seperti pengukuran tidak langsung.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B7.06</code>
+          <span class="sub-name">Aplikasi trigonometri (tinggi, jarak tidak langsung)</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 8">
+        <div class="bab-header">
+          <span class="bab-id">Bab 8</span>
+          <span class="bab-name">Statistika Data Kelompok</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 1</span>
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 2</span>
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 3</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;CP 046 K10.B7 mencakup Statistika (histogram, ukuran pemusatan, ukuran penyebaran), namun tidak secara eksplisit memisahkan &#39;data kelompok — tabel frekuensi&#39; sebagai sub-topik tersendiri. Statistika K10 NB lebih fokus pada histogram dan ukuran-ukuran statistik; tabel frekuensi data kelompok sebagai bab mandiri tidak ada di NB CP 046.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.10.B8.01</code>
+          <span class="sub-name">Data kelompok — tabel frekuensi</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;K10.B7 Statistika&quot;,&quot;matched_sub&quot;:&quot;Histogram&quot;,&quot;reasoning&quot;:&quot;Histogram memang ada di NB CP 046 K10.B7 (Statistika), namun sub-materi ini ditempatkan Turo di Bab 8 (Statistika Data Kelompok) sementara NB menempatkannya di Bab 7. Karena kelas sama (K10) namun bab berbeda, secara teknis ini MATCH_SAME_KELAS dalam hal kelas, tetapi poligon frekuensi tidak disebutkan secara eksplisit di NB — hanya &#39;Histogram&#39;. Mengingat poligon frekuensi adalah ekstensi/pelengkap histogram yang lazim dalam konteks data kelompok, topik ini secara semantik masih tercakup dalam sub-bab Histogram K10.B7.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B8.02</code>
+          <span class="sub-name">Histogram dan poligon frekuensi</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;NB CP 046 K10.B7 memang memuat Ukuran Pemusatan (Mean, Median, Modus), tetapi tidak secara eksplisit membedakan data tunggal vs data kelompok — fokusnya pada konsep ukuran pemusatan secara umum dalam konteks statistika deskriptif. Data kelompok sebagai sub-topik tersendiri tidak tercantum di kelas manapun dalam CP 046, sehingga penempatan ini kemungkinan merupakan pengayaan atau warisan K2013.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.10.B8.03</code>
+          <span class="sub-name">Mean, median, modus data kelompok</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;K10.B7 Statistika&quot;,&quot;matched_sub&quot;:&quot;Ukuran Penempatan (Kuartil, Persentil)&quot;,&quot;reasoning&quot;:&quot;Kuartil (termasuk data kelompok) secara semantik tercakup dalam sub &#39;Ukuran Penempatan (Kuartil, Persentil)&#39; di K10.B7 NB CP 046. Box plot adalah representasi visual dari kuartil yang lazim diajarkan bersamaan, sehingga dapat dianggap sebagai bagian integral dari topik yang sama.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B8.04</code>
+          <span class="sub-name">Kuartil data kelompok &amp; box plot</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;K10.B7 [Wajib (Umum)] Statistika&quot;,&quot;matched_sub&quot;:&quot;Ukuran Penyebaran (Varian, Simpangan Baku)&quot;,&quot;reasoning&quot;:&quot;Varians dan standar deviasi (simpangan baku) memang ada di NB CP 046 kelas 10, namun berada di B7 (Statistika), bukan B8. Turo menempatkan topik ini di Bab 8 sementara NB menempatkannya di Bab 7 dalam satu bab statistika yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B8.05</code>
+          <span class="sub-name">Varians dan standar deviasi</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;NB CP 046 K10 B7 (Statistika) mencakup histogram, ukuran pemusatan, ukuran penempatan, dan ukuran penyebaran — tidak menyebut dot plot sama sekali. Interpretasi bentuk distribusi (simetri, skewness, dll.) juga tidak tercantum eksplisit sebagai sub-topik di kelas manapun dalam CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.10.B8.06</code>
+          <span class="sub-name">Dot plot dan interpretasi bentuk distribusi</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 9">
+        <div class="bab-header">
+          <span class="bab-id">Bab 9</span>
+          <span class="bab-name">Peluang Lanjutan</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 2</span>
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 2</span>
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 1</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;NB CP 046 K10 memiliki bab Peluang (K10.B8), namun topiknya mencakup Distribusi Peluang, Aturan Penjumlahan, dan Kejadian Saling Lepas — bukan review peluang dasar dari K8. &#39;Review peluang dasar&#39; adalah materi pengulangan/bridging yang tidak tercantum sebagai sub-topik mandiri di CP 046 manapun.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.10.B9.01</code>
+          <span class="sub-name">Review peluang dasar (dari K8)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;K10.B8 Peluang&quot;,&quot;matched_sub&quot;:&quot;Kejadian Saling Lepas dan Tidak Saling Lepas&quot;,&quot;reasoning&quot;:&quot;Topik &#39;Kejadian saling lepas vs tidak saling lepas&#39; secara semantik identik dengan sub-bab &#39;Kejadian Saling Lepas dan Tidak Saling Lepas&#39; di K10.B8 NB CP 046 Kelas 10. Placement Turo di kelas 10 sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B9.02</code>
+          <span class="sub-name">Kejadian saling lepas vs tidak saling lepas</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Peluang&quot;,&quot;matched_sub&quot;:&quot;Kejadian Saling Lepas dan Tidak Saling Lepas&quot;,&quot;reasoning&quot;:&quot;Konsep kejadian saling bebas (independent) vs tidak saling bebas (dependent) secara semantik berkaitan erat dengan materi Peluang K10 NB CP 046, khususnya sub-bab &#39;Kejadian Saling Lepas dan Tidak Saling Lepas&#39; yang mencakup hubungan antar kejadian. Meski terminologi &#39;saling bebas&#39; lebih tepat masuk ke peluang bersyarat (yang ada di K12 B3), NB K10 sudah memuat konsep hubungan antar kejadian dalam bab Peluang.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.10.B9.03</code>
+          <span class="sub-name">Kejadian saling bebas vs tidak (dependent/independent)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Kombinatorik dan Peluang&quot;,&quot;matched_sub&quot;:&quot;Peluang Suatu Kejadian&quot;,&quot;reasoning&quot;:&quot;Frekuensi harapan (expected frequency) adalah konsep turunan langsung dari peluang suatu kejadian (f_h = n × P), yang dalam NB CP 046 masuk K12.B3 Kombinatorik dan Peluang, bukan di K10. Di K10 NB hanya ada Distribusi Peluang dan Aturan Penjumlahan (K10.B8), tanpa frekuensi harapan secara eksplisit.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B9.04</code>
+          <span class="sub-name">Frekuensi harapan</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Analisis Data dan Peluang Lanjut&quot;,&quot;matched_sub&quot;:&quot;Nilai Harapan (Ekspektasi)&quot;,&quot;reasoning&quot;:&quot;Nilai harapan (ekspektasi) secara eksplisit tercantum di NB CP 046 K12.B8 [Lanjut] dalam bab &#39;Analisis Data dan Peluang Lanjut&#39;, bukan di K10. Di K10.B8 hanya mencakup distribusi peluang dasar, aturan penjumlahan, dan kejadian saling lepas.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.10.B9.05</code>
+          <span class="sub-name">Nilai harapan (ekspektasi)</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 9">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 9">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B1</span>
+          <span class="bab-name">Eksponen dan Logaritma</span>
+        </div>
+        <ul class="sub-list"><li>Bilangan berpangkat bulat &amp; rasional</li><li>Sifat eksponen lengkap</li><li>Bentuk akar &amp; merasionalkan</li><li>Konsep logaritma (log a^x = x log a)</li><li>Sifat logaritma</li><li>Persamaan &amp; pertidaksamaan eksponen-logaritma</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B2</span>
+          <span class="bab-name">Sistem Persamaan Linear Tiga Variabel (SPLTV)</span>
+        </div>
+        <ul class="sub-list"><li>Konsep SPLTV</li><li>Metode eliminasi &amp; substitusi</li><li>Determinan (cara cepat sederhana)</li><li>Aplikasi soal cerita ekonomi/fisika</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B3</span>
+          <span class="bab-name">Pertidaksamaan Linear &amp; Nilai Mutlak</span>
+        </div>
+        <ul class="sub-list"><li>Pertidaksamaan linear satu variabel lanjut</li><li>Persamaan &amp; pertidaksamaan nilai mutlak |x|</li><li>Sifat |a + b| ≤ |a| + |b|</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B4</span>
+          <span class="bab-name">Fungsi Kuadrat &amp; Komposisi Fungsi</span>
+        </div>
+        <ul class="sub-list"><li>Fungsi kuadrat (review + lanjut)</li><li>Komposisi fungsi (f∘g)(x)</li><li>Fungsi invers</li><li>Domain &amp; range fungsi</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B5</span>
+          <span class="bab-name">Trigonometri Dasar</span>
+        </div>
+        <ul class="sub-list"><li>Perbandingan trigonometri segitiga siku-siku (sin, cos, tan)</li><li>Sudut istimewa (0°, 30°, 45°, 60°, 90°)</li><li>Identitas dasar (sin² + cos² = 1)</li><li>Aturan sinus &amp; cosinus</li><li>Aplikasi sudut elevasi-depresi</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B6</span>
+          <span class="bab-name">Vektor di Bidang</span>
+        </div>
+        <ul class="sub-list"><li>Konsep vektor (besaran &amp; arah)</li><li>Operasi vektor (penjumlahan, perkalian skalar)</li><li>Vektor satuan, panjang vektor</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B7</span>
+          <span class="bab-name">Statistika Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Mean, median, modus data berkelompok</li><li>Quartil, desil, persentil</li><li>Simpangan baku &amp; varians</li><li>Histogram, ogive</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B8</span>
+          <span class="bab-name">Peluang &amp; Kombinatorik</span>
+        </div>
+        <ul class="sub-list"><li>Aturan pengisian tempat (kaidah perkalian)</li><li>Permutasi &amp; kombinasi</li><li>Peluang kejadian majemuk</li><li>Peluang bersyarat</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+    <div class="tab-content " data-kelas="11">
+      
+    <section class="kelas-section" data-kelas="11">
+      <header class="kelas-header">
+        <h2>Kelas 11 <span class="fase">(Fase F)</span></h2>
+        <p class="fokus">Fase F — spesialisasi: komposisi fungsi, lingkaran, regresi (Wajib) + bilangan kompleks, polinomial, matriks (Lanjut)</p>
+        <div class="counts">
+          <span>NB: 8 bab</span>
+          <span>Turo: 11 bab</span>
+          <span>Claude-direct: 7 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K11.B1">
+        <div class="bab-header">
+          <span class="bab-id">K11.B1</span>
+          <span class="bab-name">Komposisi Fungsi dan Fungsi Invers</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Fungsi dan Bukan Fungsi</li><li>Domain</li><li>Kodomain</li><li>Range</li><li>Operasi Aljabar Fungsi</li><li>Komposisi Fungsi (f \circ g)</li><li>Fungsi Invers</li><li>Fungsi Bijektif</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B2">
+        <div class="bab-header">
+          <span class="bab-id">K11.B2</span>
+          <span class="bab-name">Lingkaran</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Unsur Lingkaran (Busur</li><li>Juring)</li><li>Panjang Busur dan Luas Juring</li><li>Garis Singgung Lingkaran</li><li>Tali Busur</li><li>Sudut Pusat dan Keliling</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B3">
+        <div class="bab-header">
+          <span class="bab-id">K11.B3</span>
+          <span class="bab-name">Statistika dan Regresi Linear</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Diagram Pencar (Scatter Plot)</li><li>Regresi Linear (Metode Kuadrat Terkecil)</li><li>Analisis Korelasi (Pearson)</li><li>Koefisien Determinasi</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B4">
+        <div class="bab-header">
+          <span class="bab-id">K11.B4</span>
+          <span class="bab-name">Bilangan Kompleks</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Definisi z = a + bi</li><li>Operasi Aljabar Kompleks</li><li>Konjugat</li><li>Modulus</li><li>Argumen</li><li>Representasi Bidang Kompleks</li><li>Bentuk Polar/Eksponen</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B5">
+        <div class="bab-header">
+          <span class="bab-id">K11.B5</span>
+          <span class="bab-name">Polinomial (Suku Banyak)</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Fungsi Polinomial</li><li>Operasi Polinomial</li><li>Pembagian Polinomial (Horner/Bersusun)</li><li>Teorema Sisa</li><li>Teorema Faktor</li><li>Identitas Polinomial</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B6">
+        <div class="bab-header">
+          <span class="bab-id">K11.B6</span>
+          <span class="bab-name">Matriks</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Konsep Matriks</li><li>Jenis Matriks</li><li>Kesamaan Matriks</li><li>Operasi Aljabar Matriks</li><li>Determinan dan Invers Matriks 2 \times 2 dan 3 \times 3</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B6">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B7">
+        <div class="bab-header">
+          <span class="bab-id">K11.B7</span>
+          <span class="bab-name">Transformasi Geometri</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Translasi</li><li>Refleksi</li><li>Rotasi</li><li>Dilatasi</li><li>Kaitan Matriks dengan Transformasi</li><li>Komposisi Transformasi menggunakan Operasi Matriks</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B7">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B8">
+        <div class="bab-header">
+          <span class="bab-id">K11.B8</span>
+          <span class="bab-name">Fungsi dan Pemodelan</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Fungsi Trigonometri</li><li>Fungsi Logaritma</li><li>Fungsi Eksponensial</li><li>Fungsi Rasional</li><li>Fungsi Akar</li><li>Fungsi Nilai Mutlak</li><li>Fungsi Piecewise</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B8">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current) <span class="ai-hint">AI verdict on each sub</span></h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Fungsi Komposisi dan Invers</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 5</span>
+        
+        
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Komposisi Fungsi dan Fungsi Invers&quot;,&quot;matched_sub&quot;:&quot;Komposisi Fungsi (f ∘ g)&quot;,&quot;reasoning&quot;:&quot;Topik komposisi fungsi (f∘g)(x) = f(g(x)) secara eksplisit tercantum di K11.B1 NB CP 046 sebagai sub-bab &#39;Komposisi Fungsi (f∘g)&#39;, kelas dan bab sama persis dengan placement Turo.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B1.01</code>
+          <span class="sub-name">Fungsi komposisi — (f∘g)(x) = f(g(x))</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Komposisi Fungsi dan Fungsi Invers&quot;,&quot;matched_sub&quot;:&quot;Komposisi Fungsi (f ∘ g)&quot;,&quot;reasoning&quot;:&quot;Sifat tidak komutatif komposisi fungsi (f∘g ≠ g∘f) adalah bagian integral dari pembahasan Komposisi Fungsi di K11.B1 NB CP 046. Sifat ini secara semantik tercakup dalam sub-bab &#39;Komposisi Fungsi (f∘g)&#39; yang ada di kelas yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B1.02</code>
+          <span class="sub-name">Sifat komposisi — tidak komutatif</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Komposisi Fungsi dan Fungsi Invers&quot;,&quot;matched_sub&quot;:&quot;Fungsi Invers&quot;,&quot;reasoning&quot;:&quot;Topik fungsi invers secara eksplisit tercantum di K11.B1 NB CP 046 sebagai sub-bab &#39;Fungsi Invers&#39;, sesuai dengan kelas 11 placement Turo.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B1.03</code>
+          <span class="sub-name">Fungsi invers — membalikkan mesin</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Komposisi Fungsi dan Fungsi Invers&quot;,&quot;matched_sub&quot;:&quot;Fungsi Invers&quot;,&quot;reasoning&quot;:&quot;Menentukan rumus fungsi invers secara semantik identik dengan sub-bab &#39;Fungsi Invers&#39; di K11.B1 NB CP 046, yang secara eksplisit mencakup konsep dan penentuan fungsi invers.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B1.04</code>
+          <span class="sub-name">Menentukan rumus fungsi invers</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Komposisi Fungsi dan Fungsi Invers&quot;,&quot;matched_sub&quot;:&quot;Komposisi Fungsi (f∘g) &amp; Fungsi Invers&quot;,&quot;reasoning&quot;:&quot;Topik f∘f⁻¹ = I adalah properti fundamental dari hubungan antara komposisi fungsi dan fungsi invers, yang secara semantik tercakup dalam sub-bab &#39;Komposisi Fungsi&#39; dan &#39;Fungsi Invers&#39; di K11.B1 NB CP 046. Kelas dan bab sesuai dengan placement Turo.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B1.05</code>
+          <span class="sub-name">Komposisi fungsi dengan invers — f∘f⁻¹ = I</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">Matriks</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 2</span>
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 4</span>
+        
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;K11.B6 [Lanjut] Matriks&quot;,&quot;matched_sub&quot;:&quot;Konsep Matriks, Jenis Matriks&quot;,&quot;reasoning&quot;:&quot;Topik pengertian matriks (ordo dan elemen) secara semantik cocok dengan sub-bab &#39;Konsep Matriks&#39; di K11.B6 NB CP 046. Namun di NB, Matriks adalah Bab 6 (bukan Bab 2), sehingga penomoran bab Turo berbeda dari NB meskipun kelas sama.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B2.01</code>
+          <span class="sub-name">Pengertian matriks — ordo, elemen</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Matriks&quot;,&quot;matched_sub&quot;:&quot;Operasi Aljabar Matriks&quot;,&quot;reasoning&quot;:&quot;Operasi matriks (+/−/× skalar) secara semantik cocok dengan sub-bab &#39;Operasi Aljabar Matriks&#39; di K11.B6 [Lanjut] NB CP 046, bukan Bab 2. Di struktur Turo, materi ini ditempatkan di Bab 2, sedangkan NB menempatkannya di Bab 6 (K11). Kelas tetap sama (11), hanya nomor bab berbeda.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B2.02</code>
+          <span class="sub-name">Operasi matriks — +/−/× skalar</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Matriks&quot;,&quot;matched_sub&quot;:&quot;Operasi Aljabar Matriks&quot;,&quot;reasoning&quot;:&quot;Perkalian matriks (baris × kolom) adalah bagian dari operasi aljabar matriks yang ada di NB CP 046 K11 B6 [Lanjut]. Namun placement Turo menyebutnya &#39;Bab 2&#39; sementara di NB CP 046 matriks ada di B6 (bukan B2), sehingga nomor bab berbeda meskipun kelas sama.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B2.03</code>
+          <span class="sub-name">Perkalian matriks — baris × kolom</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Matriks&quot;,&quot;matched_sub&quot;:&quot;Jenis Matriks / Operasi Aljabar Matriks&quot;,&quot;reasoning&quot;:&quot;Matriks identitas dan transpose adalah bagian dari konsep dasar matriks yang tercakup dalam K11.B6 [Lanjut] — &#39;Jenis Matriks&#39; dan &#39;Operasi Aljabar Matriks&#39; di NB CP 046 kelas 11.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B2.04</code>
+          <span class="sub-name">Matriks identitas dan transpose</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Matriks&quot;,&quot;matched_sub&quot;:&quot;Determinan dan Invers Matriks 2×2 dan 3×3&quot;,&quot;reasoning&quot;:&quot;Topik Determinan matriks 2×2 dan 3×3 secara semantik cocok persis dengan sub-bab &#39;Determinan dan Invers Matriks 2×2 dan 3×3&#39; di K11.B6 [Lanjut] Matriks NB CP 046. Namun placement Turo menyebut ini sebagai Bab 2, sedangkan di NB CP 046 ini adalah B6 (bab ke-6 kelas 11 jalur Lanjut). Kelas sama (11), bab berbeda dalam penomoran Turo vs NB.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B2.05</code>
+          <span class="sub-name">Determinan matriks 2×2 dan 3×3</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Matriks&quot;,&quot;matched_sub&quot;:&quot;Determinan dan Invers Matriks 2×2 dan 3×3&quot;,&quot;reasoning&quot;:&quot;Invers matriks 2×2 secara eksplisit tercakup dalam sub-bab &#39;Determinan dan Invers Matriks 2×2 dan 3×3&#39; pada K11.B6 [Lanjut] Matriks di NB CP 046, sesuai kelas 11 placement Turo.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B2.06</code>
+          <span class="sub-name">Invers matriks 2×2</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.11.B2.07</code>
+          <span class="sub-name">Aplikasi matriks — SPLDV/SPLTV dengan matriks</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Program Linear</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 1</span>
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 3</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:10,&quot;matched_bab&quot;:&quot;Sistem Persamaan dan Pertidaksamaan Linear&quot;,&quot;matched_sub&quot;:&quot;Sistem Pertidaksamaan Linear Dua Variabel (SPtLDV)&quot;,&quot;reasoning&quot;:&quot;SPtLDV secara eksplisit tercantum di NB CP 046 K10.B5, bukan K11. Di K11 NB tidak ada bab Program Linear maupun SPtLDV.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B3.01</code>
+          <span class="sub-name">Sistem pertidaksamaan linear dua variabel</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Program Linear (termasuk fungsi objektif/tujuan) tidak muncul di NB CP 046 untuk kelas 11 manapun. Di K10 ada SPtLDV (K10.B5) yang merupakan prasyarat program linear, namun program linear sebagai topik lengkap dengan fungsi objektif tidak tercantum di CP 046 SMA.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B3.02</code>
+          <span class="sub-name">Fungsi objektif/tujuan</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Program Linear tidak muncul sama sekali di NB CP 046 SMA kelas 11. Metode titik pojok (corner point) adalah bagian dari Program Linear yang ada di K2013, namun tidak tercantum di Kurikulum Merdeka CP 046 untuk jenjang SMA manapun.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B3.03</code>
+          <span class="sub-name">Metode titik pojok (corner point)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Program Linear tidak ada dalam NB CP 046 di kelas manapun (K10, K11, K12). Topik Program Linear termasuk kurikulum K2013 yang tidak dilanjutkan di CP 046/H/KR/2025, sehingga aplikasi program linear (produksi, transportasi, diet) juga tidak relevan.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B3.04</code>
+          <span class="sub-name">Aplikasi — produksi, transportasi, diet</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Trigonometri Lanjutan</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 1</span>
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 5</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Aturan sinus (a/sin A = b/sin B = c/sin C) tidak muncul di NB CP 046 K11 manapun. Trigonometri di K10 hanya mencakup perbandingan trigonometri segitiga siku-siku, sudut istimewa, dan aplikasi piramida/konstruksi, sementara K11 tidak memiliki bab trigonometri lanjutan sama sekali — fungsi trigonometri di K11 hanya muncul sebagai bagian dari &#39;Fungsi dan Pemodelan&#39; (B8 Lanjut) yang fokus pada fungsi, bukan aturan sinus/kosinus.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B4.01</code>
+          <span class="sub-name">Aturan sinus — a/sin A = b/sin B = c/sin C</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Aturan cosinus (c² = a² + b² − 2ab cos C) tidak ditemukan di NB CP 046 K11 maupun kelas lainnya. Trigonometri di K10 hanya mencakup perbandingan trigonometri segitiga siku-siku, sudut istimewa, dan aplikasi piramida/konstruksi; sedangkan K11 tidak memiliki bab trigonometri lanjutan dalam jalur wajib, dan K11 Lanjut B8 hanya menyebut &#39;Fungsi Trigonometri&#39; sebagai pemodelan — bukan aturan cosinus untuk segitiga sembarang.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B4.02</code>
+          <span class="sub-name">Aturan cosinus — c² = a² + b² − 2ab cos C</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;NB CP 046 tidak memiliki bab Trigonometri Lanjutan di K11. Topik luas segitiga dengan rumus L = (1/2)ab sin C adalah bagian dari trigonometri yang di NB CP 046 ditempatkan di K10.B4 (Trigonometri), namun sub-bab K10.B4 hanya mencakup perbandingan trigonometri, sudut istimewa, dan aplikasi piramida/konstruksi — tidak secara eksplisit menyebut rumus luas segitiga trigonometri. Topik ini tidak muncul di kelas manapun dalam NB CP 046.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B4.03</code>
+          <span class="sub-name">Luas segitiga L = (1/2)ab sin C</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Identitas trigonometri dasar (sin²+cos²=1) tidak muncul sebagai sub-bab eksplisit di NB CP 046 K11. Di K10.B4 (Trigonometri) fokusnya pada perbandingan trigonometri segitiga siku-siku dan sudut istimewa, bukan identitas Pythagoras trigonometri. Di K11.B8 (Fungsi Trigonometri) fokusnya pada fungsi/pemodelan, bukan identitas dasar.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B4.04</code>
+          <span class="sub-name">Identitas trigonometri dasar (sin² + cos² = 1)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Identitas sudut jumlah dan selisih (sin(A±B), cos(A±B), tan(A±B)) tidak muncul secara eksplisit di NB CP 046 kelas 11 maupun kelas lain. Trigonometri di K10.B4 hanya mencakup perbandingan trigonometri dasar dan sudut istimewa, sedangkan K11.B8 menyebut &#39;Fungsi Trigonometri&#39; secara umum tanpa merinci identitas penjumlahan sudut.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B4.05</code>
+          <span class="sub-name">Identitas sudut jumlah dan selisih</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Fungsi dan Pemodelan&quot;,&quot;matched_sub&quot;:&quot;Fungsi Trigonometri&quot;,&quot;reasoning&quot;:&quot;Fungsi sinusoida y = A sin(Bx + C) + D secara semantik adalah bagian dari Fungsi Trigonometri yang ada di K11.B8 [Lanjut] &#39;Fungsi dan Pemodelan&#39;, bukan di bab Trigonometri Lanjutan. NB CP 046 menempatkan fungsi trigonometri (termasuk bentuk sinusoida dengan amplitudo, periode, dan pergeseran fase) di bawah sub-bab &#39;Fungsi Trigonometri&#39; pada bab Fungsi dan Pemodelan K11 jalur Lanjut.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B4.06</code>
+          <span class="sub-name">Fungsi sinusoida y = A sin(Bx + C) + D</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Lingkaran Analitik</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 4</span>
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 1</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Geometri Analitik (Irisan Kerucut)&quot;,&quot;matched_sub&quot;:&quot;Persamaan Lingkaran dan Garis Singgung&quot;,&quot;reasoning&quot;:&quot;Persamaan lingkaran (termasuk berpusat di titik asal) secara semantik cocok dengan sub-bab &#39;Persamaan Lingkaran dan Garis Singgung&#39; di NB CP 046, namun topik tersebut berada di K12 (Bab Geometri Analitik/Irisan Kerucut), bukan K11. Di K11 NB, bab Lingkaran (K11.B2) hanya membahas unsur lingkaran, busur, juring, garis singgung, dan sudut — bukan persamaan lingkaran analitik.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B5.01</code>
+          <span class="sub-name">Persamaan lingkaran berpusat (0,0)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Geometri Analitik (Irisan Kerucut)&quot;,&quot;matched_sub&quot;:&quot;Persamaan Lingkaran dan Garis Singgung&quot;,&quot;reasoning&quot;:&quot;Persamaan lingkaran berpusat (a,b) adalah bagian dari geometri analitik yang di NB CP 046 ditempatkan di K12 pada bab Irisan Kerucut, bukan di K11. Di K11, bab Lingkaran (B2) hanya mencakup unsur-unsur lingkaran seperti busur, juring, garis singgung, dan sudut pusat/keliling — bukan persamaan lingkaran dalam koordinat.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B5.02</code>
+          <span class="sub-name">Persamaan lingkaran berpusat (a,b)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Lingkaran Analitik (persamaan lingkaran bentuk umum x²+y²+Dx+Ey+F=0 dan konversinya ke bentuk baku) tidak ada di K11 NB CP 046. Topik ini termasuk dalam K12.B4 Geometri Analitik (Irisan Kerucut) yang mencakup &#39;Persamaan Lingkaran dan Garis Singgung&#39;, bukan di K11. K11.B2 hanya membahas unsur geometri lingkaran (busur, juring, garis singgung secara geometris) tanpa pendekatan analitik/persamaan.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B5.03</code>
+          <span class="sub-name">Bentuk umum dan konversi</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Geometri Analitik (Irisan Kerucut)&quot;,&quot;matched_sub&quot;:&quot;Persamaan Lingkaran dan Garis Singgung&quot;,&quot;reasoning&quot;:&quot;Garis singgung lingkaran (analitik/persamaan garis singgung di titik pada lingkaran) secara semantik berada di K12.B4 NB CP 046 sebagai bagian dari Geometri Analitik (Irisan Kerucut), bukan di K11. K11.B2 memang membahas lingkaran, tetapi fokusnya pada unsur geometri (busur, juring, sudut pusat/keliling), bukan persamaan garis singgung secara analitik.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B5.04</code>
+          <span class="sub-name">Garis singgung di titik lingkaran</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Lingkaran&quot;,&quot;matched_sub&quot;:&quot;Garis Singgung Lingkaran&quot;,&quot;reasoning&quot;:&quot;Garis singgung lingkaran (termasuk dari titik luar) ada di NB CP 046 K11.B2 [Wajib] &#39;Lingkaran&#39;, bukan di bab &#39;Lingkaran Analitik&#39; (yang lebih cocok dengan K12.B4 Geometri Analitik/Irisan Kerucut). Secara kelasnya sama (K11) namun bab Turo menyebutnya &#39;Lingkaran Analitik&#39; yang berkonotasi irisan kerucut K12, sementara NB menempatkannya di bab Lingkaran K11.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B5.05</code>
+          <span class="sub-name">Garis singgung dari titik luar</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Logika Matematika [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        
+        
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 5</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Logika Matematika (proposisi, pernyataan benar/salah) tidak ditemukan di NB CP 046 pada kelas manapun (K10, K11, K12). Topik ini merupakan bagian dari kurikulum K2013 yang tidak dilanjutkan dalam CP 046/H/KR/2025.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B6.01</code>
+          <span class="sub-name">Proposisi — pernyataan benar/salah</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Logika Matematika (negasi, konjungsi, disjungsi) tidak muncul di NB CP 046 di kelas manapun — baik K10, K11, maupun K12. Topik ini merupakan bagian dari kurikulum K2013 yang dihapus di Kurikulum Merdeka CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B6.02</code>
+          <span class="sub-name">Negasi, konjungsi (∧), disjungsi (∨)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Logika Matematika (termasuk implikasi dan biimplikasi) tidak muncul di NB CP 046 untuk kelas manapun di SMA. Topik ini merupakan warisan Kurikulum 2013 yang dihapus dari CP Kurikulum Merdeka.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B6.03</code>
+          <span class="sub-name">Implikasi (⇒) dan biimplikasi (⇔)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Logika Matematika (termasuk konvers, invers, kontrapositif dari implikasi) tidak muncul di NB CP 046 pada kelas manapun di SMA. Topik ini merupakan warisan Kurikulum 2013 yang dihapus dari CP 046 Kurikulum Merdeka.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B6.04</code>
+          <span class="sub-name">Konvers, invers, kontrapositif</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Logika Matematika (termasuk modus ponens, modus tollens, silogisme) tidak muncul di NB CP 046 SMA di kelas manapun (K10, K11, K12). Topik ini merupakan bagian dari kurikulum K2013 yang tidak diadopsi dalam CP 046/H/KR/2025.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B6.05</code>
+          <span class="sub-name">Penarikan kesimpulan (modus ponens, tollens, silogisme)</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Induksi Matematika [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        
+        
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 4</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Induksi Matematika (base case &amp; induction step) tidak ditemukan di manapun dalam NB CP 046 untuk SMA K10–K12, baik jalur Wajib maupun Lanjut. Topik ini ada di K2013 namun tampaknya dihapus atau tidak dicakup secara eksplisit dalam CP Kurikulum Merdeka 046/H/KR/2025.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B7.01</code>
+          <span class="sub-name">Prinsip induksi — base case &amp; induction step</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Induksi Matematika tidak muncul di manapun dalam NB CP 046 untuk SMA (K10, K11, K12). Pembuktian identitas aritmetika seperti 1+2+...+n = n(n+1)/2 via induksi adalah topik yang ada di K2013 tetapi tidak tercantum dalam Kurikulum Merdeka CP 046/H/KR/2025.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B7.02</code>
+          <span class="sub-name">Pembuktian identitas aritmetika — 1+2+...+n = n(n+1)/2</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Induksi Matematika (termasuk pembuktian keterbagian dan pertidaksamaan seperti 2^n &gt; n) tidak muncul di NB CP 046 di kelas manapun, baik K10, K11, maupun K12. Topik ini ada di kurikulum K2013 SMA tetapi tidak tercantum dalam CP 046/H/KR/2025.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B7.03</code>
+          <span class="sub-name">Pembuktian keterbagian — contoh: 2^n &gt; n</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Induksi Matematika (termasuk keterbatasannya) tidak ada dalam CP 046 SMA di kelas manapun — baik K10, K11, maupun K12. Topik ini merupakan materi kurikulum lama (K2013) yang tidak tercantum dalam struktur bab CP 046/H/KR/2025.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.11.B7.04</code>
+          <span class="sub-name">Keterbatasan induksi</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 8">
+        <div class="bab-header">
+          <span class="bab-id">Bab 8</span>
+          <span class="bab-name">Polinomial dan Bilangan Kompleks [Mat TL]</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 4</span>
+        
+        
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Polinomial (Suku Banyak)&quot;,&quot;matched_sub&quot;:&quot;Fungsi Polinomial &amp; Operasi Polinomial&quot;,&quot;reasoning&quot;:&quot;Topik definisi polinomial, derajat, dan operasi aljabar polinomial secara semantik cocok dengan sub-bab &#39;Fungsi Polinomial&#39; dan &#39;Operasi Polinomial&#39; di K11.B5 [Lanjut] NB CP 046, yang berada di kelas yang sama (K11).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B8.01</code>
+          <span class="sub-name">Polinomial — definisi, derajat, operasi</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Polinomial (Suku Banyak)&quot;,&quot;matched_sub&quot;:&quot;Pembagian Polinomial (Horner/Bersusun)&quot;,&quot;reasoning&quot;:&quot;Pembagian polinomial dengan metode long division (bersusun) dan sintetik (Horner) secara eksplisit tercantum di K11.B5 NB CP 046 sebagai &#39;Pembagian Polinomial (Horner/Bersusun)&#39;, meskipun Turo menempatkannya di Bab 8 dengan penggabungan topik bilangan kompleks.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B8.02</code>
+          <span class="sub-name">Pembagian polinomial — long division &amp; sintetik</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Polinomial (Suku Banyak)&quot;,&quot;matched_sub&quot;:&quot;Teorema Sisa &amp; Teorema Faktor&quot;,&quot;reasoning&quot;:&quot;Teorema Sisa dan Teorema Faktor secara eksplisit tercantum sebagai sub-bab di K11.B5 [Lanjut] Polinomial (Suku Banyak) dalam NB CP 046, sesuai dengan placement Turo di kelas 11.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B8.03</code>
+          <span class="sub-name">Teorema sisa dan teorema faktor</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Polinomial (Suku Banyak)&quot;,&quot;matched_sub&quot;:&quot;Teorema Faktor&quot;,&quot;reasoning&quot;:&quot;Akar-akar polinomial dan Teorema Vieta merupakan bagian dari pembahasan faktor dan akar polinomial yang tercakup dalam K11.B5 Polinomial (Suku Banyak), khususnya di bawah Teorema Faktor dan Identitas Polinomial. Ini adalah topik inti polinomial lanjut di kelas 11 jalur Lanjut.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B8.04</code>
+          <span class="sub-name">Akar-akar polinomial dan Vieta</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.11.B8.05</code>
+          <span class="sub-name">Bilangan kompleks — i = √(−1)</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.11.B8.06</code>
+          <span class="sub-name">Operasi bilangan kompleks</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 9">
+        <div class="bab-header">
+          <span class="bab-id">Bab 9</span>
+          <span class="bab-name">Limit Fungsi Aljabar [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 4</span>
+        
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Limit Fungsi&quot;,&quot;matched_sub&quot;:&quot;Definisi Limit&quot;,&quot;reasoning&quot;:&quot;Konsep dasar limit (mendekati tapi tidak harus sampai) secara semantik identik dengan &#39;Definisi Limit&#39; di NB CP 046, namun topik ini ditempatkan di K12 [Lanjut] bukan K11. Placement Turo di K11 tidak sesuai dengan struktur CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B9.01</code>
+          <span class="sub-name">Konsep limit — mendekati tapi tidak harus sampai</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Limit Fungsi&quot;,&quot;matched_sub&quot;:&quot;Sifat-sifat Limit&quot;,&quot;reasoning&quot;:&quot;Sifat dasar limit secara semantik identik dengan &#39;Sifat-sifat Limit&#39; yang ada di NB CP 046 K12.B5 (Limit Fungsi), bukan di kelas 11. Turo menempatkan topik ini di K11 padahal NB menempatkannya di K12.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B9.02</code>
+          <span class="sub-name">Sifat dasar limit</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Limit Fungsi&quot;,&quot;matched_sub&quot;:&quot;Limit Fungsi Aljabar dan Trigonometri&quot;,&quot;reasoning&quot;:&quot;Limit bentuk tak tentu 0/0 merupakan bagian dari topik Limit Fungsi Aljabar yang secara eksplisit ditempatkan di K12.B5 dalam NB CP 046, bukan di kelas 11. Tidak ada bab Limit di kelas 11 pada kurikulum Merdeka.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B9.03</code>
+          <span class="sub-name">Limit bentuk tak tentu 0/0</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Limit Fungsi&quot;,&quot;matched_sub&quot;:&quot;Sifat-sifat Limit / Limit Fungsi Aljabar dan Trigonometri&quot;,&quot;reasoning&quot;:&quot;Limit di tak hingga adalah bagian dari topik Limit Fungsi yang dalam NB CP 046 ditempatkan di K12.B5 (Lanjut), bukan di kelas 11. Tidak ada bab Limit di kelas 11 pada CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B9.04</code>
+          <span class="sub-name">Limit di tak hingga</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 9">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 9">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 10">
+        <div class="bab-header">
+          <span class="bab-id">Bab 10</span>
+          <span class="bab-name">Turunan Fungsi Aljabar [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 6</span>
+        
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Turunan Fungsi (Diferensial)&quot;,&quot;matched_sub&quot;:&quot;Definisi Turunan&quot;,&quot;reasoning&quot;:&quot;Laju perubahan rata-rata adalah konsep fondasi turunan (diferensial) yang dalam NB CP 046 ditempatkan di K12 pada bab Turunan Fungsi (Diferensial), bukan K11. Topik ini secara semantik berkaitan langsung dengan &#39;Definisi Turunan&#39; dan &#39;Aplikasi Optimasi dan Gradien&#39; di K12.B6.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B10.01</code>
+          <span class="sub-name">Laju perubahan rata-rata</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Turunan Fungsi (Diferensial)&quot;,&quot;matched_sub&quot;:&quot;Definisi Turunan&quot;,&quot;reasoning&quot;:&quot;Definisi turunan sebagai limit diferensial f&#39;(x) = lim (f(x+h)−f(x))/h ada di NB CP 046, tetapi ditempatkan di K12 (Lanjut) bab Turunan Fungsi, bukan K11. Turo menempatkannya di kelas 11.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B10.02</code>
+          <span class="sub-name">Turunan sebagai limit — f&#39;(x) = lim (f(x+h)−f(x))/h</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Turunan Fungsi (Diferensial)&quot;,&quot;matched_sub&quot;:&quot;Turunan Fungsi Aljabar dan Trigonometri&quot;,&quot;reasoning&quot;:&quot;Aturan turunan pangkat (power rule) adalah bagian inti dari turunan fungsi aljabar, yang dalam NB CP 046 ditempatkan di K12.B6 [Lanjut] bukan di kelas 11. Kelas 11 tidak memiliki bab kalkulus/turunan.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B10.03</code>
+          <span class="sub-name">Aturan turunan pangkat</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Turunan Fungsi (Diferensial)&quot;,&quot;matched_sub&quot;:&quot;Turunan Fungsi Aljabar dan Trigonometri&quot;,&quot;reasoning&quot;:&quot;Aturan penjumlahan dan perkalian konstanta adalah bagian dari teknik dasar diferensiasi (turunan fungsi aljabar), yang dalam NB CP 046 ditempatkan di K12.B6 [Lanjut], bukan di K11. Tidak ada bab turunan di K11 CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B10.04</code>
+          <span class="sub-name">Aturan penjumlahan, perkalian konstanta</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Turunan Fungsi (Diferensial)&quot;,&quot;matched_sub&quot;:&quot;Turunan Fungsi Aljabar dan Trigonometri&quot;,&quot;reasoning&quot;:&quot;Aturan perkalian (product rule) dan pembagian (quotient rule) adalah bagian dari materi Turunan Fungsi Aljabar, yang dalam NB CP 046 ditempatkan di K12 [Lanjut] B6, bukan K11. Turo menempatkan topik ini di kelas 11 sementara CP 046 menetapkannya di kelas 12.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B10.05</code>
+          <span class="sub-name">Aturan perkalian &amp; pembagian</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Turunan Fungsi (Diferensial)&quot;,&quot;matched_sub&quot;:&quot;Turunan Fungsi Aljabar dan Trigonometri&quot;,&quot;reasoning&quot;:&quot;Chain rule (aturan rantai) adalah bagian dari materi turunan fungsi yang dalam NB CP 046 ditempatkan di K12 [Lanjut] pada bab Turunan Fungsi, bukan di K11. Tidak ada bab turunan di K11 NB CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.11.B10.06</code>
+          <span class="sub-name">Aturan rantai (chain rule)</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 10">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 10">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 11">
+        <div class="bab-header">
+          <span class="bab-id">Bab 11</span>
+          <span class="bab-name">Regresi Linear dan Korelasi [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 5</span>
+        
+        
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Statistika dan Regresi Linear&quot;,&quot;matched_sub&quot;:&quot;Diagram Pencar (Scatter Plot)&quot;,&quot;reasoning&quot;:&quot;Scatter plot (diagram pencar) dan analisis korelasi visual secara semantik sesuai dengan sub-bab &#39;Diagram Pencar (Scatter Plot)&#39; dan &#39;Analisis Korelasi (Pearson)&#39; di K11.B3 NB CP 046. Meskipun label &#39;review dari K9&#39;, placement di kelas 11 sudah sesuai dengan NB.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B11.01</code>
+          <span class="sub-name">Review scatter plot (dari K9) dan korelasi visual</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Statistika dan Regresi Linear&quot;,&quot;matched_sub&quot;:&quot;Regresi Linear (Metode Kuadrat Terkecil)&quot;,&quot;reasoning&quot;:&quot;Garis regresi &#39;best fit line&#39; adalah inti dari topik Regresi Linear yang ada di K11.B3 NB CP 046, di mana metode kuadrat terkecil digunakan untuk menemukan garis yang paling sesuai dengan data (best fit line).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B11.02</code>
+          <span class="sub-name">Garis regresi — &#39;best fit line&#39;</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Statistika dan Regresi Linear&quot;,&quot;matched_sub&quot;:&quot;Regresi Linear (Metode Kuadrat Terkecil)&quot;,&quot;reasoning&quot;:&quot;Rumus regresi linear y = a + bx adalah inti dari topik Regresi Linear yang secara eksplisit ada di K11.B3 NB CP 046, mencakup metode kuadrat terkecil untuk menentukan koefisien a dan b.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B11.03</code>
+          <span class="sub-name">Rumus regresi linear — y = a + bx</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Statistika dan Regresi Linear&quot;,&quot;matched_sub&quot;:&quot;Analisis Korelasi (Pearson)&quot;,&quot;reasoning&quot;:&quot;Koefisien korelasi Pearson (r) secara semantik identik dengan &#39;Analisis Korelasi (Pearson)&#39; yang tercantum di K11.B3 NB CP 046, pada kelas yang sama yaitu kelas 11.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B11.04</code>
+          <span class="sub-name">Koefisien korelasi Pearson (r)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Statistika dan Regresi Linear&quot;,&quot;matched_sub&quot;:&quot;Regresi Linear (Metode Kuadrat Terkecil)&quot;,&quot;reasoning&quot;:&quot;Prediksi menggunakan model regresi linear dan keterbatasannya merupakan bagian integral dari topik Regresi Linear di K11 NB CP 046, termasuk dalam konteks analisis dan interpretasi hasil regresi (metode kuadrat terkecil) serta koefisien determinasi yang mencerminkan batas kemampuan model.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.11.B11.05</code>
+          <span class="sub-name">Prediksi &amp; keterbatasan regresi</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 11">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 11">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B1</span>
+          <span class="bab-name">Polinomial</span>
+        </div>
+        <ul class="sub-list"><li>Operasi polinomial (penjumlahan, pengurangan, perkalian, pembagian)</li><li>Teorema sisa &amp; teorema faktor</li><li>Akar-akar polinomial</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B2</span>
+          <span class="bab-name">Trigonometri Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Identitas trigonometri (jumlah-selisih sudut)</li><li>Persamaan trigonometri</li><li>Pertidaksamaan trigonometri sederhana</li><li>Grafik fungsi trigonometri</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B3</span>
+          <span class="bab-name">Lingkaran (Geometri Analitik)</span>
+        </div>
+        <ul class="sub-list"><li>Persamaan lingkaran (x-a)² + (y-b)² = r²</li><li>Persamaan umum x² + y² + Ax + By + C = 0</li><li>Garis singgung lingkaran</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B4</span>
+          <span class="bab-name">Limit Fungsi</span>
+        </div>
+        <ul class="sub-list"><li>Konsep limit (intuitif)</li><li>Limit fungsi aljabar</li><li>Limit di tak hingga</li><li>Limit fungsi trigonometri</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B5</span>
+          <span class="bab-name">Turunan (Diferensial)</span>
+        </div>
+        <ul class="sub-list"><li>Konsep turunan (definisi limit)</li><li>Aturan turunan (pangkat, jumlah, hasil kali, hasil bagi)</li><li>Aturan rantai</li><li>Turunan fungsi trigonometri</li><li>Aplikasi turunan: kemonotonan, ekstrim, optimasi</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B6</span>
+          <span class="bab-name">Logika Matematika</span>
+        </div>
+        <ul class="sub-list"><li>Pernyataan &amp; nilai kebenaran</li><li>Operasi logika (negasi, konjungsi, disjungsi, implikasi, biimplikasi)</li><li>Tabel kebenaran</li><li>Penarikan kesimpulan (modus ponens, tollens, silogisme)</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B7</span>
+          <span class="bab-name">Geometri Ruang (Dimensi 3)</span>
+        </div>
+        <ul class="sub-list"><li>Kedudukan titik, garis, bidang dalam ruang</li><li>Jarak titik ke titik/garis/bidang</li><li>Sudut antara garis-garis, garis-bidang, bidang-bidang</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+    <div class="tab-content " data-kelas="12">
+      
+    <section class="kelas-section" data-kelas="12">
+      <header class="kelas-header">
+        <h2>Kelas 12 <span class="fase">(Fase F)</span></h2>
+        <p class="fokus">Fase F finalisasi: matematika keuangan, kombinatorik, kalkulus (Lanjut)</p>
+        <div class="counts">
+          <span>NB: 8 bab</span>
+          <span>Turo: 9 bab</span>
+          <span>Claude-direct: 6 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K12.B1">
+        <div class="bab-header">
+          <span class="bab-id">K12.B1</span>
+          <span class="bab-name">Matematika Keuangan</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Bunga Tunggal dan Majemuk</li><li>Pinjaman dan Investasi</li><li>Anuitas (Tetap &amp; Menurun)</li><li>Cicilan dan Kredit</li><li>Simulasi Tabungan/Deposito</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B2">
+        <div class="bab-header">
+          <span class="bab-id">K12.B2</span>
+          <span class="bab-name">Geometri Lingkaran (Lanjutan)</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Busur dan Juring Lingkaran</li><li>Hubungan Panjang Busur dan Luas Juring</li><li>Teorema Lingkaran</li><li>Aplikasi Geometri pada Lokasi di Permukaan Bumi</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B3">
+        <div class="bab-header">
+          <span class="bab-id">K12.B3</span>
+          <span class="bab-name">Kombinatorik dan Peluang</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Aturan Pengisian Tempat</li><li>Permutasi dan Kombinasi</li><li>Peluang Suatu Kejadian</li><li>Peluang Kejadian Majemuk Saling Bebas dan Bersyarat</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B4">
+        <div class="bab-header">
+          <span class="bab-id">K12.B4</span>
+          <span class="bab-name">Geometri Analitik (Irisan Kerucut)</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Persamaan Lingkaran dan Garis Singgung</li><li>Persamaan Parabola</li><li>Elips, dan Hiperbola</li><li>Kedudukan Titik/Garis terhadap Kurva</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B5">
+        <div class="bab-header">
+          <span class="bab-id">K12.B5</span>
+          <span class="bab-name">Limit Fungsi</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Definisi Limit</li><li>Sifat-sifat Limit</li><li>Limit Fungsi Aljabar dan Trigonometri</li><li>Aplikasi Limit dalam Kecepatan dan Laju Perubahan</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B6">
+        <div class="bab-header">
+          <span class="bab-id">K12.B6</span>
+          <span class="bab-name">Turunan Fungsi (Diferensial)</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Definisi Turunan</li><li>Turunan Fungsi Aljabar dan Trigonometri</li><li>Titik Ekstrem (Maks/Min)</li><li>Fungsi Naik/Turun</li><li>Aplikasi Optimasi dan Gradien</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B6">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B7">
+        <div class="bab-header">
+          <span class="bab-id">K12.B7</span>
+          <span class="bab-name">Integral Fungsi</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Integral Tak Tentu dan Tentu</li><li>Penerapan Integral (Luas Daerah &amp; Volume Benda Putar)</li><li>Teorema Dasar Kalkulus</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B7">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B8">
+        <div class="bab-header">
+          <span class="bab-id">K12.B8</span>
+          <span class="bab-name">Analisis Data dan Peluang Lanjut</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Variabel Acak Diskrit</li><li>Distribusi Seragam</li><li>Distribusi Binomial</li><li>Distribusi Normal</li><li>Nilai Harapan (Ekspektasi)</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B8">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current) <span class="ai-hint">AI verdict on each sub</span></h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Transformasi Fungsi</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 2</span>
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 2</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Transformasi fungsi (geseran/translasi vertikal dan horizontal) tidak ada di NB CP 046 K12. Topik transformasi geometri (translasi, refleksi, rotasi, dilatasi) ada di K11 Lanjut (K11.B7), namun itu dalam konteks geometri dan matriks, bukan transformasi fungsi aljabar. Topik transformasi fungsi tidak ditemukan di kelas manapun dalam CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.12.B1.01</code>
+          <span class="sub-name">Geseran (translasi) vertikal dan horizontal</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Transformasi Geometri&quot;,&quot;matched_sub&quot;:&quot;Refleksi&quot;,&quot;reasoning&quot;:&quot;Refleksi terhadap sumbu x dan y adalah bagian dari Transformasi Geometri yang ada di NB CP 046 K11 (Lanjut), bukan K12. Di K12 NB tidak ada bab Transformasi Fungsi/Geometri sama sekali.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B1.02</code>
+          <span class="sub-name">Refleksi — terhadap sumbu x dan y</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Transformasi Fungsi (dilatasi vertikal &amp; horizontal pada grafik fungsi) tidak ada di NB CP 046 K12. Konsep dilatasi di CP 046 muncul di K11 Lanjut (K11.B7) dalam konteks Transformasi Geometri berbasis matriks, bukan transformasi fungsi aljabar.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.12.B1.03</code>
+          <span class="sub-name">Dilatasi — perbesaran/pengecilan vertikal &amp; horizontal</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:11,&quot;matched_bab&quot;:&quot;Transformasi Geometri&quot;,&quot;matched_sub&quot;:&quot;Komposisi Transformasi menggunakan Operasi Matriks&quot;,&quot;reasoning&quot;:&quot;Komposisi transformasi ada di NB CP 046, namun ditempatkan di K11 Lanjut (K11.B7), bukan K12. Di K12 NB tidak ada bab Transformasi Fungsi maupun Transformasi Geometri.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B1.04</code>
+          <span class="sub-name">Komposisi transformasi</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">Aplikasi Turunan [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 4</span>
+        
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Turunan Fungsi (Diferensial)&quot;,&quot;matched_sub&quot;:&quot;Definisi Turunan / Aplikasi Optimasi dan Gradien&quot;,&quot;reasoning&quot;:&quot;Gradien garis singgung sebagai interpretasi turunan memang ada di NB CP 046, tetapi berada di K12.B6 [Lanjut] &#39;Turunan Fungsi (Diferensial)&#39; bukan di bab terpisah &#39;Aplikasi Turunan&#39;. Placement kelas sama (K12) namun bab Turo (&#39;Bab 2 — Aplikasi Turunan&#39;) tidak sesuai dengan struktur NB yang menggabungkan definisi dan aplikasi turunan dalam satu bab (K12.B6).&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B2.01</code>
+          <span class="sub-name">Interpretasi turunan — gradien garis singgung</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Turunan Fungsi (Diferensial)&quot;,&quot;matched_sub&quot;:&quot;Fungsi Naik/Turun&quot;,&quot;reasoning&quot;:&quot;Topik &#39;Fungsi naik, turun, stasioner&#39; secara semantik cocok dengan sub-bab &#39;Fungsi Naik/Turun&#39; di K12.B6 NB CP 046 (bab Turunan Fungsi/Diferensial), bukan di Bab 2 versi Turo. Kelas sama (12) tetapi bab placement berbeda — NB menempatkannya di B6 bukan B2.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B2.02</code>
+          <span class="sub-name">Fungsi naik, turun, stasioner</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Turunan Fungsi (Diferensial)&quot;,&quot;matched_sub&quot;:&quot;Titik Ekstrem (Maks/Min)&quot;,&quot;reasoning&quot;:&quot;Topik nilai maksimum &amp; minimum lokal secara semantik identik dengan &#39;Titik Ekstrem (Maks/Min)&#39; di K12.B6 NB CP 046, bukan di B2. Placement Turo meletakkannya di &#39;Bab 2 — Aplikasi Turunan&#39; sedangkan NB CP 046 menempatkannya di K12.B6 (Turunan Fungsi/Diferensial).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B2.03</code>
+          <span class="sub-name">Nilai maksimum &amp; minimum lokal</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Turunan Fungsi (Diferensial)&quot;,&quot;matched_sub&quot;:&quot;Aplikasi Optimasi dan Gradien&quot;,&quot;reasoning&quot;:&quot;Topik aplikasi optimasi (luas, volume, biaya) secara semantik cocok dengan sub-bab &#39;Aplikasi Optimasi dan Gradien&#39; di K12.B6 [Lanjut] Turunan Fungsi. Namun placement Turo menaruh ini di Bab 2, sementara NB CP 046 menempatkannya di B6 — sehingga bab berbeda dalam kelas yang sama. Karena soal meminta &#39;kelas mana di NB&#39;, kelasnya sama (12) tetapi babnya berbeda.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B2.04</code>
+          <span class="sub-name">Aplikasi optimasi (luas, volume, biaya)</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Integral Tak Tentu dan Tentu [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 1</span>
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 4</span>
+        
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Integral Fungsi&quot;,&quot;matched_sub&quot;:&quot;Integral Tak Tentu dan Tentu&quot;,&quot;reasoning&quot;:&quot;Antiturunan adalah konsep dasar integral tak tentu yang secara semantik masuk dalam K12.B7 [Lanjut] &#39;Integral Fungsi&#39; — sub &#39;Integral Tak Tentu dan Tentu&#39;. Namun bab Turo ini berlabel &#39;Mat TL&#39; (Tidak Lanjut/Wajib), sedangkan di NB CP 046 topik integral berada di jalur [Lanjut]. Kelas sama (12) tapi track berbeda.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B3.01</code>
+          <span class="sub-name">Antiturunan — &#39;balik dari turunan&#39;</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Integral Fungsi&quot;,&quot;matched_sub&quot;:&quot;Integral Tak Tentu dan Tentu&quot;,&quot;reasoning&quot;:&quot;Aturan integral pangkat adalah komponen fundamental dari Integral Tak Tentu yang secara eksplisit tercantum di K12.B7 NB CP 046 [Lanjut], dan placement Turo juga di kelas 12. Kelas sama meskipun penomoran bab berbeda.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B3.02</code>
+          <span class="sub-name">Aturan integral pangkat</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Integral Fungsi&quot;,&quot;matched_sub&quot;:&quot;Integral Tak Tentu dan Tentu&quot;,&quot;reasoning&quot;:&quot;Sifat linearitas integral (seperti ∫[af(x)+bg(x)]dx = a∫f(x)dx + b∫g(x)dx) adalah bagian dari sifat-sifat dasar integral tak tentu dan tentu yang tercakup dalam K12.B7 [Lanjut], bukan K12.B3 [Wajib] yang berisi Kombinatorik dan Peluang. Placement Turo di &#39;Bab 3&#39; tidak sesuai dengan struktur NB di mana integral ada di B7.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B3.03</code>
+          <span class="sub-name">Sifat integral — linearitas</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Integral Fungsi&quot;,&quot;matched_sub&quot;:&quot;Penerapan Integral (Luas Daerah &amp; Volume Benda Putar)&quot;,&quot;reasoning&quot;:&quot;Topik &#39;integral tentu — luas di bawah kurva&#39; secara semantik cocok dengan sub-bab &#39;Penerapan Integral (Luas Daerah &amp; Volume Benda Putar)&#39; di K12.B7 NB CP 046. Namun, placement Turo menaruh ini di Bab 3, sedangkan NB menempatkannya di B7 (Integral Fungsi), sehingga bab berbeda meski kelas sama — dikategorikan MATCH_OTHER_KELAS karena bab tidak sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B3.04</code>
+          <span class="sub-name">Integral tentu — luas di bawah kurva</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Integral Fungsi&quot;,&quot;matched_sub&quot;:&quot;Teorema Dasar Kalkulus&quot;,&quot;reasoning&quot;:&quot;Teorema Fundamental Kalkulus (Teorema Dasar Kalkulus) ada di NB CP 046 K12 pada K12.B7 [Lanjut] Integral Fungsi, bukan di K12.B3 [Wajib] Kombinatorik dan Peluang. Bab placement Turo (Bab 3) tidak sesuai dengan pengelompokan NB yang menempatkan integral di B7.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B3.05</code>
+          <span class="sub-name">Teorema fundamental kalkulus</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Teknik Integrasi [Mat TL]</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 1</span>
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 1</span>
+        
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Integral Fungsi&quot;,&quot;matched_sub&quot;:&quot;Integral Tak Tentu dan Tentu&quot;,&quot;reasoning&quot;:&quot;Integral substitusi (u-substitution) adalah teknik integrasi standar yang secara semantik tercakup dalam sub-bab &#39;Integral Tak Tentu dan Tentu&#39; pada K12.B7 [Lanjut] NB CP 046. Placement Turo di kelas 12 sudah sesuai dengan NB.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B4.01</code>
+          <span class="sub-name">Integral substitusi (u-substitution)</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.12.B4.02</code>
+          <span class="sub-name">Integral parsial</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Integral Fungsi&quot;,&quot;matched_sub&quot;:&quot;Integral Tak Tentu dan Tentu&quot;,&quot;reasoning&quot;:&quot;Integral fungsi trigonometri dasar secara semantik termasuk dalam sub-bab &#39;Integral Tak Tentu dan Tentu&#39; di K12.B7 NB CP 046, bukan di Bab 4 (&#39;Teknik Integrasi&#39;). NB CP 046 tidak memisahkan &#39;teknik integrasi&#39; sebagai bab tersendiri; topik ini merupakan bagian dari bab Integral Fungsi (K12.B7) yang mencakup turunan dan integral fungsi trigonometri.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B4.03</code>
+          <span class="sub-name">Integral fungsi trigonometri dasar</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Aplikasi Integral [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 2</span>
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 1</span>
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 1</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Integral Fungsi&quot;,&quot;matched_sub&quot;:&quot;Penerapan Integral (Luas Daerah &amp; Volume Benda Putar)&quot;,&quot;reasoning&quot;:&quot;Luas daerah di bawah kurva adalah aplikasi integral yang secara eksplisit tercantum di K12.B7 NB CP 046 pada sub-bab &#39;Penerapan Integral (Luas Daerah &amp; Volume Benda Putar)&#39;, kelas yang sama dengan placement Turo.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B5.01</code>
+          <span class="sub-name">Luas daerah di bawah kurva</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Integral Fungsi&quot;,&quot;matched_sub&quot;:&quot;Penerapan Integral (Luas Daerah &amp; Volume Benda Putar)&quot;,&quot;reasoning&quot;:&quot;Luas antara dua kurva adalah bagian dari penerapan integral untuk menghitung luas daerah, yang secara eksplisit tercantum di K12.B7 NB CP 046 sub-bab &#39;Penerapan Integral (Luas Daerah &amp; Volume Benda Putar)&#39;.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B5.02</code>
+          <span class="sub-name">Luas antara dua kurva</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Integral Fungsi&quot;,&quot;matched_sub&quot;:&quot;Penerapan Integral (Luas Daerah &amp; Volume Benda Putar)&quot;,&quot;reasoning&quot;:&quot;Volume benda putar secara semantik cocok dengan sub-bab &#39;Penerapan Integral (Luas Daerah &amp; Volume Benda Putar)&#39; di K12.B7 NB CP 046, bukan K12.B5 (Limit Fungsi). Topik ini ada di kelas yang sama (12) tetapi bab yang berbeda — B7 Integral Fungsi, bukan B5 Limit Fungsi.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B5.03</code>
+          <span class="sub-name">Volume benda putar — metode cakram</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;NB CP 046 K12 mencakup &#39;Volume Benda Putar&#39; di K12.B7 (Integral Fungsi), namun hanya menyebut metode umum tanpa merinci metode spesifik. Metode kulit silinder (shell method) adalah teknik lanjutan yang tidak disebutkan secara eksplisit di CP 046 — CP hanya menyebut &#39;Volume Benda Putar&#39; secara generik, sehingga metode kulit silinder dianggap sebagai pengayaan di luar cakupan CP 046.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.12.B5.04</code>
+          <span class="sub-name">Volume benda putar — metode kulit silinder</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Dimensi Tiga</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        
+      <div class="verdict-summary">
+        
+        
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 2</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Topik &#39;Titik, garis, bidang dalam ruang&#39; (Dimensi Tiga / Geometri Ruang) tidak ditemukan di NB CP 046 untuk kelas 12 maupun kelas lainnya. CP 046 SMA K12 mencakup geometri analitik (irisan kerucut) di jalur Lanjut, bukan geometri ruang 3D. Topik ini merupakan warisan K2013 yang dihapus dari CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.12.B6.01</code>
+          <span class="sub-name">Titik, garis, bidang dalam ruang</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.12.B6.02</code>
+          <span class="sub-name">Jarak titik ke titik</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.12.B6.03</code>
+          <span class="sub-name">Jarak titik ke garis</span>
+        </li>
+      
+        <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+          <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+          <code>SMA.12.B6.04</code>
+          <span class="sub-name">Jarak titik ke bidang</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Topik sudut antara dua garis, garis-bidang, dan bidang-bidang adalah bagian dari Dimensi Tiga (Geometri Ruang) yang merupakan materi K2013. NB CP 046 tidak memiliki bab Dimensi Tiga di kelas manapun (K10–K12); geometri di CP 046 hanya mencakup Vektor (K10), Lingkaran (K11–K12), Transformasi Geometri (K11), dan Geometri Analitik/Irisan Kerucut (K12).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.12.B6.05</code>
+          <span class="sub-name">Sudut antara dua garis, garis-bidang, bidang-bidang</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Irisan Kerucut [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 3</span>
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 1</span>
+        
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Geometri Analitik (Irisan Kerucut)&quot;,&quot;matched_sub&quot;:&quot;Persamaan Parabola, Elips, dan Hiperbola&quot;,&quot;reasoning&quot;:&quot;Irisan kerucut termasuk asal-usul geometrinya ada di NB CP 046 K12.B4 [Lanjut] Geometri Analitik (Irisan Kerucut), kelas yang sama dengan placement Turo (K12).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B7.01</code>
+          <span class="sub-name">Irisan kerucut — asal geometri</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Geometri Analitik (Irisan Kerucut)&quot;,&quot;matched_sub&quot;:&quot;Persamaan Parabola&quot;,&quot;reasoning&quot;:&quot;Parabola analitik dengan fokus dan direktris secara eksplisit tercantum dalam K12.B4 [Lanjut] NB CP 046 sub &#39;Persamaan Parabola&#39;, kelas yang sama dengan placement Turo (K12).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B7.02</code>
+          <span class="sub-name">Parabola analitik — persamaan dan fokus-direktris</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Geometri Analitik (Irisan Kerucut)&quot;,&quot;matched_sub&quot;:&quot;Elips, dan Hiperbola&quot;,&quot;reasoning&quot;:&quot;Elips analitik — persamaan dan fokus secara semantik cocok dengan sub-bab &#39;Elips, dan Hiperbola&#39; dalam K12.B4 [Lanjut] Geometri Analitik (Irisan Kerucut) di NB CP 046. Kelas penempatan Turo (12) sama dengan kelas NB (12).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B7.03</code>
+          <span class="sub-name">Elips analitik — persamaan dan fokus</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Geometri Analitik (Irisan Kerucut)&quot;,&quot;matched_sub&quot;:&quot;Elips, dan Hiperbola&quot;,&quot;reasoning&quot;:&quot;Hiperbola beserta persamaan dan asimtotnya termasuk dalam K12.B4 [Lanjut] Geometri Analitik (Irisan Kerucut) NB CP 046, bukan Bab 7 versi Turo. Topik ini ADA di kelas yang sama (K12) tetapi di bab yang berbeda (B4, bukan B7 Turo).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B7.04</code>
+          <span class="sub-name">Hiperbola analitik — persamaan dan asimtot</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 8">
+        <div class="bab-header">
+          <span class="bab-id">Bab 8</span>
+          <span class="bab-name">Kombinatorika</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        
+        <span class="vs vs-other" title="MATCH kelas lain">⚠ 4</span>
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 1</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Kombinatorik dan Peluang&quot;,&quot;matched_sub&quot;:&quot;Aturan Pengisian Tempat&quot;,&quot;reasoning&quot;:&quot;Prinsip perkalian dan penjumlahan (kaidah pencacahan dasar) secara semantik termasuk dalam &#39;Aturan Pengisian Tempat&#39; di K12.B3 NB CP 046, bukan K12.B8. Placement kelas sudah benar (K12), namun nomor bab berbeda — NB menempatkan ini di B3, bukan B8.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B8.01</code>
+          <span class="sub-name">Prinsip perkalian dan penjumlahan</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Kombinatorik dan Peluang&quot;,&quot;matched_sub&quot;:&quot;Permutasi dan Kombinasi&quot;,&quot;reasoning&quot;:&quot;Faktorial n! adalah konsep fondasi yang secara semantik merupakan bagian integral dari Permutasi dan Kombinasi, yang ada di K12.B3 NB CP 046. Namun Turo menempatkannya di Bab 8 (Kombinatorika) K12, sedangkan NB menempatkan topik ini di Bab 3 K12 — kelas sama tapi bab berbeda; karena bab berbeda dalam kelas yang sama, verdict MATCH_OTHER_KELAS kurang tepat secara teknis, namun mengingat kelas sama dan bab NB yang paling relevan adalah B3 bukan B8, ini tetap diklasifikasikan sebagai MATCH_OTHER_KELAS dengan catatan hanya bab-nya yang berbeda, bukan kelasnya.&quot;,&quot;confidence&quot;:&quot;medium&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B8.02</code>
+          <span class="sub-name">Faktorial n!</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Kombinatorik dan Peluang&quot;,&quot;matched_sub&quot;:&quot;Permutasi dan Kombinasi&quot;,&quot;reasoning&quot;:&quot;Permutasi (urutan penting) secara semantik cocok dengan sub-bab &#39;Permutasi dan Kombinasi&#39; di K12.B3 [Wajib] NB CP 046, bukan Bab 8. Turo menempatkan topik ini di &#39;Bab 8 — Kombinatorika&#39; yang berbeda penomoran bab-nya dari NB (B3), meskipun kelasnya sama (K12).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B8.03</code>
+          <span class="sub-name">Permutasi — urutan penting</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_OTHER_KELAS" data-verdict="MATCH_OTHER_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_OTHER_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Kombinatorik dan Peluang&quot;,&quot;matched_sub&quot;:&quot;Permutasi dan Kombinasi&quot;,&quot;reasoning&quot;:&quot;Kombinasi (urutan tidak penting) secara semantik adalah bagian dari &#39;Permutasi dan Kombinasi&#39; di K12.B3 [Wajib] NB CP 046, bukan di bab terpisah &#39;Bab 8 — Kombinatorika&#39;. Kelasnya sama (12), namun bab placement Turo berbeda dari struktur NB yang menempatkan kombinasi di B3 bukan B8.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-other" title="⚠ AI: ada di NB tapi kelas berbeda">⚠</span>
+          <code>SMA.12.B8.04</code>
+          <span class="sub-name">Kombinasi — urutan tidak penting</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Teorema Binomial (ekspansi (a+b)^n) adalah topik aljabar/kombinatorik yang tidak muncul di NB CP 046 di kelas manapun. Di K12.B3 hanya ada Permutasi, Kombinasi, dan Peluang — bukan ekspansi binomial. Topik ini lebih relevan dengan kurikulum K2013 atau pengayaan.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.12.B8.05</code>
+          <span class="sub-name">Binomial teorema</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 9">
+        <div class="bab-header">
+          <span class="bab-id">Bab 9</span>
+          <span class="bab-name">Peluang Bersyarat dan Distribusi</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        
+      <div class="verdict-summary">
+        <span class="vs vs-same" title="MATCH same kelas">✓ 5</span>
+        
+        <span class="vs vs-no" title="NO MATCH di NB">🚨 1</span>
+      </div>
+    
+        <ul class="sub-list">
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Kombinatorik dan Peluang&quot;,&quot;matched_sub&quot;:&quot;Peluang Kejadian Majemuk Saling Bebas dan Bersyarat&quot;,&quot;reasoning&quot;:&quot;Peluang bersyarat P(A|B) secara semantik merupakan bagian dari &#39;Peluang Kejadian Majemuk Saling Bebas dan Bersyarat&#39; yang ada di K12.B3 NB CP 046. Topik ini berada di kelas yang sama (12).&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B9.01</code>
+          <span class="sub-name">Peluang bersyarat — P(A|B)</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_kelas&quot;:null,&quot;matched_bab&quot;:null,&quot;matched_sub&quot;:null,&quot;reasoning&quot;:&quot;Teorema Bayes tidak disebutkan secara eksplisit di CP 046 NB manapun. K12.B3 hanya mencakup peluang kejadian majemuk saling bebas dan bersyarat, sedangkan K12.B8 fokus pada distribusi probabilitas; Teorema Bayes adalah pengayaan/topik tambahan di luar cakupan CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-no" title="🚨 AI: tidak ditemukan di NB CP 046">🚨</span>
+          <code>SMA.12.B9.02</code>
+          <span class="sub-name">Teorema Bayes</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Analisis Data dan Peluang Lanjut&quot;,&quot;matched_sub&quot;:&quot;Variabel Acak Diskrit&quot;,&quot;reasoning&quot;:&quot;Variabel acak diskrit secara eksplisit tercantum sebagai sub-bab pertama di K12.B8 [Lanjut] NB CP 046, sesuai dengan placement Turo di kelas 12.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B9.03</code>
+          <span class="sub-name">Variabel acak diskrit</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Analisis Data dan Peluang Lanjut&quot;,&quot;matched_sub&quot;:&quot;Distribusi Binomial&quot;,&quot;reasoning&quot;:&quot;Distribusi Binomial secara eksplisit tercantum di K12.B8 [Lanjut] NB CP 046, sesuai dengan placement Turo di kelas 12.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B9.04</code>
+          <span class="sub-name">Distribusi binomial</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Analisis Data dan Peluang Lanjut&quot;,&quot;matched_sub&quot;:&quot;Distribusi Normal&quot;,&quot;reasoning&quot;:&quot;Distribusi normal (kurva lonceng) secara eksplisit tercantum di K12.B8 [Lanjut] NB CP 046 sebagai sub-topik &#39;Distribusi Normal&#39;, sesuai dengan placement Turo di kelas 12.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B9.05</code>
+          <span class="sub-name">Distribusi normal — kurva lonceng</span>
+        </li>
+      
+        <li class="sub-item sub-strict verdict-MATCH_SAME_KELAS" data-verdict="MATCH_SAME_KELAS" data-audit='{&quot;verdict&quot;:&quot;MATCH_SAME_KELAS&quot;,&quot;matched_kelas&quot;:12,&quot;matched_bab&quot;:&quot;Analisis Data dan Peluang Lanjut&quot;,&quot;matched_sub&quot;:&quot;Distribusi Normal&quot;,&quot;reasoning&quot;:&quot;Skor-Z (z-score) dan standarisasi adalah konsep inti dalam Distribusi Normal — digunakan untuk mengkonversi nilai ke distribusi normal standar. Topik ini secara semantik tercakup dalam sub-bab &#39;Distribusi Normal&#39; di K12.B8 NB CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;}'>
+          <span class="vbadge vbadge-same" title="✓ AI: ada di NB CP 046 di kelas yang sama">✓</span>
+          <code>SMA.12.B9.06</code>
+          <span class="sub-name">Skor-Z dan standarisasi</span>
+        </li>
+      </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 9">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 9">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B1</span>
+          <span class="bab-name">Integral</span>
+        </div>
+        <ul class="sub-list"><li>Antiderivative (integral tak tentu)</li><li>Integral fungsi aljabar &amp; trigonometri</li><li>Integral substitusi</li><li>Integral parsial</li><li>Integral tentu</li><li>Aplikasi: luas daerah, volume benda putar</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B2</span>
+          <span class="bab-name">Matriks</span>
+        </div>
+        <ul class="sub-list"><li>Konsep matriks &amp; operasi (jumlah, kurang, kali skalar, kali matriks)</li><li>Determinan matriks 2×2 dan 3×3</li><li>Invers matriks</li><li>Aplikasi matriks untuk SPLTV</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B3</span>
+          <span class="bab-name">Vektor di Ruang (R³)</span>
+        </div>
+        <ul class="sub-list"><li>Vektor dalam R³</li><li>Operasi vektor (jumlah, kurang, perkalian skalar)</li><li>Perkalian dot dan cross product</li><li>Sudut antara dua vektor</li><li>Proyeksi vektor</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B4</span>
+          <span class="bab-name">Transformasi Geometri Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Translasi, refleksi, rotasi, dilatasi (review SMP + lanjut)</li><li>Komposisi transformasi</li><li>Matriks transformasi</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B5</span>
+          <span class="bab-name">Statistika Inferensial</span>
+        </div>
+        <ul class="sub-list"><li>Distribusi peluang variabel acak</li><li>Distribusi binomial</li><li>Distribusi normal (kurva normal)</li><li>Tabel z dan probabilitas</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B6</span>
+          <span class="bab-name">Limit Fungsi Trigonometri &amp; L&#39;Hopital</span>
+        </div>
+        <ul class="sub-list"><li>Limit khusus trigonometri (lim sin x / x = 1)</li><li>Aturan L&#39;Hopital (pengenalan)</li><li>Bentuk tak tentu 0/0, ∞/∞</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+
+<div class="modal" id="detailModal">
+  <div class="modal-content">
+    <h2 id="detailTitle">Sub-materi Detail</h2>
+    <div id="detailBody"></div>
+    <div class="modal-actions">
+      <button class="primary" onclick="document.getElementById('detailModal').classList.remove('show')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="exportModal">
+  <div class="modal-content">
+    <h2>Export Decisions</h2>
+    <p style="color:#64748b; font-size:13px;">Copy text di bawah → kirim ke Claude untuk apply ke peta-prasyarat.json.</p>
+    <textarea id="exportText" readonly></textarea>
+    <div class="modal-actions">
+      <button onclick="copyExport()">📋 Copy</button>
+      <button class="primary" onclick="document.getElementById('exportModal').classList.remove('show')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const decisions = { untag: [], keep: [], add: [] };
+  let currentFilter = "all";
+
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const k = btn.dataset.kelas;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.kelas === k));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.dataset.kelas === k));
+      window.scrollTo(0, 0);
+    });
+  });
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentFilter = btn.dataset.filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+      applyFilter();
+    });
+  });
+
+  function applyFilter() {
+    document.querySelectorAll('.sub-item').forEach(item => {
+      if (currentFilter === "all") {
+        item.classList.remove('hidden');
+      } else {
+        const v = item.dataset.verdict;
+        item.classList.toggle('hidden', v !== currentFilter);
+      }
+    });
+  }
+
+  // Sub item click → show detail
+  document.querySelectorAll('.sub-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const auditAttr = item.dataset.audit;
+      const code = item.querySelector('code')?.textContent ?? '?';
+      const name = item.querySelector('.sub-name')?.textContent ?? '?';
+      let body = '<p><strong>' + code + '</strong>: ' + name + '</p>';
+      if (auditAttr) {
+        try {
+          const a = JSON.parse(auditAttr);
+          const verdictLabel = {
+            MATCH_SAME_KELAS: '✓ MATCH kelas sama',
+            MATCH_OTHER_KELAS: '⚠ MATCH kelas LAIN',
+            NO_MATCH: '🚨 NO MATCH (tidak di NB CP 046)',
+          }[a.verdict] || a.verdict;
+          body += '<div class="audit-detail">';
+          body += '<div class="field"><span class="label">Verdict:</span> <strong>' + verdictLabel + '</strong></div>';
+          if (a.matched_kelas) body += '<div class="field"><span class="label">Match di kelas:</span> K' + a.matched_kelas + '</div>';
+          if (a.matched_bab) body += '<div class="field"><span class="label">Bab NB:</span> ' + a.matched_bab + '</div>';
+          if (a.matched_sub) body += '<div class="field"><span class="label">Sub-bab NB:</span> ' + a.matched_sub + '</div>';
+          if (a.confidence) body += '<div class="field"><span class="label">Confidence:</span> <span class="conf-' + a.confidence + '">' + a.confidence.toUpperCase() + '</span></div>';
+          if (a.reasoning) body += '<div class="reasoning">' + a.reasoning + '</div>';
+          body += '</div>';
+        } catch (err) {
+          body += '<p style="color: #b91c1c;">Error parsing audit: ' + err.message + '</p>';
+        }
+      } else {
+        body += '<p style="color: #94a3b8; font-style: italic;">Sub ini belum diaudit (mungkin bridge atau diluar scope strict).</p>';
+      }
+      document.getElementById('detailTitle').textContent = code;
+      document.getElementById('detailBody').innerHTML = body;
+      document.getElementById('detailModal').classList.add('show');
+    });
+  });
+
+  // Modal close on backdrop click
+  document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', (e) => {
+      if (e.target === m) m.classList.remove('show');
+    });
+  });
+
+  // Action button toggling
+  document.querySelectorAll('button[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      const key = btn.dataset.key;
+      const card = btn.closest('.bab-card');
+      const wasActive = btn.classList.contains('active');
+
+      if (action === 'untag' || action === 'keep') {
+        card.querySelectorAll('button[data-action="untag"], button[data-action="keep"]').forEach(b => b.classList.remove('active'));
+        card.classList.remove('marked-untag', 'marked-keep');
+        decisions.untag = decisions.untag.filter(d => d.babKode !== card.dataset.babKode);
+        decisions.keep = decisions.keep.filter(d => d.babKode !== card.dataset.babKode);
+      }
+
+      if (!wasActive) {
+        btn.classList.add('active');
+        if (action === 'untag') {
+          card.classList.add('marked-untag');
+          decisions.untag.push({ key, babKode: card.dataset.babKode });
+        } else if (action === 'keep') {
+          card.classList.add('marked-keep');
+          decisions.keep.push({ key, babKode: card.dataset.babKode });
+        } else if (action === 'add') {
+          card.classList.add('marked-add');
+          decisions.add.push({ key, babId: card.dataset.babId });
+        }
+      } else if (action === 'add') {
+        card.classList.remove('marked-add');
+        decisions.add = decisions.add.filter(d => d.key !== key);
+      }
+
+      updateExport();
+    });
+  });
+
+  function updateExport() {
+    const out = {
+      jenjang: 'SMA',
+      generated: new Date().toISOString(),
+      untag_bab_kodes: decisions.untag.map(d => d.babKode),
+      keep_strict_bab_kodes: decisions.keep.map(d => d.babKode),
+      add_nb_bab_ids: decisions.add.map(d => d.babId),
+    };
+    document.getElementById('exportText').value = JSON.stringify(out, null, 2);
+  }
+
+  function showExport() {
+    updateExport();
+    document.getElementById('exportModal').classList.add('show');
+  }
+
+  function copyExport() {
+    const ta = document.getElementById('exportText');
+    ta.select();
+    document.execCommand('copy');
+    alert('Copied!');
+  }
+</script>
+
+</body>
+</html>

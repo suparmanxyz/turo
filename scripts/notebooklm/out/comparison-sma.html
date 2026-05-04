@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Comparison SMA — Strict Tagging Audit</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    margin: 0;
+    background: #f1f5f9;
+    color: #0f172a;
+    font-size: 14px;
+  }
+  header.app-header {
+    background: linear-gradient(135deg, #0f766e, #14b8a6);
+    color: white;
+    padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  header.app-header h1 {
+    margin: 0 0 4px 0;
+    font-size: 24px;
+  }
+  header.app-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 13px;
+  }
+  .toolbar {
+    background: white;
+    padding: 12px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .tab-btn {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .tab-btn.active {
+    background: #0f766e;
+    color: white;
+    border-color: #0f766e;
+  }
+  .tab-btn:hover:not(.active) {
+    background: #e2e8f0;
+  }
+  .export-btn {
+    margin-left: auto;
+    background: #fbbf24;
+    color: #78350f;
+    border: 1px solid #f59e0b;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .export-btn:hover { background: #f59e0b; color: white; }
+
+  .tab-content { display: none; padding: 16px 24px; }
+  .tab-content.active { display: block; }
+
+  .kelas-header {
+    margin-bottom: 16px;
+  }
+  .kelas-header h2 {
+    margin: 0 0 4px 0;
+    color: #0f172a;
+  }
+  .fase { color: #64748b; font-weight: normal; font-size: 16px; }
+  .fokus { color: #64748b; margin: 4px 0; font-size: 13px; }
+  .counts {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #475569;
+    margin-top: 8px;
+  }
+  .counts span {
+    background: #e0f2fe;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 1100px) {
+    .three-col { grid-template-columns: 1fr; }
+  }
+
+  .col {
+    min-width: 0;
+  }
+  .col h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: white;
+    position: sticky;
+    top: 60px;
+    z-index: 5;
+  }
+  .col-nb h3 { background: #ecfdf5; color: #065f46; }
+  .col-turo h3 { background: #eff6ff; color: #1e40af; }
+  .col-cd h3 { background: #fef3c7; color: #78350f; }
+
+  .bab-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.15s;
+  }
+  .bab-card:hover {
+    border-color: #94a3b8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .nb-card { border-left: 4px solid #10b981; }
+  .turo-card { border-left: 4px solid #3b82f6; }
+  .cd-card { border-left: 4px solid #f59e0b; }
+
+  .bab-card.marked-untag { background: #fef2f2; border-color: #fca5a5; }
+  .bab-card.marked-keep { background: #f0fdf4; border-color: #86efac; }
+  .bab-card.marked-add { background: #fef3c7; border-color: #fbbf24; }
+
+  .bab-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .bab-id {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .bab-name {
+    font-weight: 600;
+    flex: 1;
+    min-width: 0;
+  }
+  .badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .badge-jalur { background: #ddd6fe; color: #5b21b6; }
+  .badge-strict { background: #d1fae5; color: #065f46; }
+  .badge-bridge { background: #dbeafe; color: #1e40af; }
+  .badge-mixed { background: #fef3c7; color: #78350f; }
+
+  .sub-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: #334155;
+  }
+  .sub-list li { margin-bottom: 3px; }
+  .sub-list code {
+    font-size: 10px;
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-right: 4px;
+  }
+  .sub-strict { }
+  .sub-bridge { color: #1e40af; opacity: 0.85; }
+
+  .actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    border: 1px solid;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    background: white;
+  }
+  .btn-untag { color: #b91c1c; border-color: #fca5a5; }
+  .btn-untag:hover { background: #fee2e2; }
+  .btn-untag.active { background: #ef4444; color: white; border-color: #ef4444; }
+  .btn-keep { color: #15803d; border-color: #86efac; }
+  .btn-keep:hover { background: #dcfce7; }
+  .btn-keep.active { background: #16a34a; color: white; border-color: #16a34a; }
+  .btn-add { color: #b45309; border-color: #fbbf24; }
+  .btn-add:hover { background: #fef3c7; }
+  .btn-add.active { background: #f59e0b; color: white; border-color: #f59e0b; }
+
+  .empty { color: #94a3b8; font-style: italic; padding: 12px; }
+
+  /* Export modal */
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal.show { display: flex; }
+  .modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .modal-content h2 { margin-top: 0; }
+  .modal-content textarea {
+    width: 100%;
+    min-height: 250px;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+  }
+  .modal-actions { margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end; }
+  .modal-actions button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    background: white;
+  }
+  .modal-actions button.primary { background: #0f766e; color: white; border-color: #0f766e; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Comparison SMA — Strict Tagging Audit</h1>
+  <p>NB CP 046/2025 (autoritatif) vs Peta Turo (147 sub) vs Claude-direct (referensi). Tandai keputusan UNTAG/KEEP/ADD lalu export.</p>
+</header>
+
+<div class="toolbar">
+  
+    <button class="tab-btn active" data-kelas="10">K10</button>
+  
+    <button class="tab-btn " data-kelas="11">K11</button>
+  
+    <button class="tab-btn " data-kelas="12">K12</button>
+  
+  <button class="export-btn" onclick="showExport()">📋 Export Decisions</button>
+</div>
+
+
+    <div class="tab-content active" data-kelas="10">
+      
+    <section class="kelas-section" data-kelas="10">
+      <header class="kelas-header">
+        <h2>Kelas 10 <span class="fase">(Fase E)</span></h2>
+        <p class="fokus">Fase E — fondasi literasi numerasi: eksponen, vektor, trigonometri, statistika</p>
+        <div class="counts">
+          <span>NB: 8 bab</span>
+          <span>Turo: 9 bab</span>
+          <span>Claude-direct: 8 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K10.B1">
+        <div class="bab-header">
+          <span class="bab-id">K10.B1</span>
+          <span class="bab-name">Eksponen dan Logaritma</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Definisi dan Sifat Eksponen</li><li>Fungsi Eksponen (Pertumbuhan &amp; Peluruhan)</li><li>Bentuk Akar</li><li>Merasionalkan Akar</li><li>Definisi dan Sifat Logaritma</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B2">
+        <div class="bab-header">
+          <span class="bab-id">K10.B2</span>
+          <span class="bab-name">Barisan dan Deret</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Barisan Aritmetika</li><li>Barisan Geometri</li><li>Deret Aritmetika dan Geometri</li><li>Deret Geometri Tak Hingga</li><li>Aplikasi Bunga Tunggal dan Majemuk Dasar</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B3">
+        <div class="bab-header">
+          <span class="bab-id">K10.B3</span>
+          <span class="bab-name">Vektor dan Operasinya</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Notasi dan Terminologi Vektor</li><li>Vektor di R^2 dan R^3</li><li>Operasi Penjumlahan</li><li>Pengurangan, dan Perkalian Skalar Vektor</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B4">
+        <div class="bab-header">
+          <span class="bab-id">K10.B4</span>
+          <span class="bab-name">Trigonometri</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Perbandingan Trigonometri Segitiga Siku-siku</li><li>Tan \theta dan Aplikasinya</li><li>Sudut Istimewa</li><li>Pemanfaatan Trigonometri pada Piramida dan Konstruksi</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B5">
+        <div class="bab-header">
+          <span class="bab-id">K10.B5</span>
+          <span class="bab-name">Sistem Persamaan dan Pertidaksamaan Linear</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Sistem Persamaan Linear Tiga Variabel (SPLTV)</li><li>Sistem Pertidaksamaan Linear Dua Variabel (SPtLDV)</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B6">
+        <div class="bab-header">
+          <span class="bab-id">K10.B6</span>
+          <span class="bab-name">Fungsi Kuadrat</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Karakteristik Grafik Parabola</li><li>Titik Puncak dan Sumbu Simetri</li><li>Mengonstruksi Fungsi Kuadrat</li><li>Aplikasi Masalah Maksimum-Minimum</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B6">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B7">
+        <div class="bab-header">
+          <span class="bab-id">K10.B7</span>
+          <span class="bab-name">Statistika</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Histogram</li><li>Ukuran Pemusatan (Mean</li><li>Median</li><li>Modus)</li><li>Ukuran Penempatan (Kuartil</li><li>Persentil)</li><li>Ukuran Penyebaran (Varian</li><li>Simpangan Baku)</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B7">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K10.B8">
+        <div class="bab-header">
+          <span class="bab-id">K10.B8</span>
+          <span class="bab-name">Peluang</span>
+          <span class="badge badge-jalur">Wajib (Umum)</span>
+        </div>
+        <ul class="sub-list"><li>Distribusi Peluang</li><li>Aturan Penjumlahan</li><li>Kejadian Saling Lepas dan Tidak Saling Lepas</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K10.B8">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current)</h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Eksponen dan Fungsi Eksponen</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.10.B1.01</code> Review pangkat (bulat positif, nol, negatif, pecahan)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B1.02</code> Persamaan eksponen — basis sama
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B1.03</code> Persamaan eksponen — faktorisasi
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B1.04</code> Fungsi eksponen f(x) = a^x — grafik
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B1.05</code> Pertidaksamaan eksponen
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B1.06</code> Aplikasi — pertumbuhan bunga majemuk
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">Logaritma</span>
+          <span class="badge badge-bridge">Bridge</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-bridge">
+        <code>SMA.10.B2.01</code> Logaritma — invers eksponen
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.10.B2.02</code> Sifat-sifat logaritma (perkalian, pembagian, pangkat)
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.10.B2.03</code> Persamaan logaritma
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.10.B2.04</code> Fungsi logaritma — grafik
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.10.B2.05</code> Aplikasi logaritma (pH, skala Richter, desibel)
+      </li>
+    </ul>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Sistem Persamaan Linear Tiga Variabel (SPLTV) dan Nilai Mutlak</span>
+          <span class="badge badge-bridge">Bridge</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-bridge">
+        <code>SMA.10.B3.01</code> SPLTV — 3 persamaan, 3 variabel
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.10.B3.02</code> Aplikasi SPLTV (soal cerita)
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.10.B3.03</code> Nilai mutlak — definisi dan makna geometri
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.10.B3.04</code> Persamaan nilai mutlak
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.10.B3.05</code> Pertidaksamaan nilai mutlak
+      </li>
+    </ul>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Barisan dan Deret Lanjutan</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.10.B4.01</code> Review barisan &amp; deret aritmetika-geometri (dari K8)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B4.02</code> Notasi sigma (Σ)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B4.03</code> Deret geometri tak hingga konvergen
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.10.B4.04</code> Induksi matematika sederhana (pengantar)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B4.05</code> Bunga majemuk (perluasan K7)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B4.06</code> Anuitas sederhana
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Vektor</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.10.B5.01</code> Pengertian vektor — besar dan arah
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B5.02</code> Vektor di bidang koordinat — komponen
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B5.03</code> Operasi vektor — penjumlahan &amp; pengurangan
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B5.04</code> Perkalian skalar dengan vektor
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B5.05</code> Besar (magnitude) vektor — Pythagoras
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B5.06</code> Vektor di ruang R³ (pengantar)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B5.07</code> Perkalian dot (skalar) pengantar
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Fungsi Kuadrat (Lanjutan)</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.10.B6.01</code> Review fungsi kuadrat (dari K9)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B6.02</code> Bentuk kanonik — y = a(x − h)² + k
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B6.03</code> Pertidaksamaan kuadrat
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B6.04</code> Aplikasi optimasi (luas maksimum, tinggi lemparan)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Trigonometri Dasar</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.10.B7.01</code> Perbandingan trigonometri di segitiga siku-siku
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B7.02</code> Nilai trigonometri sudut istimewa (0°, 30°, 45°, 60°, 90°)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B7.03</code> Trigonometri sudut di kuadran (perluasan 0-360°)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B7.04</code> Grafik fungsi y = sin x dan y = cos x
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B7.05</code> Persamaan trigonometri sederhana
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B7.06</code> Aplikasi trigonometri (tinggi, jarak tidak langsung)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 8">
+        <div class="bab-header">
+          <span class="bab-id">Bab 8</span>
+          <span class="bab-name">Statistika Data Kelompok</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.10.B8.01</code> Data kelompok — tabel frekuensi
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B8.02</code> Histogram dan poligon frekuensi
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B8.03</code> Mean, median, modus data kelompok
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B8.04</code> Kuartil data kelompok &amp; box plot
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B8.05</code> Varians dan standar deviasi
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B8.06</code> Dot plot dan interpretasi bentuk distribusi
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 9">
+        <div class="bab-header">
+          <span class="bab-id">Bab 9</span>
+          <span class="bab-name">Peluang Lanjutan</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.10.B9.01</code> Review peluang dasar (dari K8)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B9.02</code> Kejadian saling lepas vs tidak saling lepas
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B9.03</code> Kejadian saling bebas vs tidak (dependent/independent)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B9.04</code> Frekuensi harapan
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.10.B9.05</code> Nilai harapan (ekspektasi)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 9">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 9">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B1</span>
+          <span class="bab-name">Eksponen dan Logaritma</span>
+        </div>
+        <ul class="sub-list"><li>Bilangan berpangkat bulat &amp; rasional</li><li>Sifat eksponen lengkap</li><li>Bentuk akar &amp; merasionalkan</li><li>Konsep logaritma (log a^x = x log a)</li><li>Sifat logaritma</li><li>Persamaan &amp; pertidaksamaan eksponen-logaritma</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B2</span>
+          <span class="bab-name">Sistem Persamaan Linear Tiga Variabel (SPLTV)</span>
+        </div>
+        <ul class="sub-list"><li>Konsep SPLTV</li><li>Metode eliminasi &amp; substitusi</li><li>Determinan (cara cepat sederhana)</li><li>Aplikasi soal cerita ekonomi/fisika</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B3</span>
+          <span class="bab-name">Pertidaksamaan Linear &amp; Nilai Mutlak</span>
+        </div>
+        <ul class="sub-list"><li>Pertidaksamaan linear satu variabel lanjut</li><li>Persamaan &amp; pertidaksamaan nilai mutlak |x|</li><li>Sifat |a + b| ≤ |a| + |b|</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B4</span>
+          <span class="bab-name">Fungsi Kuadrat &amp; Komposisi Fungsi</span>
+        </div>
+        <ul class="sub-list"><li>Fungsi kuadrat (review + lanjut)</li><li>Komposisi fungsi (f∘g)(x)</li><li>Fungsi invers</li><li>Domain &amp; range fungsi</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B5</span>
+          <span class="bab-name">Trigonometri Dasar</span>
+        </div>
+        <ul class="sub-list"><li>Perbandingan trigonometri segitiga siku-siku (sin, cos, tan)</li><li>Sudut istimewa (0°, 30°, 45°, 60°, 90°)</li><li>Identitas dasar (sin² + cos² = 1)</li><li>Aturan sinus &amp; cosinus</li><li>Aplikasi sudut elevasi-depresi</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B6</span>
+          <span class="bab-name">Vektor di Bidang</span>
+        </div>
+        <ul class="sub-list"><li>Konsep vektor (besaran &amp; arah)</li><li>Operasi vektor (penjumlahan, perkalian skalar)</li><li>Vektor satuan, panjang vektor</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B7</span>
+          <span class="bab-name">Statistika Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Mean, median, modus data berkelompok</li><li>Quartil, desil, persentil</li><li>Simpangan baku &amp; varians</li><li>Histogram, ogive</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K10.B8</span>
+          <span class="bab-name">Peluang &amp; Kombinatorik</span>
+        </div>
+        <ul class="sub-list"><li>Aturan pengisian tempat (kaidah perkalian)</li><li>Permutasi &amp; kombinasi</li><li>Peluang kejadian majemuk</li><li>Peluang bersyarat</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+    <div class="tab-content " data-kelas="11">
+      
+    <section class="kelas-section" data-kelas="11">
+      <header class="kelas-header">
+        <h2>Kelas 11 <span class="fase">(Fase F)</span></h2>
+        <p class="fokus">Fase F — spesialisasi: komposisi fungsi, lingkaran, regresi (Wajib) + bilangan kompleks, polinomial, matriks (Lanjut)</p>
+        <div class="counts">
+          <span>NB: 8 bab</span>
+          <span>Turo: 11 bab</span>
+          <span>Claude-direct: 7 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K11.B1">
+        <div class="bab-header">
+          <span class="bab-id">K11.B1</span>
+          <span class="bab-name">Komposisi Fungsi dan Fungsi Invers</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Fungsi dan Bukan Fungsi</li><li>Domain</li><li>Kodomain</li><li>Range</li><li>Operasi Aljabar Fungsi</li><li>Komposisi Fungsi (f \circ g)</li><li>Fungsi Invers</li><li>Fungsi Bijektif</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B2">
+        <div class="bab-header">
+          <span class="bab-id">K11.B2</span>
+          <span class="bab-name">Lingkaran</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Unsur Lingkaran (Busur</li><li>Juring)</li><li>Panjang Busur dan Luas Juring</li><li>Garis Singgung Lingkaran</li><li>Tali Busur</li><li>Sudut Pusat dan Keliling</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B3">
+        <div class="bab-header">
+          <span class="bab-id">K11.B3</span>
+          <span class="bab-name">Statistika dan Regresi Linear</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Diagram Pencar (Scatter Plot)</li><li>Regresi Linear (Metode Kuadrat Terkecil)</li><li>Analisis Korelasi (Pearson)</li><li>Koefisien Determinasi</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B4">
+        <div class="bab-header">
+          <span class="bab-id">K11.B4</span>
+          <span class="bab-name">Bilangan Kompleks</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Definisi z = a + bi</li><li>Operasi Aljabar Kompleks</li><li>Konjugat</li><li>Modulus</li><li>Argumen</li><li>Representasi Bidang Kompleks</li><li>Bentuk Polar/Eksponen</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B5">
+        <div class="bab-header">
+          <span class="bab-id">K11.B5</span>
+          <span class="bab-name">Polinomial (Suku Banyak)</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Fungsi Polinomial</li><li>Operasi Polinomial</li><li>Pembagian Polinomial (Horner/Bersusun)</li><li>Teorema Sisa</li><li>Teorema Faktor</li><li>Identitas Polinomial</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B6">
+        <div class="bab-header">
+          <span class="bab-id">K11.B6</span>
+          <span class="bab-name">Matriks</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Konsep Matriks</li><li>Jenis Matriks</li><li>Kesamaan Matriks</li><li>Operasi Aljabar Matriks</li><li>Determinan dan Invers Matriks 2 \times 2 dan 3 \times 3</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B6">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B7">
+        <div class="bab-header">
+          <span class="bab-id">K11.B7</span>
+          <span class="bab-name">Transformasi Geometri</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Translasi</li><li>Refleksi</li><li>Rotasi</li><li>Dilatasi</li><li>Kaitan Matriks dengan Transformasi</li><li>Komposisi Transformasi menggunakan Operasi Matriks</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B7">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K11.B8">
+        <div class="bab-header">
+          <span class="bab-id">K11.B8</span>
+          <span class="bab-name">Fungsi dan Pemodelan</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Fungsi Trigonometri</li><li>Fungsi Logaritma</li><li>Fungsi Eksponensial</li><li>Fungsi Rasional</li><li>Fungsi Akar</li><li>Fungsi Nilai Mutlak</li><li>Fungsi Piecewise</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K11.B8">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current)</h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Fungsi Komposisi dan Invers</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.11.B1.01</code> Fungsi komposisi — (f∘g)(x) = f(g(x))
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B1.02</code> Sifat komposisi — tidak komutatif
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B1.03</code> Fungsi invers — membalikkan mesin
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B1.04</code> Menentukan rumus fungsi invers
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B1.05</code> Komposisi fungsi dengan invers — f∘f⁻¹ = I
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">Matriks</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.11.B2.01</code> Pengertian matriks — ordo, elemen
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B2.02</code> Operasi matriks — +/−/× skalar
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B2.03</code> Perkalian matriks — baris × kolom
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B2.04</code> Matriks identitas dan transpose
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B2.05</code> Determinan matriks 2×2 dan 3×3
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B2.06</code> Invers matriks 2×2
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.11.B2.07</code> Aplikasi matriks — SPLDV/SPLTV dengan matriks
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Program Linear</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.11.B3.01</code> Sistem pertidaksamaan linear dua variabel
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B3.02</code> Fungsi objektif/tujuan
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B3.03</code> Metode titik pojok (corner point)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B3.04</code> Aplikasi — produksi, transportasi, diet
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Trigonometri Lanjutan</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.11.B4.01</code> Aturan sinus — a/sin A = b/sin B = c/sin C
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B4.02</code> Aturan cosinus — c² = a² + b² − 2ab cos C
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B4.03</code> Luas segitiga L = (1/2)ab sin C
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B4.04</code> Identitas trigonometri dasar (sin² + cos² = 1)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B4.05</code> Identitas sudut jumlah dan selisih
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B4.06</code> Fungsi sinusoida y = A sin(Bx + C) + D
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Lingkaran Analitik</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.11.B5.01</code> Persamaan lingkaran berpusat (0,0)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B5.02</code> Persamaan lingkaran berpusat (a,b)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B5.03</code> Bentuk umum dan konversi
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B5.04</code> Garis singgung di titik lingkaran
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B5.05</code> Garis singgung dari titik luar
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Logika Matematika [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.11.B6.01</code> Proposisi — pernyataan benar/salah
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B6.02</code> Negasi, konjungsi (∧), disjungsi (∨)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B6.03</code> Implikasi (⇒) dan biimplikasi (⇔)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B6.04</code> Konvers, invers, kontrapositif
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B6.05</code> Penarikan kesimpulan (modus ponens, tollens, silogisme)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Induksi Matematika [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.11.B7.01</code> Prinsip induksi — base case &amp; induction step
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B7.02</code> Pembuktian identitas aritmetika — 1+2+...+n = n(n+1)/2
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B7.03</code> Pembuktian keterbagian — contoh: 2^n &gt; n
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B7.04</code> Keterbatasan induksi
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 8">
+        <div class="bab-header">
+          <span class="bab-id">Bab 8</span>
+          <span class="bab-name">Polinomial dan Bilangan Kompleks [Mat TL]</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.11.B8.01</code> Polinomial — definisi, derajat, operasi
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B8.02</code> Pembagian polinomial — long division &amp; sintetik
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B8.03</code> Teorema sisa dan teorema faktor
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B8.04</code> Akar-akar polinomial dan Vieta
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.11.B8.05</code> Bilangan kompleks — i = √(−1)
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.11.B8.06</code> Operasi bilangan kompleks
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 9">
+        <div class="bab-header">
+          <span class="bab-id">Bab 9</span>
+          <span class="bab-name">Limit Fungsi Aljabar [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.11.B9.01</code> Konsep limit — mendekati tapi tidak harus sampai
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B9.02</code> Sifat dasar limit
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B9.03</code> Limit bentuk tak tentu 0/0
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B9.04</code> Limit di tak hingga
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 9">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 9">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 10">
+        <div class="bab-header">
+          <span class="bab-id">Bab 10</span>
+          <span class="bab-name">Turunan Fungsi Aljabar [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.11.B10.01</code> Laju perubahan rata-rata
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B10.02</code> Turunan sebagai limit — f'(x) = lim (f(x+h)−f(x))/h
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B10.03</code> Aturan turunan pangkat
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B10.04</code> Aturan penjumlahan, perkalian konstanta
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B10.05</code> Aturan perkalian &amp; pembagian
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B10.06</code> Aturan rantai (chain rule)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 10">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 10">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 11">
+        <div class="bab-header">
+          <span class="bab-id">Bab 11</span>
+          <span class="bab-name">Regresi Linear dan Korelasi [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.11.B11.01</code> Review scatter plot (dari K9) dan korelasi visual
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B11.02</code> Garis regresi — 'best fit line'
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B11.03</code> Rumus regresi linear — y = a + bx
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B11.04</code> Koefisien korelasi Pearson (r)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.11.B11.05</code> Prediksi &amp; keterbatasan regresi
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 11">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 11">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B1</span>
+          <span class="bab-name">Polinomial</span>
+        </div>
+        <ul class="sub-list"><li>Operasi polinomial (penjumlahan, pengurangan, perkalian, pembagian)</li><li>Teorema sisa &amp; teorema faktor</li><li>Akar-akar polinomial</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B2</span>
+          <span class="bab-name">Trigonometri Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Identitas trigonometri (jumlah-selisih sudut)</li><li>Persamaan trigonometri</li><li>Pertidaksamaan trigonometri sederhana</li><li>Grafik fungsi trigonometri</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B3</span>
+          <span class="bab-name">Lingkaran (Geometri Analitik)</span>
+        </div>
+        <ul class="sub-list"><li>Persamaan lingkaran (x-a)² + (y-b)² = r²</li><li>Persamaan umum x² + y² + Ax + By + C = 0</li><li>Garis singgung lingkaran</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B4</span>
+          <span class="bab-name">Limit Fungsi</span>
+        </div>
+        <ul class="sub-list"><li>Konsep limit (intuitif)</li><li>Limit fungsi aljabar</li><li>Limit di tak hingga</li><li>Limit fungsi trigonometri</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B5</span>
+          <span class="bab-name">Turunan (Diferensial)</span>
+        </div>
+        <ul class="sub-list"><li>Konsep turunan (definisi limit)</li><li>Aturan turunan (pangkat, jumlah, hasil kali, hasil bagi)</li><li>Aturan rantai</li><li>Turunan fungsi trigonometri</li><li>Aplikasi turunan: kemonotonan, ekstrim, optimasi</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B6</span>
+          <span class="bab-name">Logika Matematika</span>
+        </div>
+        <ul class="sub-list"><li>Pernyataan &amp; nilai kebenaran</li><li>Operasi logika (negasi, konjungsi, disjungsi, implikasi, biimplikasi)</li><li>Tabel kebenaran</li><li>Penarikan kesimpulan (modus ponens, tollens, silogisme)</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K11.B7</span>
+          <span class="bab-name">Geometri Ruang (Dimensi 3)</span>
+        </div>
+        <ul class="sub-list"><li>Kedudukan titik, garis, bidang dalam ruang</li><li>Jarak titik ke titik/garis/bidang</li><li>Sudut antara garis-garis, garis-bidang, bidang-bidang</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+    <div class="tab-content " data-kelas="12">
+      
+    <section class="kelas-section" data-kelas="12">
+      <header class="kelas-header">
+        <h2>Kelas 12 <span class="fase">(Fase F)</span></h2>
+        <p class="fokus">Fase F finalisasi: matematika keuangan, kombinatorik, kalkulus (Lanjut)</p>
+        <div class="counts">
+          <span>NB: 8 bab</span>
+          <span>Turo: 9 bab</span>
+          <span>Claude-direct: 6 bab</span>
+        </div>
+      </header>
+
+      <div class="three-col">
+        <div class="col col-nb">
+          <h3>📘 NotebookLM CP 046 (autoritatif)</h3>
+          
+      <div class="bab-card nb-card" data-bab-id="K12.B1">
+        <div class="bab-header">
+          <span class="bab-id">K12.B1</span>
+          <span class="bab-name">Matematika Keuangan</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Bunga Tunggal dan Majemuk</li><li>Pinjaman dan Investasi</li><li>Anuitas (Tetap &amp; Menurun)</li><li>Cicilan dan Kredit</li><li>Simulasi Tabungan/Deposito</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B1">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B2">
+        <div class="bab-header">
+          <span class="bab-id">K12.B2</span>
+          <span class="bab-name">Geometri Lingkaran (Lanjutan)</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Busur dan Juring Lingkaran</li><li>Hubungan Panjang Busur dan Luas Juring</li><li>Teorema Lingkaran</li><li>Aplikasi Geometri pada Lokasi di Permukaan Bumi</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B2">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B3">
+        <div class="bab-header">
+          <span class="bab-id">K12.B3</span>
+          <span class="bab-name">Kombinatorik dan Peluang</span>
+          <span class="badge badge-jalur">Wajib</span>
+        </div>
+        <ul class="sub-list"><li>Aturan Pengisian Tempat</li><li>Permutasi dan Kombinasi</li><li>Peluang Suatu Kejadian</li><li>Peluang Kejadian Majemuk Saling Bebas dan Bersyarat</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B3">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B4">
+        <div class="bab-header">
+          <span class="bab-id">K12.B4</span>
+          <span class="bab-name">Geometri Analitik (Irisan Kerucut)</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Persamaan Lingkaran dan Garis Singgung</li><li>Persamaan Parabola</li><li>Elips, dan Hiperbola</li><li>Kedudukan Titik/Garis terhadap Kurva</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B4">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B5">
+        <div class="bab-header">
+          <span class="bab-id">K12.B5</span>
+          <span class="bab-name">Limit Fungsi</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Definisi Limit</li><li>Sifat-sifat Limit</li><li>Limit Fungsi Aljabar dan Trigonometri</li><li>Aplikasi Limit dalam Kecepatan dan Laju Perubahan</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B5">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B6">
+        <div class="bab-header">
+          <span class="bab-id">K12.B6</span>
+          <span class="bab-name">Turunan Fungsi (Diferensial)</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Definisi Turunan</li><li>Turunan Fungsi Aljabar dan Trigonometri</li><li>Titik Ekstrem (Maks/Min)</li><li>Fungsi Naik/Turun</li><li>Aplikasi Optimasi dan Gradien</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B6">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B7">
+        <div class="bab-header">
+          <span class="bab-id">K12.B7</span>
+          <span class="bab-name">Integral Fungsi</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Integral Tak Tentu dan Tentu</li><li>Penerapan Integral (Luas Daerah &amp; Volume Benda Putar)</li><li>Teorema Dasar Kalkulus</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B7">➕ ADD ke Turo</button>
+        </div>
+      </div>
+      <div class="bab-card nb-card" data-bab-id="K12.B8">
+        <div class="bab-header">
+          <span class="bab-id">K12.B8</span>
+          <span class="bab-name">Analisis Data dan Peluang Lanjut</span>
+          <span class="badge badge-jalur">Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Variabel Acak Diskrit</li><li>Distribusi Seragam</li><li>Distribusi Binomial</li><li>Distribusi Normal</li><li>Nilai Harapan (Ekspektasi)</li></ul>
+        <div class="actions">
+          <button class="btn btn-add" data-action="add" data-key="add:K12.B8">➕ ADD ke Turo</button>
+        </div>
+      </div>
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Peta Turo (current)</h3>
+          
+      <div class="bab-card turo-card" data-bab-kode="Bab 1">
+        <div class="bab-header">
+          <span class="bab-id">Bab 1</span>
+          <span class="bab-name">Transformasi Fungsi</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.12.B1.01</code> Geseran (translasi) vertikal dan horizontal
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B1.02</code> Refleksi — terhadap sumbu x dan y
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B1.03</code> Dilatasi — perbesaran/pengecilan vertikal &amp; horizontal
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B1.04</code> Komposisi transformasi
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 2">
+        <div class="bab-header">
+          <span class="bab-id">Bab 2</span>
+          <span class="bab-name">Aplikasi Turunan [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.12.B2.01</code> Interpretasi turunan — gradien garis singgung
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B2.02</code> Fungsi naik, turun, stasioner
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B2.03</code> Nilai maksimum &amp; minimum lokal
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B2.04</code> Aplikasi optimasi (luas, volume, biaya)
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 3">
+        <div class="bab-header">
+          <span class="bab-id">Bab 3</span>
+          <span class="bab-name">Integral Tak Tentu dan Tentu [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.12.B3.01</code> Antiturunan — 'balik dari turunan'
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B3.02</code> Aturan integral pangkat
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B3.03</code> Sifat integral — linearitas
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B3.04</code> Integral tentu — luas di bawah kurva
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B3.05</code> Teorema fundamental kalkulus
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 4">
+        <div class="bab-header">
+          <span class="bab-id">Bab 4</span>
+          <span class="bab-name">Teknik Integrasi [Mat TL]</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.12.B4.01</code> Integral substitusi (u-substitution)
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.12.B4.02</code> Integral parsial
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B4.03</code> Integral fungsi trigonometri dasar
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 5">
+        <div class="bab-header">
+          <span class="bab-id">Bab 5</span>
+          <span class="bab-name">Aplikasi Integral [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.12.B5.01</code> Luas daerah di bawah kurva
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B5.02</code> Luas antara dua kurva
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B5.03</code> Volume benda putar — metode cakram
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B5.04</code> Volume benda putar — metode kulit silinder
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 6">
+        <div class="bab-header">
+          <span class="bab-id">Bab 6</span>
+          <span class="bab-name">Dimensi Tiga</span>
+          <span class="badge badge-mixed">Mixed</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.12.B6.01</code> Titik, garis, bidang dalam ruang
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.12.B6.02</code> Jarak titik ke titik
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.12.B6.03</code> Jarak titik ke garis
+      </li>
+    
+      <li class="sub-bridge">
+        <code>SMA.12.B6.04</code> Jarak titik ke bidang
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B6.05</code> Sudut antara dua garis, garis-bidang, bidang-bidang
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 7">
+        <div class="bab-header">
+          <span class="bab-id">Bab 7</span>
+          <span class="bab-name">Irisan Kerucut [Mat TL]</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.12.B7.01</code> Irisan kerucut — asal geometri
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B7.02</code> Parabola analitik — persamaan dan fokus-direktris
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B7.03</code> Elips analitik — persamaan dan fokus
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B7.04</code> Hiperbola analitik — persamaan dan asimtot
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 8">
+        <div class="bab-header">
+          <span class="bab-id">Bab 8</span>
+          <span class="bab-name">Kombinatorika</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.12.B8.01</code> Prinsip perkalian dan penjumlahan
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B8.02</code> Faktorial n!
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B8.03</code> Permutasi — urutan penting
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B8.04</code> Kombinasi — urutan tidak penting
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B8.05</code> Binomial teorema
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+      <div class="bab-card turo-card" data-bab-kode="Bab 9">
+        <div class="bab-header">
+          <span class="bab-id">Bab 9</span>
+          <span class="bab-name">Peluang Bersyarat dan Distribusi</span>
+          <span class="badge badge-strict">All Strict</span>
+        </div>
+        <ul class="sub-list">
+      <li class="sub-strict">
+        <code>SMA.12.B9.01</code> Peluang bersyarat — P(A|B)
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B9.02</code> Teorema Bayes
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B9.03</code> Variabel acak diskrit
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B9.04</code> Distribusi binomial
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B9.05</code> Distribusi normal — kurva lonceng
+      </li>
+    
+      <li class="sub-strict">
+        <code>SMA.12.B9.06</code> Skor-Z dan standarisasi
+      </li>
+    </ul>
+        
+          <div class="actions">
+            <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 9">🌉 UNTAG → Bridge</button>
+            <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 9">✓ KEEP Strict</button>
+          </div>
+        
+      </div>
+        </div>
+        <div class="col col-cd">
+          <h3>🤖 Claude-direct (referensi)</h3>
+          
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B1</span>
+          <span class="bab-name">Integral</span>
+        </div>
+        <ul class="sub-list"><li>Antiderivative (integral tak tentu)</li><li>Integral fungsi aljabar &amp; trigonometri</li><li>Integral substitusi</li><li>Integral parsial</li><li>Integral tentu</li><li>Aplikasi: luas daerah, volume benda putar</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B2</span>
+          <span class="bab-name">Matriks</span>
+        </div>
+        <ul class="sub-list"><li>Konsep matriks &amp; operasi (jumlah, kurang, kali skalar, kali matriks)</li><li>Determinan matriks 2×2 dan 3×3</li><li>Invers matriks</li><li>Aplikasi matriks untuk SPLTV</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B3</span>
+          <span class="bab-name">Vektor di Ruang (R³)</span>
+        </div>
+        <ul class="sub-list"><li>Vektor dalam R³</li><li>Operasi vektor (jumlah, kurang, perkalian skalar)</li><li>Perkalian dot dan cross product</li><li>Sudut antara dua vektor</li><li>Proyeksi vektor</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B4</span>
+          <span class="bab-name">Transformasi Geometri Lanjut</span>
+        </div>
+        <ul class="sub-list"><li>Translasi, refleksi, rotasi, dilatasi (review SMP + lanjut)</li><li>Komposisi transformasi</li><li>Matriks transformasi</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B5</span>
+          <span class="bab-name">Statistika Inferensial</span>
+        </div>
+        <ul class="sub-list"><li>Distribusi peluang variabel acak</li><li>Distribusi binomial</li><li>Distribusi normal (kurva normal)</li><li>Tabel z dan probabilitas</li></ul>
+      </div>
+      <div class="bab-card cd-card">
+        <div class="bab-header">
+          <span class="bab-id">K12.B6</span>
+          <span class="bab-name">Limit Fungsi Trigonometri &amp; L'Hopital</span>
+        </div>
+        <ul class="sub-list"><li>Limit khusus trigonometri (lim sin x / x = 1)</li><li>Aturan L'Hopital (pengenalan)</li><li>Bentuk tak tentu 0/0, ∞/∞</li></ul>
+      </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  
+
+<div class="modal" id="exportModal">
+  <div class="modal-content">
+    <h2>Export Decisions</h2>
+    <p style="color:#64748b; font-size:13px;">Copy text di bawah → kirim ke Claude untuk apply ke peta-prasyarat.json.</p>
+    <textarea id="exportText" readonly></textarea>
+    <div class="modal-actions">
+      <button onclick="copyExport()">📋 Copy</button>
+      <button class="primary" onclick="document.getElementById('exportModal').classList.remove('show')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const decisions = { untag: [], keep: [], add: [] };
+
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const k = btn.dataset.kelas;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.kelas === k));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.dataset.kelas === k));
+      window.scrollTo(0, 0);
+    });
+  });
+
+  // Action button toggling
+  document.querySelectorAll('button[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      const key = btn.dataset.key;
+      const card = btn.closest('.bab-card');
+      const wasActive = btn.classList.contains('active');
+
+      // Untuk turo card: untag & keep mutually exclusive
+      if (action === 'untag' || action === 'keep') {
+        card.querySelectorAll('button[data-action="untag"], button[data-action="keep"]').forEach(b => b.classList.remove('active'));
+        card.classList.remove('marked-untag', 'marked-keep');
+        // Remove from arrays
+        decisions.untag = decisions.untag.filter(d => d.key !== key.replace(/^(untag|keep):/, 'untag:').replace(/^keep:/, 'untag:'));
+        decisions.keep = decisions.keep.filter(d => d.key !== key.replace(/^(untag|keep):/, 'keep:'));
+      }
+
+      if (!wasActive) {
+        btn.classList.add('active');
+        if (action === 'untag') {
+          card.classList.add('marked-untag');
+          decisions.untag.push({ key, babKode: card.dataset.babKode });
+        } else if (action === 'keep') {
+          card.classList.add('marked-keep');
+          decisions.keep.push({ key, babKode: card.dataset.babKode });
+        } else if (action === 'add') {
+          card.classList.add('marked-add');
+          decisions.add.push({ key, babId: card.dataset.babId });
+        }
+      } else if (action === 'add') {
+        card.classList.remove('marked-add');
+        decisions.add = decisions.add.filter(d => d.key !== key);
+      }
+
+      updateExport();
+    });
+  });
+
+  function updateExport() {
+    const out = {
+      jenjang: 'SMA',
+      generated: new Date().toISOString(),
+      untag_bab_kodes: decisions.untag.map(d => d.babKode),
+      keep_strict_bab_kodes: decisions.keep.map(d => d.babKode),
+      add_nb_bab_ids: decisions.add.map(d => d.babId),
+    };
+    document.getElementById('exportText').value = JSON.stringify(out, null, 2);
+  }
+
+  function showExport() {
+    updateExport();
+    document.getElementById('exportModal').classList.add('show');
+  }
+
+  function copyExport() {
+    const ta = document.getElementById('exportText');
+    ta.select();
+    document.execCommand('copy');
+    alert('Copied!');
+  }
+</script>
+
+</body>
+</html>

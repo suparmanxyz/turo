@@ -1,0 +1,333 @@
+{
+  "_meta": {
+    "source": "notebooklm-deep-research",
+    "model": "Gemini Deep Research (NotebookLM Pro)",
+    "domain": "reguler-sma",
+    "generated_at": "2026-05-03",
+    "kurikulum": "BSKAP No. 046/H/KR/2025 — Kurikulum Merdeka",
+    "regulasi_pengganti": "BSKAP 032/H/KR/2024 (kini tidak berlaku)",
+    "berlaku_sejak": "16 Juli 2025",
+    "filosofi": "Deep learning — bukan transfer prosedural, tapi membangun number sense + literasi numerasi + reasoning kritis",
+    "scope": "SMA K10-K12 (Fase E: K10, Fase F: K11-K12 dengan jalur Wajib & Lanjut)",
+    "report_size_chars": 32024,
+    "sources_count": 72,
+    "report_file": "reguler-sma-report.md",
+    "sources_file": "reguler-sma-sources.json",
+    "extraction_method": "automated parser (extract-taxonomy.mjs)"
+  },
+  "elemen_cp046": [
+    "Bilangan",
+    "Aljabar dan Fungsi",
+    "Geometri",
+    "Analisis Data dan Peluang"
+  ],
+  "kelas": [
+    {
+      "kelas": 10,
+      "fase": "E",
+      "fokus": "Fase E — fondasi literasi numerasi: eksponen, vektor, trigonometri, statistika",
+      "bab": [
+        {
+          "id": "K10.B1",
+          "nama": "Eksponen dan Logaritma",
+          "sub_bab": [
+            "Definisi dan Sifat Eksponen",
+            "Fungsi Eksponen (Pertumbuhan & Peluruhan)",
+            "Bentuk Akar",
+            "Merasionalkan Akar",
+            "Definisi dan Sifat Logaritma"
+          ],
+          "jalur": "Wajib (Umum)"
+        },
+        {
+          "id": "K10.B2",
+          "nama": "Barisan dan Deret",
+          "sub_bab": [
+            "Barisan Aritmetika",
+            "Barisan Geometri",
+            "Deret Aritmetika dan Geometri",
+            "Deret Geometri Tak Hingga",
+            "Aplikasi Bunga Tunggal dan Majemuk Dasar"
+          ],
+          "jalur": "Wajib (Umum)"
+        },
+        {
+          "id": "K10.B3",
+          "nama": "Vektor dan Operasinya",
+          "sub_bab": [
+            "Notasi dan Terminologi Vektor",
+            "Vektor di R^2 dan R^3",
+            "Operasi Penjumlahan",
+            "Pengurangan, dan Perkalian Skalar Vektor"
+          ],
+          "jalur": "Wajib (Umum)"
+        },
+        {
+          "id": "K10.B4",
+          "nama": "Trigonometri",
+          "sub_bab": [
+            "Perbandingan Trigonometri Segitiga Siku-siku",
+            "Tan \\theta dan Aplikasinya",
+            "Sudut Istimewa",
+            "Pemanfaatan Trigonometri pada Piramida dan Konstruksi"
+          ],
+          "jalur": "Wajib (Umum)"
+        },
+        {
+          "id": "K10.B5",
+          "nama": "Sistem Persamaan dan Pertidaksamaan Linear",
+          "sub_bab": [
+            "Sistem Persamaan Linear Tiga Variabel (SPLTV)",
+            "Sistem Pertidaksamaan Linear Dua Variabel (SPtLDV)"
+          ],
+          "jalur": "Wajib (Umum)"
+        },
+        {
+          "id": "K10.B6",
+          "nama": "Fungsi Kuadrat",
+          "sub_bab": [
+            "Karakteristik Grafik Parabola",
+            "Titik Puncak dan Sumbu Simetri",
+            "Mengonstruksi Fungsi Kuadrat",
+            "Aplikasi Masalah Maksimum-Minimum"
+          ],
+          "jalur": "Wajib (Umum)"
+        },
+        {
+          "id": "K10.B7",
+          "nama": "Statistika",
+          "sub_bab": [
+            "Histogram",
+            "Ukuran Pemusatan (Mean",
+            "Median",
+            "Modus)",
+            "Ukuran Penempatan (Kuartil",
+            "Persentil)",
+            "Ukuran Penyebaran (Varian",
+            "Simpangan Baku)"
+          ],
+          "jalur": "Wajib (Umum)"
+        },
+        {
+          "id": "K10.B8",
+          "nama": "Peluang",
+          "sub_bab": [
+            "Distribusi Peluang",
+            "Aturan Penjumlahan",
+            "Kejadian Saling Lepas dan Tidak Saling Lepas"
+          ],
+          "jalur": "Wajib (Umum)"
+        }
+      ]
+    },
+    {
+      "kelas": 11,
+      "fase": "F",
+      "fokus": "Fase F — spesialisasi: komposisi fungsi, lingkaran, regresi (Wajib) + bilangan kompleks, polinomial, matriks (Lanjut)",
+      "bab": [
+        {
+          "id": "K11.B1",
+          "nama": "Komposisi Fungsi dan Fungsi Invers",
+          "sub_bab": [
+            "Fungsi dan Bukan Fungsi",
+            "Domain",
+            "Kodomain",
+            "Range",
+            "Operasi Aljabar Fungsi",
+            "Komposisi Fungsi (f \\circ g)",
+            "Fungsi Invers",
+            "Fungsi Bijektif"
+          ],
+          "jalur": "Wajib"
+        },
+        {
+          "id": "K11.B2",
+          "nama": "Lingkaran",
+          "sub_bab": [
+            "Unsur Lingkaran (Busur",
+            "Juring)",
+            "Panjang Busur dan Luas Juring",
+            "Garis Singgung Lingkaran",
+            "Tali Busur",
+            "Sudut Pusat dan Keliling"
+          ],
+          "jalur": "Wajib"
+        },
+        {
+          "id": "K11.B3",
+          "nama": "Statistika dan Regresi Linear",
+          "sub_bab": [
+            "Diagram Pencar (Scatter Plot)",
+            "Regresi Linear (Metode Kuadrat Terkecil)",
+            "Analisis Korelasi (Pearson)",
+            "Koefisien Determinasi"
+          ],
+          "jalur": "Wajib"
+        },
+        {
+          "id": "K11.B4",
+          "nama": "Bilangan Kompleks",
+          "sub_bab": [
+            "Definisi z = a + bi",
+            "Operasi Aljabar Kompleks",
+            "Konjugat",
+            "Modulus",
+            "Argumen",
+            "Representasi Bidang Kompleks",
+            "Bentuk Polar/Eksponen"
+          ],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K11.B5",
+          "nama": "Polinomial (Suku Banyak)",
+          "sub_bab": [
+            "Fungsi Polinomial",
+            "Operasi Polinomial",
+            "Pembagian Polinomial (Horner/Bersusun)",
+            "Teorema Sisa",
+            "Teorema Faktor",
+            "Identitas Polinomial"
+          ],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K11.B6",
+          "nama": "Matriks",
+          "sub_bab": [
+            "Konsep Matriks",
+            "Jenis Matriks",
+            "Kesamaan Matriks",
+            "Operasi Aljabar Matriks",
+            "Determinan dan Invers Matriks 2 \\times 2 dan 3 \\times 3"
+          ],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K11.B7",
+          "nama": "Transformasi Geometri",
+          "sub_bab": [
+            "Translasi",
+            "Refleksi",
+            "Rotasi",
+            "Dilatasi",
+            "Kaitan Matriks dengan Transformasi",
+            "Komposisi Transformasi menggunakan Operasi Matriks"
+          ],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K11.B8",
+          "nama": "Fungsi dan Pemodelan",
+          "sub_bab": [
+            "Fungsi Trigonometri",
+            "Fungsi Logaritma",
+            "Fungsi Eksponensial",
+            "Fungsi Rasional",
+            "Fungsi Akar",
+            "Fungsi Nilai Mutlak",
+            "Fungsi Piecewise"
+          ],
+          "jalur": "Lanjut"
+        }
+      ]
+    },
+    {
+      "kelas": 12,
+      "fase": "F",
+      "fokus": "Fase F finalisasi: matematika keuangan, kombinatorik, kalkulus (Lanjut)",
+      "bab": [
+        {
+          "id": "K12.B1",
+          "nama": "Matematika Keuangan",
+          "sub_bab": [
+            "Bunga Tunggal dan Majemuk",
+            "Pinjaman dan Investasi",
+            "Anuitas (Tetap & Menurun)",
+            "Cicilan dan Kredit",
+            "Simulasi Tabungan/Deposito"
+          ],
+          "jalur": "Wajib"
+        },
+        {
+          "id": "K12.B2",
+          "nama": "Geometri Lingkaran (Lanjutan)",
+          "sub_bab": [
+            "Busur dan Juring Lingkaran",
+            "Hubungan Panjang Busur dan Luas Juring",
+            "Teorema Lingkaran",
+            "Aplikasi Geometri pada Lokasi di Permukaan Bumi"
+          ],
+          "jalur": "Wajib"
+        },
+        {
+          "id": "K12.B3",
+          "nama": "Kombinatorik dan Peluang",
+          "sub_bab": [
+            "Aturan Pengisian Tempat",
+            "Permutasi dan Kombinasi",
+            "Peluang Suatu Kejadian",
+            "Peluang Kejadian Majemuk Saling Bebas dan Bersyarat"
+          ],
+          "jalur": "Wajib"
+        },
+        {
+          "id": "K12.B4",
+          "nama": "Geometri Analitik (Irisan Kerucut)",
+          "sub_bab": [
+            "Persamaan Lingkaran dan Garis Singgung",
+            "Persamaan Parabola",
+            "Elips, dan Hiperbola",
+            "Kedudukan Titik/Garis terhadap Kurva"
+          ],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K12.B5",
+          "nama": "Limit Fungsi",
+          "sub_bab": [
+            "Definisi Limit",
+            "Sifat-sifat Limit",
+            "Limit Fungsi Aljabar dan Trigonometri",
+            "Aplikasi Limit dalam Kecepatan dan Laju Perubahan"
+          ],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K12.B6",
+          "nama": "Turunan Fungsi (Diferensial)",
+          "sub_bab": [
+            "Definisi Turunan",
+            "Turunan Fungsi Aljabar dan Trigonometri",
+            "Titik Ekstrem (Maks/Min)",
+            "Fungsi Naik/Turun",
+            "Aplikasi Optimasi dan Gradien"
+          ],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K12.B7",
+          "nama": "Integral Fungsi",
+          "sub_bab": [
+            "Integral Tak Tentu dan Tentu",
+            "Penerapan Integral (Luas Daerah & Volume Benda Putar)",
+            "Teorema Dasar Kalkulus"
+          ],
+          "jalur": "Lanjut"
+        },
+        {
+          "id": "K12.B8",
+          "nama": "Analisis Data dan Peluang Lanjut",
+          "sub_bab": [
+            "Variabel Acak Diskrit",
+            "Distribusi Seragam",
+            "Distribusi Binomial",
+            "Distribusi Normal",
+            "Nilai Harapan (Ekspektasi)"
+          ],
+          "jalur": "Lanjut"
+        }
+      ]
+    }
+  ]
+}

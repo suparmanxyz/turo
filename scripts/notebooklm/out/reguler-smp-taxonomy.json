@@ -1,0 +1,219 @@
+{
+  "_meta": {
+    "source": "notebooklm-deep-research",
+    "model": "Gemini Deep Research (NotebookLM Pro)",
+    "domain": "reguler-smp",
+    "generated_at": "2026-05-03",
+    "kurikulum": "BSKAP No. 046/H/KR/2025 — Kurikulum Merdeka",
+    "regulasi_pengganti": "BSKAP 032/H/KR/2024 (kini tidak berlaku)",
+    "berlaku_sejak": "16 Juli 2025",
+    "filosofi": "Deep learning — bukan transfer prosedural, tapi membangun number sense + literasi numerasi + reasoning kritis",
+    "scope": "SMP K7-K9 (Fase D)",
+    "report_size_chars": 28156,
+    "sources_count": 57,
+    "report_file": "reguler-smp-report.md",
+    "sources_file": "reguler-smp-sources.json",
+    "extraction_method": "automated parser (extract-taxonomy.mjs)"
+  },
+  "elemen_cp046": [
+    "Bilangan",
+    "Aljabar",
+    "Pengukuran",
+    "Geometri",
+    "Analisis Data dan Peluang"
+  ],
+  "kelas": [
+    {
+      "kelas": 7,
+      "fase": "D",
+      "fokus": "Fondasi transisi kognitif: bilangan bulat, pengenalan aljabar, kesebangunan",
+      "bab": [
+        {
+          "id": "K7.B1",
+          "nama": "Bilangan Bulat",
+          "sub_bab": [
+            "Membaca & Menulis Bilangan Bulat",
+            "Membandingkan & Mengurutkan",
+            "Operasi Hitung ( +, -, \\times, : )",
+            "Sifat Operasi (Komutatif, Asosiatif, Distributif)",
+            "Masalah Kontekstual Bilangan Bulat"
+          ]
+        },
+        {
+          "id": "K7.B2",
+          "nama": "Bilangan Rasional & Irrasional",
+          "sub_bab": [
+            "Bentuk Bilangan Rasional (Pecahan, Desimal)",
+            "Mengurutkan Bilangan Rasional",
+            "Operasi Hitung Rasional",
+            "Konsep Bilangan Irrasional Dasar"
+          ]
+        },
+        {
+          "id": "K7.B3",
+          "nama": "Rasio & Perbandingan",
+          "sub_bab": [
+            "Konsep Rasio & Proporsi",
+            "Perbandingan Senilai",
+            "Perbandingan Berbalik Nilai",
+            "Skala Peta & Model"
+          ]
+        },
+        {
+          "id": "K7.B4",
+          "nama": "Bentuk Aljabar",
+          "sub_bab": [
+            "Komponen Aljabar (Variabel, Koefisien, Konstanta)",
+            "Operasi Dasar Aljabar",
+            "Penyederhanaan Bentuk Aljabar",
+            "Pemodelan Masalah dengan Aljabar"
+          ]
+        },
+        {
+          "id": "K7.B5",
+          "nama": "Kesebangunan",
+          "sub_bab": [
+            "Pengertian Bangun Sebangun",
+            "Identifikasi Bangun Datar Sebangun",
+            "Aplikasi Kesebangunan Kontekstual"
+          ]
+        },
+        {
+          "id": "K7.B6",
+          "nama": "Data & Diagram",
+          "sub_bab": [
+            "Pengumpulan & Klasifikasi Data",
+            "Tabel Frekuensi",
+            "Diagram Batang & Garis",
+            "Diagram Lingkaran"
+          ]
+        }
+      ]
+    },
+    {
+      "kelas": 8,
+      "fase": "D",
+      "fokus": "Relasi & fungsi, Pythagoras, statistika ukuran pemusatan",
+      "bab": [
+        {
+          "id": "K8.B1",
+          "nama": "Bilangan Berpangkat (Eksponen)",
+          "sub_bab": [
+            "Konsep Pangkat Bulat Positif/Negatif",
+            "Sifat-sifat Eksponen",
+            "Operasi Bilangan Berpangkat",
+            "Notasi Ilmiah (Bentuk Baku)"
+          ]
+        },
+        {
+          "id": "K8.B2",
+          "nama": "Bentuk Akar",
+          "sub_bab": [
+            "Pengertian Akar Kuadrat",
+            "Penyederhanaan Bentuk Akar",
+            "Operasi Hitung Bentuk Akar"
+          ]
+        },
+        {
+          "id": "K8.B3",
+          "nama": "Teorema Pythagoras",
+          "sub_bab": [
+            "Pembuktian Teorema Pythagoras",
+            "Sisi Segitiga Siku-siku",
+            "Tripel Pythagoras",
+            "Jarak antara Dua Titik"
+          ]
+        },
+        {
+          "id": "K8.B4",
+          "nama": "PLSV & PtLSV (Lanjutan)",
+          "sub_bab": [
+            "Penyelesaian Persamaan Linear",
+            "Penyelesaian Pertidaksamaan Linear",
+            "Penerapan Kontekstual"
+          ]
+        },
+        {
+          "id": "K8.B5",
+          "nama": "Relasi & Fungsi",
+          "sub_bab": [
+            "Pengertian Relasi & Fungsi",
+            "Domain, Kodomain, Range",
+            "Notasi & Rumus Fungsi",
+            "Grafik Fungsi Linear"
+          ]
+        },
+        {
+          "id": "K8.B6",
+          "nama": "Persamaan Garis Lurus (PGL)",
+          "sub_bab": [
+            "Bentuk Umum PGL",
+            "Gradien (Kemiringan)",
+            "Menentukan Persamaan Garis",
+            "Hubungan Garis Sejajar & Tegak Lurus"
+          ]
+        },
+        {
+          "id": "K8.B7",
+          "nama": "Statistika (Ukuran Pemusatan)",
+          "sub_bab": [
+            "Mean (Rata-rata)",
+            "Median (Nilai Tengah)",
+            "Modus (Nilai Sering Muncul)",
+            "Range (Jangkauan)"
+          ]
+        }
+      ]
+    },
+    {
+      "kelas": 9,
+      "fase": "D",
+      "fokus": "Sintesis sistem (SPLDV), bangun ruang, transformasi geometri, peluang",
+      "bab": [
+        {
+          "id": "K9.B1",
+          "nama": "Sistem Persamaan Linear Dua Variabel (SPLDV)",
+          "sub_bab": [
+            "Konsep Persamaan Linear Dua Variabel",
+            "Metode Grafik",
+            "Metode Substitusi & Eliminasi",
+            "Metode Campuran",
+            "Aplikasi SPLDV Kontekstual"
+          ]
+        },
+        {
+          "id": "K9.B2",
+          "nama": "Bangun Ruang (Sisi Datar & Lengkung)",
+          "sub_bab": [
+            "Jaring-jaring Bangun Ruang",
+            "Luas Permukaan (Prisma, Limas, Tabung, Kerucut, Bola)",
+            "Volume Bangun Ruang",
+            "Perubahan Skala Bangun Ruang"
+          ]
+        },
+        {
+          "id": "K9.B3",
+          "nama": "Transformasi Geometri",
+          "sub_bab": [
+            "Translasi (Pergeseran)",
+            "Refleksi (Pencerminan)",
+            "Rotasi (Perputaran)",
+            "Dilatasi (Perkalian)",
+            "Kekongruenan & Kesebangunan"
+          ]
+        },
+        {
+          "id": "K9.B4",
+          "nama": "Peluang & Pemilihan Sampel",
+          "sub_bab": [
+            "Ruang Sampel & Titik Sampel",
+            "Peluang Teoretik & Empiris",
+            "Frekuensi Harapan",
+            "Populasi & Sampel Representatif",
+            "Pemilihan Sampel Acak"
+          ]
+        }
+      ]
+    }
+  ]
+}

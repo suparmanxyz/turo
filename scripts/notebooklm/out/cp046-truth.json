@@ -1,0 +1,205 @@
+{
+  "_meta": {
+    "source": "docs/cp046.txt — Lampiran II BSKAP No. 046/H/KR/2025",
+    "extracted_at": "2026-05-03",
+    "method": "Direct text parsing (no NotebookLM intermediary). Section IV.1 (Matematika Reguler) + IV.2 (Matematika Tingkat Lanjut).",
+    "note": "Capaian Pembelajaran Matematika resmi Kurikulum Merdeka 2025. Source primer dari Kemdikbud — autoritatif.",
+    "catatan_penting": "CP 046 ditulis sebagai PROSA NARATIF per Fase (bukan tabel bab/sub-bab per kelas). Mapping per kelas dilakukan oleh sekolah/penerbit buku — Fase D (K7-K9) mengandung SEMUA materi K7+K8+K9 sekaligus. Sub-bab eksplisit harus di-extract dari kalimat narasi."
+  },
+  "matematika_reguler": {
+    "Fase A (Kelas 1-2 SD)": {
+      "fase": "A",
+      "kelas": [
+        1,
+        2
+      ],
+      "elemen": {
+        "Bilangan": {
+          "raw": "Menunjukkan pemahaman dan memiliki intuisi bilangan (number sense) pada bilangan cacah sampai 100; membaca, menulis, menentukan nilai tempat, membandingkan, mengurutkan, serta melakukan komposisi (menyusun) dan dekomposisi (mengurai) bilangan; melakukan operasi penjumlahan dan pengurangan menggunakan benda-benda konkret yang banyaknya sampai 20; dan menunjukkan pemahaman pecahan sebagai bagian dari keseluruhan melalui konteks membagi sebuah benda atau kumpulan benda sama banyak (pecahan yang diperkenalkan adalah setengah dan seperempat).",
+          "topics": []
+        },
+        "Aljabar": {
+          "raw": "Menunjukan pemahaman makna simbol matematika \"=\" dalam suatu kalimat matematika yang terkait dengan penjumlahan dan pengurangan bilangan cacah sampai 20 menggunakan gambar. Contoh: Murid dapat mengenali, meniru, dan melanjutkan pola bukan bilangan (misalnya, gambar, warna, bunyi/suara).",
+          "topics": []
+        },
+        "Pengukuran": {
+          "raw": "Membandingkan panjang dan berat benda secara langsung, dan membandingkan durasi waktu; mengukur dan mengestimasi panjang dan berat benda menggunakan satuan tidak baku.",
+          "topics": []
+        },
+        "Geometri": {
+          "raw": "Mengenal berbagai bangun datar (segitiga, segiempat, segi banyak, lingkaran) dan bangun ruang (balok, kubus, kerucut, dan bola); melakukan komposisi (penyusunan) dan dekomposisi (penguraian) suatu bangun datar (segitiga, segiempat, dan segi banyak); dan menentukan posisi benda terhadap benda lain (kanan, kiri, depan belakang, bawah, atas).",
+          "topics": []
+        },
+        "Analisis Data dan Peluang": {
+          "raw": "Mengurutkan, menyortir, mengelompokkan, membandingkan, dan menyajikan data dari banyak benda dengan menggunakan turus dan piktogram paling banyak 4 kategori.",
+          "topics": []
+        }
+      }
+    },
+    "Fase B (Kelas 3-4 SD)": {
+      "fase": "B",
+      "kelas": [
+        3,
+        4
+      ],
+      "elemen": {
+        "Bilangan": {
+          "raw": "Memiliki pemahaman dan intuisi bilangan (number sense) pada bilangan cacah sampai 10.000; membaca, menulis, membandingkan, dan mengurutkan bilangan; menentukan dan menggunakan nilai tempat; melakukan komposisi dan dekomposisi bilangan cacah sampai 10.000. Murid dapat melakukan dan menyelesaikan masalah operasi bilangan penjumlahan dan pengurangan bilangan cacah sampai 1.000; melakukan dan menyelesaikan masalah operasi perkalian dan pembagian bilangan cacah sampai 100 dengan bantuan benda konkret, gambar dan simbol; mengenal kelipatan dan faktor. Murid dapat melakukan perbandingan dan pengurutan pecahan dengan pembilang satu dan antar pecahan dengan penyebut yang sama; mengenal dan dapat menerapkan pecahan senilai, memiliki intuisi pecahan dan desimal, serta dapat menentukan pecahan sebagai desimal dan persen.",
+          "topics": []
+        },
+        "Aljabar": {
+          "raw": "Menemukan nilai yang tidak diketahui dalam kalimat matematika yang melibatkan penjumlahan dan pengurangan pada bilangan cacah sampai 100, dengan menggunakan sifat-sifat bilangan dan operasinya. Murid dapat mengidentifikasi, meniru, dan mengembangkan pola gambar atau objek sederhana dan pola bilangan membesar dan mengecil yang dapat melibatkan penjumlahan dan pengurangan pada bilangan cacah sampai 100.",
+          "topics": []
+        },
+        "Pengukuran": {
+          "raw": "Mengukur panjang dan berat benda menggunakan satuan baku; menentukan hubungan antar-satuan baku panjang (cm, m) dan antar-satuan berat (g, kg); serta mengukur dan mengestimasi luas dan volume menggunakan satuan tidak baku dan satuan baku berupa bilangan cacah.",
+          "topics": []
+        },
+        "Geometri": {
+          "raw": "Mendeskripsikan ciri berbagai bentuk bangun datar (segiempat, segitiga, segi banyak); menyusun (komposisi) dan mengurai (dekomposisi) berbagai bangun datar dengan lebih dari satu cara jika memungkinkan.",
+          "topics": []
+        },
+        "Analisis Data dan Peluang": {
+          "raw": "Mengurutkan, membandingkan, menyajikan, menganalisis dan menginterpretasi data dalam bentuk tabel, diagram gambar, piktogram, dan diagram batang (skala satu satuan).",
+          "topics": []
+        }
+      }
+    },
+    "Fase C (Kelas 5-6 SD)": {
+      "fase": "C",
+      "kelas": [
+        5,
+        6
+      ],
+      "elemen": {
+        "Bilangan": {
+          "raw": "Menunjukkan pemahaman dan intuisi bilangan (number sense) pada bilangan cacah sampai 1.000.000; membaca, menulis, menentukan nilai tempat, membandingkan, mengurutkan, melakukan komposisi dan dekomposisi bilangan; menyelesaikan masalah yang berkaitan dengan uang; melakukan operasi penjumlahan, pengurangan, perkalian, dan pembagian bilangan cacah sampai 100.000; serta menyelesaikan masalah yang berkaitan dengan KPK dan FPB. Murid dapat membandingkan dan mengurutkan berbagai pecahan termasuk pecahan campuran, melakukan operasi penjumlahan dan pengurangan pecahan, serta melakukan operasi perkalian dan pembagian pecahan dengan bilangan asli; mengubah pecahan menjadi berbagai bentuk pecahan lain, serta membandingkan dan mengurutkan bilangan desimal (satu angka di belakang koma).",
+          "topics": []
+        },
+        "Aljabar": {
+          "raw": "Menemukan nilai yang belum diketahui dalam kalimat matematika yang melibatkan penjumlahan, pengurangan, perkalian, dan pembagian pada bilangan cacah sampai 1000 dengan menggunakan sifat-sifat bilangan dan operasinya. Murid dapat mengidentifikasi, meniru, dan mengembangkan pola bilangan membesar dan mengecil yang melibatkan perkalian dan pembagian; bernalar secara proporsional untuk menyelesaikan masalah sehari-hari dengan rasio satuan; menggunakan operasi perkalian dan pembagian dalam menyelesaikan masalah sehari- hari yang terkait dengan proporsi.",
+          "topics": []
+        },
+        "Pengukuran": {
+          "raw": "Menentukan keliling dan luas berbagai bentuk bangun datar (segitiga, segiempat, dan segi banyak) serta gabungannya; menghitung durasi waktu dan mengukur besar sudut pada bangun datar atau yang dibentuk dari dua garis berpotongan.",
+          "topics": []
+        },
+        "Geometri": {
+          "raw": "Mengkonstruksi dan mengurai bangun ruang (kubus, balok, dan gabungannya) dan mengenali visualisasi spasial (bagian depan, atas, dan samping); membandingkan karakteristik antar bangun datar dan antar bangun ruang; serta menentukan lokasi pada peta yang menggunakan sistem berpetak.",
+          "topics": []
+        },
+        "Analisis Data dan Peluang": {
+          "raw": "Mengurutkan, membandingkan, menyajikan, dan menganalisis data banyak benda dan data hasil pengukuran dalam bentuk gambar, piktogram, diagram batang, dan tabel frekuensi untuk mendapatkan informasi; menentukan kejadian dengan kemungkinan yang lebih besar atau lebih kecil dalam suatu percobaan acak.",
+          "topics": []
+        }
+      }
+    },
+    "Fase D (Kelas 7-9 SMP)": {
+      "fase": "D",
+      "kelas": [
+        7,
+        8,
+        9
+      ],
+      "elemen": {
+        "Bilangan": {
+          "raw": "Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah; menerapkan operasi aritmatika pada bilangan real, dan memberikan estimasi/perkiraan dalam menyelesaikan masalah (termasuk berkaitan dengan literasi finansial). Murid dapat menggunakan rasio (skala, proporsi, dan laju perubahan) dalam penyelesaian masalah.",
+          "topics": []
+        },
+        "Aljabar": {
+          "raw": "Mengenali, memprediksi dan menggeneralisasi pola dalam bentuk susunan benda dan bilangan; Menyatakan suatu situasi ke dalam bentuk aljabar; menggunakan sifat-sifat operasi (komutatif, asosiatif, dan distributif) untuk menghasilkan bentuk aljabar yang ekuivalen. Murid dapat memahami relasi dan fungsi (domain, kodomain, range) serta menyajikannya dalam bentuk diagram panah, tabel, himpunan pasangan berurutan, dan grafik; membedakan beberapa fungsi non linear dari fungsi linear secara grafik; menyelesaikan persamaan dan pertidaksamaan linear satu variabel; menyajikan, menganalisis, dan menyelesaikan masalah dengan menggunakan relasi, fungsi dan persamaan linear; serta menyelesaikan sistem persaman linear dua variabel melalui beberapa cara untuk penyelesaian masalah.",
+          "topics": []
+        },
+        "Pengukuran": {
+          "raw": "Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait; menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait; dan menjelaskan pengaruh perubahan secara proporsional dari bangun datar dan bangun ruang terhadap ukuran panjang, besar sudut, luas, dan/atau volume.",
+          "topics": []
+        },
+        "Geometri": {
+          "raw": "Membuat jaring-jaring bangun ruang (prisma, tabung, limas dan kerucut) dan membuat bangun ruang dari jaring-jaringnya. Murid dapat menggunakan hubungan antar-sudut yang terbentuk oleh dua garis yang berpotongan, dan oleh dua garis sejajar yang dipotong sebuah garis transversal untuk menyelesaikan masalah (termasuk menentukan jumlah besar sudut dalam sebuah segitiga, menentukan besar sudut yang belum diketahui pada sebuah segitiga); menjelaskan sifat-sifat kekongruenan dan kesebangunan pada segitiga dan segiempat, dan menggunakannya untuk menyelesaikan masalah; menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah (termasuk pengenalan bilangan irasional dan jarak antara dua titik pada bidang koordinat Kartesius). Murid dapat melakukan transformasi tunggal (refleksi, translasi, rotasi, dan dilatasi) titik, garis, dan bangun datar pada bidang koordinat Kartesius dan menggunakannya untuk menyelesaikan masalah.",
+          "topics": []
+        },
+        "Analisis Data dan Peluang": {
+          "raw": "Merumuskan pertanyaan, mengumpulkan, menyajikan, dan menganalisis data untuk menjawab pertanyaan dari situasi atau masalah; menggunakan diagram batang dan diagram lingkaran untuk menyajikan dan menginterpretasi data; mengambil sampel yang mewakili suatu populasi untuk mendapatkan data yang terkait dengan diri dan lingkungan mereka; menentukan dan menafsirkan rerata (mean), median, modus, dan jangkauan (range) dari data tersebut untuk menyelesaikan masalah (termasuk membandingkan suatu data terhadap kelompoknya, membandingkan dua kelompok data, memprediksi, membuat keputusan); menyelidiki kemungkinan adanya perubahan pengukuran pusat tersebut akibat perubahan data. Murid dapat menjelaskan dan menggunakan pengertian peluang dan frekuensi relatif untuk menentukan frekuensi harapan satu kejadian pada suatu percobaan sederhana (semua hasil percobaan dapat muncul secara merata).",
+          "topics": []
+        }
+      }
+    },
+    "Fase E (Kelas 10 SMA)": {
+      "fase": "E",
+      "kelas": [
+        10
+      ],
+      "elemen": {
+        "Bilangan": {
+          "raw": "Menggeneralisasi sifat-sifat bilangan berpangkat (termasuk bilangan pangkat pecahan), dan menggunakannya untuk menyelesaikan masalah.",
+          "topics": []
+        },
+        "Aljabar dan Fungsi": {
+          "raw": "Menyelesaikan masalah yang berkaitan dengan sistem pertidaksamaan linear dua variabel; menyelesaikan masalah yang berkaitan dengan persamaan dan fungsi kuadrat (termasuk akar imajiner), serta persamaan eksponensial (berbasis/ bilangan pokok sama) dan fungsi eksponensial.",
+          "topics": []
+        },
+        "Geometri": {
+          "raw": "Mengaplikasikan perbandingan trigonometri (sinus, cosinus, tangen) dari sudut lancip.",
+          "topics": []
+        },
+        "Analisis Data dan Peluang": {
+          "raw": "Merepresentasikan dan menginterpretasi data dengan cara menentukan jangkauan kuartil dan interkuartil; membuat dan menginterpretasi diagram box plot dan menggunakannya untuk membandingkan himpunan data; menentukan dan menggunakan dari box plot, histogram dan dot plot sesuai dengan natur (karakteristik) data dan kebutuhan; menggunakan diagram pencar untuk menyelidiki dan menjelaskan hubungan antara dua variabel numerik/kuantitatif (termasuk salah satunya variabel bebas berupa waktu); serta mengevaluasi laporan statistika di media berdasarkan tampilan, statistika dan representasi data, termasuk yang disajikan dalam bentuk matriks.",
+          "topics": []
+        }
+      }
+    },
+    "Fase F (Kelas 11-12 SMA Wajib)": {
+      "fase": "F",
+      "kelas": [
+        11,
+        12
+      ],
+      "elemen": {
+        "Bilangan": {
+          "raw": "Menjelaskan barisan dan deret (aritmetika dan geometri), menerapkannya pada beragam masalah terutama masalah bunga tunggal dan majemuk, memodelkan pinjaman dan investasi dengan bunga majemuk dan anuitas, serta menyelidiki (secara numerik atau grafis) pengaruh masing-masing parameter (suku bunga, periode pembayaran) dalam model tersebut.",
+          "topics": []
+        },
+        "Aljabar dan Fungsi": {
+          "raw": "Menentukan fungsi invers, komposisi fungsi, dan transformasi fungsi untuk memodelkan situasi dunia nyata menggunakan fungsi yang sesuai (linear, kuadrat, eksponensial).",
+          "topics": []
+        },
+        "Geometri": {
+          "raw": "Menerapkan, mengidentifikasi dan menjelaskan hubungan antara unsur-unsur lingkaran untuk menyelesaikan masalah.",
+          "topics": []
+        },
+        "Analisis Data dan Peluang": {
+          "raw": "Melakukan proses penyelidikan statistika untuk mengidentifikasi dan menjelaskan asosiasi antara dua variabel kategorikal (kualitatif) dan antara dua variabel numerikal (kuantitatif); memperkirakan model linear terbaik (best fit linear) pada data numerikal (kuantitatif); membedakan hubungan asosiasi dan sebab-akibat; menjelaskan peluang dan menentukan frekuensi harapan dari kejadian majemuk; menyelidiki konsep dari kejadian saling bebas dan saling lepas, dan menentukan peluangnya; serta memahami konsep peluang bersyarat dan kejadian yang saling bebas menggunakan konsep permutasi dan kombinasi.",
+          "topics": []
+        }
+      }
+    }
+  },
+  "matematika_tingkat_lanjut": {
+    "Fase F TL (Kelas 11-12 SMA Lanjut)": {
+      "fase": "F-TL",
+      "kelas": [
+        11,
+        12
+      ],
+      "jalur": "Lanjut/Peminatan",
+      "elemen": {
+        "Aljabar dan Fungsi": {
+          "raw": "Melakukan operasi aritmetika pada polinomial (suku banyak), menentukan faktor polinomial, dan menggunakan identitas polinomial untuk menyelesaikan masalah; melakukan operasi aljabar pada matriks dan menerapkannya dalam transformasi geometri; menyatakan fungsi trigonometri menggunakan lingkaran satuan, memodelkan fenomena periodik dengan fungsi trigonometri, dan membuktikan serta menerapkan identitas trigonometri dan aturan cosinus dan sinus; mengenal berbagai fungsi (termasuk fungsi rasional, fungsi akar, fungsi eksponensial, fungsi logaritma, fungsi nilai mutlak, fungsi tangga dan fungsi piecewise) dan menggunakannya untuk memodelkan berbagai fenomena.",
+          "topics": []
+        },
+        "Geometri": {
+          "raw": "Menyatakan vektor pada bidang datar, dan melakukan operasi aljabar pada vektor; melakukan pembuktian geometris menggunakan vektor; serta menyatakan sifat-sifat geometri dari persamaan lingkaran, elips dan persamaan garis singgung.",
+          "topics": []
+        },
+        "Analisis Data dan Peluang": {
+          "raw": "Memahami variabel acak diskrit (distribusi binomial) dan fungsi peluang (distribusi normal), dan menggunakannya dalam memodelkan data; menginterpretasi parameter distribusi data secara statistik, menghitung nilai harapan distribusi binomial dan normal, dan menggunakannya dalam penyelesaian masalah.",
+          "topics": []
+        },
+        "Kalkulus": {
+          "raw": "Memahami laju perubahan dan laju perubahan rata-rata, serta laju perubahan sesaat sebagai konsep kunci derivatif (turunan), baik secara geometris maupun aljabar; menentukan turunan dari fungsi polinomial, eksponensial, dan trigonometri, dan menerapkan derivatif untuk membuat sketsa kurva, menghitung gradien dan menentukan persamaan garis singgung, menentukan kecepatan sesaat dan menyelesaikan soal optimasi; memahami integral, baik sebagai proses yang merupakan kebalikan dari derivatif dan juga sebagai cara menghitung luas; serta memahami teorema dasar kalkulus sebagai penghubung antara derivatif dan integral.",
+          "topics": []
+        }
+      }
+    }
+  }
+}

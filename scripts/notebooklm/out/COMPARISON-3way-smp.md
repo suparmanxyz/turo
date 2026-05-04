@@ -1,6 +1,7 @@
 # 3-Way Comparison: SMP CP 046
 
 Source: NotebookLM Deep Research vs Claude-direct vs Peta Turo (strict=true)
+NB extraction: `structured-json`
 Generated: 2026-05-03
 
 ## Overview

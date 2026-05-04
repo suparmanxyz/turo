@@ -1,13 +1,14 @@
 # 3-Way Comparison: SMA CP 046
 
 Source: NotebookLM Deep Research vs Claude-direct vs Peta Turo (strict=true)
+NB extraction: `structured-json`
 Generated: 2026-05-03
 
 ## Overview
 
 | Source | Bab | Sub | Coverage |
 |---|---|---|---|
-| **NotebookLM Deep Research** | 28 | (semantic in markdown) | 100% (authoritative) |
+| **NotebookLM Deep Research** | 24 | (semantic in markdown) | 100% (authoritative) |
 | **Claude-direct** | 21 | 84 | Coverage broad, struktural |
 | **Peta Turo strict=true** | 11 unik | 129 sub | granular per node |
 
@@ -17,57 +18,54 @@ Generated: 2026-05-03
 
 | # | NotebookLM (8) | Claude-direct (8) | Peta Turo strict (7 bab, 39 sub) |
 |---|---|---|---|
-| 1 | Eksponen dan Logaritma | Eksponen dan Logaritma | Bab 1 Eksponen dan Fungsi Eksponen |
-| 2 | Barisan dan Deret | Sistem Persamaan Linear Tiga Variabel (SPLTV) | Bab 4 Barisan dan Deret Lanjutan |
-| 3 | Vektor dan Operasinya | Pertidaksamaan Linear & Nilai Mutlak | Bab 5 Vektor |
-| 4 | Trigonometri | Fungsi Kuadrat & Komposisi Fungsi | Bab 6 Fungsi Kuadrat (Lanjutan) |
-| 5 | Sistem Persamaan dan Pertidaksamaan Linear | Trigonometri Dasar | Bab 7 Trigonometri Dasar |
-| 6 | Fungsi Kuadrat | Vektor di Bidang | Bab 8 Statistika Data Kelompok |
-| 7 | Statistika | Statistika Lanjut | Bab 9 Peluang Lanjutan |
-| 8 | Peluang | Peluang & Kombinatorik |  |
+| 1 | Eksponen dan Logaritma [Wajib (Umum)] | Eksponen dan Logaritma | Bab 1 Eksponen dan Fungsi Eksponen |
+| 2 | Barisan dan Deret [Wajib (Umum)] | Sistem Persamaan Linear Tiga Variabel (SPLTV) | Bab 4 Barisan dan Deret Lanjutan |
+| 3 | Vektor dan Operasinya [Wajib (Umum)] | Pertidaksamaan Linear & Nilai Mutlak | Bab 5 Vektor |
+| 4 | Trigonometri [Wajib (Umum)] | Fungsi Kuadrat & Komposisi Fungsi | Bab 6 Fungsi Kuadrat (Lanjutan) |
+| 5 | Sistem Persamaan dan Pertidaksamaan Linear [Wajib (Umum)] | Trigonometri Dasar | Bab 7 Trigonometri Dasar |
+| 6 | Fungsi Kuadrat [Wajib (Umum)] | Vektor di Bidang | Bab 8 Statistika Data Kelompok |
+| 7 | Statistika [Wajib (Umum)] | Statistika Lanjut | Bab 9 Peluang Lanjutan |
+| 8 | Peluang [Wajib (Umum)] | Peluang & Kombinatorik |  |
 
-**⚠ Bab NB yang BELUM match di Claude-direct**: Barisan dan Deret
+**⚠ Bab NB yang BELUM match di Claude-direct**: Barisan dan Deret [Wajib (Umum)]
 
 ### Kelas 11 (Fase F)
 
 | # | NotebookLM (8) | Claude-direct (7) | Peta Turo strict (11 bab, 54 sub) |
 |---|---|---|---|
-| 1 | Komposisi Fungsi dan Fungsi Invers | Polinomial | Bab 1 Fungsi Komposisi dan Invers |
-| 2 | Lingkaran | Trigonometri Lanjut | Bab 10 Turunan Fungsi Aljabar [Mat TL] |
-| 3 | Statistika dan Regresi Linear | Lingkaran (Geometri Analitik) | Bab 11 Regresi Linear dan Korelasi [Mat TL] |
-| 4 | Bilangan Kompleks | Limit Fungsi | Bab 2 Matriks |
-| 5 | Polinomial (Suku Banyak) | Turunan (Diferensial) | Bab 3 Program Linear |
-| 6 | Matriks | Logika Matematika | Bab 4 Trigonometri Lanjutan |
-| 7 | Transformasi Geometri | Geometri Ruang (Dimensi 3) | Bab 5 Lingkaran Analitik |
-| 8 | Fungsi dan Pemodelan |  | Bab 6 Logika Matematika [Mat TL] |
+| 1 | Komposisi Fungsi dan Fungsi Invers [Wajib] | Polinomial | Bab 1 Fungsi Komposisi dan Invers |
+| 2 | Lingkaran [Wajib] | Trigonometri Lanjut | Bab 10 Turunan Fungsi Aljabar [Mat TL] |
+| 3 | Statistika dan Regresi Linear [Wajib] | Lingkaran (Geometri Analitik) | Bab 11 Regresi Linear dan Korelasi [Mat TL] |
+| 4 | Bilangan Kompleks [Lanjut] | Limit Fungsi | Bab 2 Matriks |
+| 5 | Polinomial (Suku Banyak) [Lanjut] | Turunan (Diferensial) | Bab 3 Program Linear |
+| 6 | Matriks [Lanjut] | Logika Matematika | Bab 4 Trigonometri Lanjutan |
+| 7 | Transformasi Geometri [Lanjut] | Geometri Ruang (Dimensi 3) | Bab 5 Lingkaran Analitik |
+| 8 | Fungsi dan Pemodelan [Lanjut] |  | Bab 6 Logika Matematika [Mat TL] |
 | 9 |  |  | Bab 7 Induksi Matematika [Mat TL] |
 | 10 |  |  | Bab 8 Polinomial dan Bilangan Kompleks [Mat TL] |
 | 11 |  |  | Bab 9 Limit Fungsi Aljabar [Mat TL] |
 
-**⚠ Bab Claude-direct yang BELUM match di NB**: Trigonometri Lanjut, Turunan (Diferensial), Logika Matematika
+**⚠ Bab Claude-direct yang BELUM match di NB**: Turunan (Diferensial), Logika Matematika
 
-**⚠ Bab NB yang BELUM match di Claude-direct**: Statistika dan Regresi Linear, Bilangan Kompleks, Matriks
+**⚠ Bab NB yang BELUM match di Claude-direct**: Statistika dan Regresi Linear [Wajib], Bilangan Kompleks [Lanjut], Matriks [Lanjut]
 
 ### Kelas 12 (Fase F)
 
-| # | NotebookLM (12) | Claude-direct (6) | Peta Turo strict (9 bab, 36 sub) |
+| # | NotebookLM (8) | Claude-direct (6) | Peta Turo strict (9 bab, 36 sub) |
 |---|---|---|---|
-| 1 | Matematika Keuangan | Integral | Bab 1 Transformasi Fungsi |
-| 2 | Geometri Lingkaran (Lanjutan) | Matriks | Bab 2 Aplikasi Turunan [Mat TL] |
-| 3 | Kombinatorik dan Peluang | Vektor di Ruang (R³) | Bab 3 Integral Tak Tentu dan Tentu [Mat TL] |
-| 4 | Geometri Analitik (Irisan Kerucut) | Transformasi Geometri Lanjut | Bab 4 Teknik Integrasi [Mat TL] |
-| 5 | Limit Fungsi | Statistika Inferensial | Bab 5 Aplikasi Integral [Mat TL] |
-| 6 | Turunan Fungsi (Diferensial) | Limit Fungsi Trigonometri & L'Hopital | Bab 6 Dimensi Tiga |
-| 7 | Integral Fungsi |  | Bab 7 Irisan Kerucut [Mat TL] |
-| 8 | Analisis Data dan Peluang Lanjut |  | Bab 8 Kombinatorika |
-| 9 | Bilangan |  | Bab 9 Peluang Bersyarat dan Distribusi |
-| 10 | Aljabar dan Fungsi |  |  |
-| 11 | Geometri dan Pengukuran |  |  |
-| 12 | Statistika dan Peluang |  |  |
+| 1 | Matematika Keuangan [Wajib] | Integral | Bab 1 Transformasi Fungsi |
+| 2 | Geometri Lingkaran (Lanjutan) [Wajib] | Matriks | Bab 2 Aplikasi Turunan [Mat TL] |
+| 3 | Kombinatorik dan Peluang [Wajib] | Vektor di Ruang (R³) | Bab 3 Integral Tak Tentu dan Tentu [Mat TL] |
+| 4 | Geometri Analitik (Irisan Kerucut) [Lanjut] | Transformasi Geometri Lanjut | Bab 4 Teknik Integrasi [Mat TL] |
+| 5 | Limit Fungsi [Lanjut] | Statistika Inferensial | Bab 5 Aplikasi Integral [Mat TL] |
+| 6 | Turunan Fungsi (Diferensial) [Lanjut] | Limit Fungsi Trigonometri & L'Hopital | Bab 6 Dimensi Tiga |
+| 7 | Integral Fungsi [Lanjut] |  | Bab 7 Irisan Kerucut [Mat TL] |
+| 8 | Analisis Data dan Peluang Lanjut [Lanjut] |  | Bab 8 Kombinatorika |
+| 9 |  |  | Bab 9 Peluang Bersyarat dan Distribusi |
 
-**⚠ Bab Claude-direct yang BELUM match di NB**: Matriks, Vektor di Ruang (R³)
+**⚠ Bab Claude-direct yang BELUM match di NB**: Matriks, Vektor di Ruang (R³), Statistika Inferensial
 
-**⚠ Bab NB yang BELUM match di Claude-direct**: Matematika Keuangan, Kombinatorik dan Peluang, Bilangan
+**⚠ Bab NB yang BELUM match di Claude-direct**: Matematika Keuangan [Wajib], Kombinatorik dan Peluang [Wajib]
 
 ## Summary & Recommendation
 

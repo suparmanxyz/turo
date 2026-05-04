@@ -1,13 +1,36 @@
 // 3-way validation: NB report + Claude-direct + Peta Turo strict per jenjang.
 // Output: COMPARISON-3way-{sd,smp,sma}.md
+//
+// Update 2026-05-03: prefer reguler-{j}-taxonomy.json kalau ada (lebih akurat
+// vs parsing markdown report). Fallback ke parseNbReport untuk backwards-compat.
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "out");
 const PETA_PATH = resolve(import.meta.dirname, "..", "..", "src/data/peta-prasyarat.json");
 
 const peta = JSON.parse(readFileSync(PETA_PATH, "utf8"));
+
+/**
+ * Load structured NB taxonomy (preferred) atau fallback ke markdown parse.
+ * Returns: { kelas: Map<kelasNum, [babNames]> }
+ */
+function loadNbStructured(jenjangCode) {
+  const taxPath = resolve(ROOT, `reguler-${jenjangCode}-taxonomy.json`);
+  if (existsSync(taxPath)) {
+    const tax = JSON.parse(readFileSync(taxPath, "utf8"));
+    const result = { kelas: new Map() };
+    for (const k of tax.kelas) {
+      const babList = k.bab.map((b) => b.jalur ? `${b.nama} [${b.jalur}]` : b.nama);
+      result.kelas.set(k.kelas, babList);
+    }
+    return { source: "structured-json", data: result };
+  }
+  // Fallback to markdown parser
+  const reportPath = resolve(ROOT, `reguler-${jenjangCode}-report.md`);
+  return { source: "markdown-fallback", data: parseNbReport(reportPath) };
+}
 
 /**
  * Parse NB report markdown — ekstrak bab per kelas dari heading H3/H4 + tabel.
@@ -84,13 +107,14 @@ function loadJson(file) {
 }
 
 function buildComparison(jenjang, jenjangCode) {
-  const nbParsed = parseNbReport(resolve(ROOT, `reguler-${jenjangCode}-report.md`));
+  const { source: nbSource, data: nbParsed } = loadNbStructured(jenjangCode);
   const claudeDirect = loadJson(`reguler-${jenjangCode}-taxonomy.claude-direct.json`);
   const turoStrict = peta.submateri.filter((s) => s.jenjang === jenjang && s.strict);
 
   const lines = [];
   lines.push(`# 3-Way Comparison: ${jenjang} CP 046\n`);
   lines.push(`Source: NotebookLM Deep Research vs Claude-direct vs Peta Turo (strict=true)`);
+  lines.push(`NB extraction: \`${nbSource}\``);
   lines.push(`Generated: ${new Date().toISOString().slice(0, 10)}\n`);
 
   // Stats overview

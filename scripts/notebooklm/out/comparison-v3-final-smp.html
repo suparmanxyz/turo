@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Audit FINAL SMP — Turo Strict vs CP 046 ASLI</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #f1f5f9; color: #0f172a; font-size: 14px; }
+  header.app-header { background: linear-gradient(135deg, #0f766e, #14b8a6); color: white; padding: 18px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  header.app-header h1 { margin: 0 0 4px 0; font-size: 22px; }
+  header.app-header p { margin: 0; opacity: 0.9; font-size: 13px; }
+  .ai-stats { display: flex; gap: 12px; margin-top: 8px; font-size: 12px; background: rgba(0,0,0,0.15); padding: 6px 12px; border-radius: 8px; width: fit-content; }
+  .stat-no { color: #fee2e2; font-weight: 600; }
+
+  .toolbar { background: white; padding: 12px 24px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; z-index: 10; align-items: center; }
+  .tab-btn { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .tab-btn.active { background: #0f766e; color: white; border-color: #0f766e; }
+  .tab-btn:hover:not(.active) { background: #e2e8f0; }
+
+  .filter-divider { width: 1px; height: 28px; background: #cbd5e1; margin: 0 4px; }
+  .filter-group { display: flex; gap: 4px; align-items: center; font-size: 12px; color: #475569; }
+  .filter-group label { font-weight: 600; margin-right: 4px; }
+  .filter-btn { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; }
+  .filter-btn.active { background: #1e40af; color: white; border-color: #1e40af; }
+
+  .export-btn { margin-left: auto; background: #fbbf24; color: #78350f; border: 1px solid #f59e0b; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  .export-btn:hover { background: #f59e0b; color: white; }
+
+  .tab-content { display: none; padding: 16px 24px; }
+  .tab-content.active { display: block; }
+
+  .kelas-header { margin-bottom: 16px; }
+  .kelas-header h2 { margin: 0; color: #0f172a; }
+  .fase-name { color: #64748b; font-weight: normal; font-size: 14px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
+
+  .col { min-width: 0; }
+  .col h3 { margin: 0 0 12px 0; font-size: 14px; padding: 8px 12px; border-radius: 8px; background: white; position: sticky; top: 60px; z-index: 5; }
+  .col-cp h3 { background: #ecfdf5; color: #065f46; }
+  .col-turo h3 { background: #eff6ff; color: #1e40af; }
+
+  .cp-fase-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; border-left: 4px solid #10b981; }
+  .cp-fase-name { font-weight: 700; font-size: 14px; color: #065f46; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #d1fae5; }
+  .elemen-block { margin: 8px 0; }
+  .elemen-name { font-weight: 600; font-size: 12px; color: #047857; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .elemen-text { font-size: 13px; line-height: 1.5; color: #334155; padding: 8px 10px; background: #f0fdf4; border-radius: 6px; border-left: 2px solid #86efac; }
+
+  .bab-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; transition: all 0.15s; }
+  .turo-card { border-left: 4px solid #3b82f6; }
+  .bab-card:hover { border-color: #94a3b8; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .bab-card.marked-untag { background: #fef2f2; border-color: #fca5a5; }
+  .bab-card.marked-keep { background: #f0fdf4; border-color: #86efac; }
+
+  .bab-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .bab-id { font-family: ui-monospace, monospace; font-size: 11px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; }
+  .bab-name { font-weight: 600; flex: 1; min-width: 0; }
+  .badge { font-size: 10px; padding: 2px 8px; border-radius: 12px; font-weight: 600; text-transform: uppercase; }
+  .badge-strict { background: #d1fae5; color: #065f46; }
+  .badge-bridge { background: #dbeafe; color: #1e40af; }
+  .badge-mixed { background: #fef3c7; color: #78350f; }
+
+  .verdict-summary { display: flex; gap: 6px; margin: 4px 0 8px 0; font-size: 11px; }
+  .vs { padding: 3px 8px; border-radius: 12px; font-weight: 600; }
+  .vs-same { background: #d1fae5; color: #065f46; }
+  .vs-other { background: #fef3c7; color: #78350f; }
+  .vs-no { background: #fee2e2; color: #991b1b; }
+
+  .sub-list { margin: 0; padding: 0; list-style: none; font-size: 13px; color: #334155; }
+  .sub-item { display: flex; align-items: center; gap: 6px; padding: 4px 6px; margin: 2px 0; border-radius: 4px; cursor: pointer; transition: background 0.1s; }
+  .sub-item:hover { background: #f8fafc; }
+  .sub-item.hidden { display: none; }
+  .verdict-NO_MATCH { background: rgba(254, 226, 226, 0.4); }
+  .verdict-MATCH_FASE_LAIN { background: rgba(254, 243, 199, 0.4); }
+  .sub-name { flex: 1; }
+  .sub-list code { font-size: 10px; background: #f1f5f9; color: #64748b; padding: 1px 4px; border-radius: 3px; }
+  .sub-bridge { color: #1e40af; opacity: 0.85; }
+
+  .vbadge { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; font-size: 11px; border-radius: 50%; font-weight: 600; }
+  .vbadge-same { background: #d1fae5; color: #065f46; }
+  .vbadge-other { background: #fef3c7; color: #78350f; }
+  .vbadge-no { background: #fee2e2; color: #991b1b; }
+  .vbadge-none { background: #f1f5f9; color: #94a3b8; }
+
+  .actions { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn { border: 1px solid; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; background: white; }
+  .btn-untag { color: #b91c1c; border-color: #fca5a5; }
+  .btn-untag:hover { background: #fee2e2; }
+  .btn-untag.active { background: #ef4444; color: white; border-color: #ef4444; }
+  .btn-keep { color: #15803d; border-color: #86efac; }
+  .btn-keep:hover { background: #dcfce7; }
+  .btn-keep.active { background: #16a34a; color: white; border-color: #16a34a; }
+
+  .empty { color: #94a3b8; font-style: italic; padding: 12px; }
+
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+  .modal.show { display: flex; }
+  .modal-content { background: white; border-radius: 12px; padding: 20px; max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto; }
+  .modal-content h2 { margin-top: 0; }
+  .modal-content textarea { width: 100%; min-height: 250px; font-family: ui-monospace, monospace; font-size: 12px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; }
+  .modal-actions { margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end; }
+  .modal-actions button { padding: 8px 16px; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; background: white; }
+  .modal-actions button.primary { background: #0f766e; color: white; border-color: #0f766e; }
+
+  .audit-detail { background: #f8fafc; border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 13px; line-height: 1.5; }
+  .audit-detail .field { margin: 6px 0; }
+  .audit-detail .label { font-weight: 600; color: #475569; min-width: 110px; display: inline-block; }
+  .audit-detail .quote { margin-top: 8px; padding: 8px 10px; background: #ecfdf5; border-left: 3px solid #10b981; font-style: italic; border-radius: 4px; }
+  .audit-detail .reasoning { margin-top: 10px; padding: 10px; background: white; border-radius: 6px; border-left: 3px solid #3b82f6; }
+  .conf-high { color: #15803d; font-weight: 600; }
+  .conf-medium { color: #b45309; font-weight: 600; }
+  .conf-low { color: #b91c1c; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Audit FINAL SMP — Turo Strict vs CP 046 ASLI</h1>
+  <p>Sumber: <code>docs/cp046.txt</code> (BSKAP 046/H/KR/2025) — autoritatif. Klik sub Turo strict untuk lihat reasoning AI + kutipan CP.</p>
+  
+    <div class="ai-stats">
+      <span>AI: 120/120 sub strict</span>
+      <span>✓ 104 (87%)</span>
+      <span>⚠ 14 (12%)</span>
+      <span class="stat-no">🚨 2 (2%)</span>
+    </div>
+  
+</header>
+
+<div class="toolbar">
+  
+    <button class="tab-btn active" data-kelas="7">K7</button>
+  
+    <button class="tab-btn " data-kelas="8">K8</button>
+  
+    <button class="tab-btn " data-kelas="9">K9</button>
+  
+  <div class="filter-divider"></div>
+  <div class="filter-group">
+    <label>Filter:</label>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="NO_MATCH">🚨 NO_MATCH</button>
+    <button class="filter-btn" data-filter="MATCH_FASE_LAIN">⚠ Fase lain</button>
+    <button class="filter-btn" data-filter="MATCH_FASE_SAMA">✓ Same</button>
+  </div>
+  <button class="export-btn" onclick="showExport()">📋 Export Decisions</button>
+</div>
+
+
+    <div class="tab-content active" data-kelas="7">
+      
+    <section class="kelas-section" data-kelas="7">
+      <header class="kelas-header">
+        <h2>Kelas 7 <span class="fase-name">— Fase D (Kelas 7-9 SMP)</span></h2>
+      </header>
+      <div class="two-col">
+        <div class="col col-cp">
+          <h3>📘 CP 046 ASLI (autoritatif)</h3>
+          
+    <div class="cp-fase-card" data-fase="Fase D (Kelas 7-9 SMP)">
+      <div class="cp-fase-name">Fase D (Kelas 7-9 SMP)</div>
+      
+    <div class="elemen-block">
+      <div class="elemen-name">Bilangan</div>
+      <div class="elemen-text">Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah; menerapkan operasi aritmatika pada bilangan real, dan memberikan estimasi/perkiraan dalam menyelesaikan masalah (termasuk berkaitan dengan literasi finansial). Murid dapat menggunakan rasio (skala, proporsi, dan laju perubahan) dalam penyelesaian masalah.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Aljabar</div>
+      <div class="elemen-text">Mengenali, memprediksi dan menggeneralisasi pola dalam bentuk susunan benda dan bilangan; Menyatakan suatu situasi ke dalam bentuk aljabar; menggunakan sifat-sifat operasi (komutatif, asosiatif, dan distributif) untuk menghasilkan bentuk aljabar yang ekuivalen. Murid dapat memahami relasi dan fungsi (domain, kodomain, range) serta menyajikannya dalam bentuk diagram panah, tabel, himpunan pasangan berurutan, dan grafik; membedakan beberapa fungsi non linear dari fungsi linear secara grafik; menyelesaikan persamaan dan pertidaksamaan linear satu variabel; menyajikan, menganalisis, dan menyelesaikan masalah dengan menggunakan relasi, fungsi dan persamaan linear; serta menyelesaikan sistem persaman linear dua variabel melalui beberapa cara untuk penyelesaian masalah.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Pengukuran</div>
+      <div class="elemen-text">Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait; menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait; dan menjelaskan pengaruh perubahan secara proporsional dari bangun datar dan bangun ruang terhadap ukuran panjang, besar sudut, luas, dan/atau volume.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Geometri</div>
+      <div class="elemen-text">Membuat jaring-jaring bangun ruang (prisma, tabung, limas dan kerucut) dan membuat bangun ruang dari jaring-jaringnya. Murid dapat menggunakan hubungan antar-sudut yang terbentuk oleh dua garis yang berpotongan, dan oleh dua garis sejajar yang dipotong sebuah garis transversal untuk menyelesaikan masalah (termasuk menentukan jumlah besar sudut dalam sebuah segitiga, menentukan besar sudut yang belum diketahui pada sebuah segitiga); menjelaskan sifat-sifat kekongruenan dan kesebangunan pada segitiga dan segiempat, dan menggunakannya untuk menyelesaikan masalah; menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah (termasuk pengenalan bilangan irasional dan jarak antara dua titik pada bidang koordinat Kartesius). Murid dapat melakukan transformasi tunggal (refleksi, translasi, rotasi, dan dilatasi) titik, garis, dan bangun datar pada bidang koordinat Kartesius dan menggunakannya untuk menyelesaikan masalah.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Analisis Data dan Peluang</div>
+      <div class="elemen-text">Merumuskan pertanyaan, mengumpulkan, menyajikan, dan menganalisis data untuk menjawab pertanyaan dari situasi atau masalah; menggunakan diagram batang dan diagram lingkaran untuk menyajikan dan menginterpretasi data; mengambil sampel yang mewakili suatu populasi untuk mendapatkan data yang terkait dengan diri dan lingkungan mereka; menentukan dan menafsirkan rerata (mean), median, modus, dan jangkauan (range) dari data tersebut untuk menyelesaikan masalah (termasuk membandingkan suatu data terhadap kelompoknya, membandingkan dua kelompok data, memprediksi, membuat keputusan); menyelidiki kemungkinan adanya perubahan pengukuran pusat tersebut akibat perubahan data. Murid dapat menjelaskan dan menggunakan pengertian peluang dan frekuensi relatif untuk menentukan frekuensi harapan satu kejadian pada suatu percobaan sederhana (semua hasil percobaan dapat muncul secara merata).</div>
+    </div>
+  
+    </div>
+  
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Turo Strict + AI Verdict</h3>
+          
+    <div class="bab-card turo-card" data-bab-kode="Bab 1">
+      <div class="bab-header">
+        <span class="bab-id">Bab 1</span>
+        <span class="bab-name">Bilangan Bulat</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 5</span>
+      <span class="vs vs-other">⚠ 1</span>
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah&quot;,&quot;reasoning&quot;:&quot;Bilangan bulat secara eksplisit disebut di CP Fase D (SMP). Review bilangan bulat dan garis bilangan merupakan bagian dari pemahaman dasar bilangan bulat yang tercakup dalam elemen Bilangan Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B1.01</code>
+        <span class="sub-name">Review bilangan bulat &amp; garis bilangan</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah; menerapkan operasi aritmatika pada bilangan real&quot;,&quot;reasoning&quot;:&quot;Operasi penjumlahan dan pengurangan bilangan bulat (termasuk aturan tanda) secara eksplisit tercakup dalam CP Fase D melalui frasa &#39;membandingkan bilangan bulat&#39; dan &#39;menerapkan operasi aritmatika pada bilangan real&#39;. Placement Turo di Fase D (K7) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B1.02</code>
+        <span class="sub-name">+/− bilangan bulat — aturan tanda dari garis bilangan</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menerapkan operasi aritmatika pada bilangan real&quot;,&quot;reasoning&quot;:&quot;Perkalian bilangan bulat termasuk pola (−)×(−) merupakan bagian dari operasi aritmatika pada bilangan bulat (subset bilangan real) yang secara eksplisit tercakup di CP Fase D. Placement Turo di Fase D (K7) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B1.03</code>
+        <span class="sub-name">Perkalian bilangan bulat — pola untuk (−)×(−)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menerapkan operasi aritmatika pada bilangan real&quot;,&quot;reasoning&quot;:&quot;Pembagian bilangan bulat merupakan bagian dari operasi aritmatika pada bilangan bulat (subset bilangan real) yang secara eksplisit dicakup di Fase D. Placement Turo di Fase D (Kelas 7) sesuai dengan CP.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B1.04</code>
+        <span class="sub-name">Pembagian bilangan bulat</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menerapkan operasi aritmatika pada bilangan real, dan memberikan estimasi/perkiraan dalam menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Operasi campuran dan urutan operasi (PEMDAS/KABATAKU) merupakan bagian integral dari &#39;menerapkan operasi aritmatika pada bilangan real&#39; di Fase D. Konsep urutan pengerjaan operasi hitung adalah prasyarat fundamental dalam aritmatika bilangan bulat/real yang secara implisit tercakup dalam elemen Bilangan Fase D.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B1.05</code>
+        <span class="sub-name">Operasi campuran &amp; urutan operasi (PEMDAS/KABATAKU)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase C&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan masalah yang berkaitan dengan KPK dan FPB&quot;,&quot;reasoning&quot;:&quot;KPK dan FPB secara eksplisit disebut di CP Fase C (Kelas 5-6 SD), bukan Fase D. Di Fase D (SMP), tidak ada penyebutan KPK/FPB — materi bilangan Fase D berfokus pada bilangan bulat, rasional, berpangkat, dan notasi ilmiah. Topik ini merupakan review dari Fase C yang ditempatkan di Kelas 7 Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.7.B1.06</code>
+        <span class="sub-name">Faktor, kelipatan, KPK, FPB (review &amp; perluasan)</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 2">
+      <div class="bab-header">
+        <span class="bab-id">Bab 2</span>
+        <span class="bab-name">Bilangan Rasional dan Irasional</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah&quot;,&quot;reasoning&quot;:&quot;Bilangan rasional (semua yang dapat ditulis dalam bentuk p/q) disebutkan secara eksplisit di CP Fase D elemen Bilangan. Placement Turo di Fase D (Kelas 7) sesuai dengan Fase yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B2.01</code>
+        <span class="sub-name">Bilangan rasional — semua yang bisa ditulis p/q</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah&quot;,&quot;reasoning&quot;:&quot;Desimal tak berhingga berulang adalah representasi desimal dari bilangan rasional (misalnya 1/3 = 0,333...), yang secara langsung termasuk dalam cakupan &#39;bilangan rasional&#39; dan &#39;bilangan desimal&#39; yang disebut eksplisit di CP Fase D elemen Bilangan.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B2.02</code>
+        <span class="sub-name">Desimal tak berhingga berulang</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah&quot;,&quot;reasoning&quot;:&quot;Bilangan irasional seperti √2 tersirat dalam &#39;bilangan berpangkat bulat dan akar&#39; di CP Fase D. Selain itu, π dan bilangan irasional lain juga disebutkan secara implisit dalam konteks &#39;bilangan real&#39; pada operasi aritmatika Fase D. Placement di Fase D sudah sesuai.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B2.03</code>
+        <span class="sub-name">Bilangan irasional — π, √2</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah; menerapkan operasi aritmatika pada bilangan real, dan memberikan estimasi/perkiraan dalam menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Operasi bilangan rasional (termasuk pecahan dan desimal campuran) secara eksplisit tercakup dalam CP Fase D yang menyebut &#39;bilangan rasional, bilangan desimal&#39; dan &#39;menerapkan operasi aritmatika pada bilangan real&#39;. Placement Turo di Fase D (K7) sesuai dengan cakupan Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B2.04</code>
+        <span class="sub-name">Operasi bilangan rasional — pecahan &amp; desimal campuran</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 3">
+      <div class="bab-header">
+        <span class="bab-id">Bab 3</span>
+        <span class="bab-name">Himpunan</span>
+        <span class="badge badge-bridge">Bridge</span>
+      </div>
+      
+      <ul class="sub-list">
+      <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+        <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+        <code>SMP.7.B3.01</code>
+        <span class="sub-name">Konsep himpunan &amp; notasi</span>
+      </li>
+    
+      <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+        <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+        <code>SMP.7.B3.02</code>
+        <span class="sub-name">Himpunan bagian, semesta, kosong</span>
+      </li>
+    
+      <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+        <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+        <code>SMP.7.B3.03</code>
+        <span class="sub-name">Operasi himpunan — irisan, gabungan, selisih</span>
+      </li>
+    
+      <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+        <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+        <code>SMP.7.B3.04</code>
+        <span class="sub-name">Aplikasi himpunan (masalah 2 &amp; 3 himpunan)</span>
+      </li>
+    </ul>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 4">
+      <div class="bab-header">
+        <span class="bab-id">Bab 4</span>
+        <span class="bab-name">Bentuk Aljabar</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 6</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;Menyatakan suatu situasi ke dalam bentuk aljabar; menggunakan sifat-sifat operasi (komutatif, asosiatif, dan distributif) untuk menghasilkan bentuk aljabar yang ekuivalen.&quot;,&quot;reasoning&quot;:&quot;Variabel, konstanta, koefisien, dan suku merupakan komponen dasar dari bentuk aljabar. CP Fase D secara implisit mencakup konsep-konsep ini melalui pernyataan &#39;menyatakan suatu situasi ke dalam bentuk aljabar&#39; dan penggunaan &#39;bentuk aljabar yang ekuivalen&#39;, yang tidak mungkin dilakukan tanpa pemahaman tentang variabel, konstanta, koefisien, dan suku.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B4.01</code>
+        <span class="sub-name">Variabel, konstanta, koefisien, suku</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;Menyatakan suatu situasi ke dalam bentuk aljabar; menggunakan sifat-sifat operasi (komutatif, asosiatif, dan distributif) untuk menghasilkan bentuk aljabar yang ekuivalen.&quot;,&quot;reasoning&quot;:&quot;Suku sejenis dan tidak sejenis adalah konsep dasar dalam bentuk aljabar yang merupakan prasyarat untuk menyederhanakan dan menghasilkan bentuk aljabar yang ekuivalen, sebagaimana disebut secara implisit dalam CP Fase D elemen Aljabar.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B4.02</code>
+        <span class="sub-name">Suku sejenis dan tidak sejenis</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;Menyatakan suatu situasi ke dalam bentuk aljabar; menggunakan sifat-sifat operasi (komutatif, asosiatif, dan distributif) untuk menghasilkan bentuk aljabar yang ekuivalen.&quot;,&quot;reasoning&quot;:&quot;Operasi penjumlahan dan pengurangan bentuk aljabar tersirat dalam CP Fase D yang menyebut penggunaan sifat-sifat operasi untuk menghasilkan bentuk aljabar yang ekuivalen, serta menyatakan situasi ke dalam bentuk aljabar. Placement Turo di Fase D sudah sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B4.03</code>
+        <span class="sub-name">+/− bentuk aljabar</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan sifat-sifat operasi (komutatif, asosiatif, dan distributif) untuk menghasilkan bentuk aljabar yang ekuivalen&quot;,&quot;reasoning&quot;:&quot;Perkalian bentuk aljabar dengan konstanta menggunakan sifat distributif secara eksplisit disebut dalam CP Fase D Aljabar, yaitu penggunaan sifat distributif untuk menghasilkan bentuk aljabar yang ekuivalen.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B4.04</code>
+        <span class="sub-name">Perkalian bentuk aljabar dengan konstanta (distributif)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan sifat-sifat operasi (komutatif, asosiatif, dan distributif) untuk menghasilkan bentuk aljabar yang ekuivalen&quot;,&quot;reasoning&quot;:&quot;Perkalian bentuk aljabar (x+a)(x+b) merupakan penerapan sifat distributif untuk menghasilkan bentuk aljabar yang ekuivalen, yang secara eksplisit tercakup dalam CP Fase D elemen Aljabar. Topik ini juga tersirat dalam &#39;menyatakan suatu situasi ke dalam bentuk aljabar&#39; dan operasi pada ekspresi aljabar.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B4.05</code>
+        <span class="sub-name">Perkalian bentuk aljabar (x + a)(x + b)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan sifat-sifat operasi (komutatif, asosiatif, dan distributif) untuk menghasilkan bentuk aljabar yang ekuivalen&quot;,&quot;reasoning&quot;:&quot;Pembagian bentuk aljabar merupakan bagian dari operasi pada bentuk aljabar yang termasuk dalam kompetensi &#39;Menyatakan suatu situasi ke dalam bentuk aljabar&#39; dan penggunaan sifat-sifat operasi untuk menghasilkan bentuk aljabar yang ekuivalen di Fase D. Operasi pembagian bentuk aljabar secara implisit tercakup dalam manipulasi aljabar di Fase D.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B4.06</code>
+        <span class="sub-name">Pembagian bentuk aljabar</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 5">
+      <div class="bab-header">
+        <span class="bab-id">Bab 5</span>
+        <span class="bab-name">Persamaan dan Pertidaksamaan Linear Satu Variabel</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 6</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan persamaan dan pertidaksamaan linear satu variabel&quot;,&quot;reasoning&quot;:&quot;Kalimat terbuka vs kalimat tertutup adalah konsep prasyarat/pengantar langsung untuk persamaan dan pertidaksamaan linear satu variabel (PLSV/PtLSV), yang secara eksplisit disebut di CP Fase D elemen Aljabar. Konsep ini juga tersirat dalam &#39;Menyatakan suatu situasi ke dalam bentuk aljabar&#39; di fase yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B5.01</code>
+        <span class="sub-name">Kalimat terbuka vs kalimat tertutup</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan persamaan dan pertidaksamaan linear satu variabel&quot;,&quot;reasoning&quot;:&quot;Timbangan &amp; keseimbangan adalah pendekatan/representasi konkret untuk memahami konsep PLSV, yang secara eksplisit disebut di CP Fase D elemen Aljabar. Placement Turo di Fase D (K7) sesuai dengan cakupan Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B5.02</code>
+        <span class="sub-name">PLSV — timbangan &amp; keseimbangan</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan persamaan dan pertidaksamaan linear satu variabel&quot;,&quot;reasoning&quot;:&quot;PLSV dengan operasi perkalian dan pembagian merupakan bagian dari penyelesaian persamaan linear satu variabel yang secara eksplisit disebut di CP Fase D. Placement Turo di Fase D (K7) sudah sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B5.03</code>
+        <span class="sub-name">PLSV dengan × dan ÷</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan persamaan dan pertidaksamaan linear satu variabel&quot;,&quot;reasoning&quot;:&quot;PLSV dengan variabel di kedua sisi adalah bagian dari penyelesaian persamaan linear satu variabel, yang secara eksplisit disebut di CP Fase D elemen Aljabar. Placement Turo di Fase D (K7) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B5.04</code>
+        <span class="sub-name">PLSV dengan variabel di kedua sisi</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan persamaan dan pertidaksamaan linear satu variabel&quot;,&quot;reasoning&quot;:&quot;Pertidaksamaan linear satu variabel (PtLSV) disebut secara eksplisit di CP Fase D elemen Aljabar. Placement Turo di Fase D (Kelas 7) sesuai dengan Fase D yang mencakup K7-K9.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B5.05</code>
+        <span class="sub-name">Pertidaksamaan linear (PtLSV)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan persamaan dan pertidaksamaan linear satu variabel; menyajikan, menganalisis, dan menyelesaikan masalah dengan menggunakan relasi, fungsi dan persamaan linear&quot;,&quot;reasoning&quot;:&quot;Soal cerita PLSV adalah penerapan PLSV dalam konteks masalah, yang secara eksplisit tercakup dalam CP Fase D melalui frasa &#39;menyelesaikan persamaan dan pertidaksamaan linear satu variabel&#39; serta &#39;menyelesaikan masalah dengan menggunakan ... persamaan linear&#39;. Placement Turo di Fase D sudah sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B5.06</code>
+        <span class="sub-name">Soal cerita PLSV</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 6">
+      <div class="bab-header">
+        <span class="bab-id">Bab 6</span>
+        <span class="bab-name">Perbandingan dan Proporsi</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan rasio (skala, proporsi, dan laju perubahan) dalam penyelesaian masalah&quot;,&quot;reasoning&quot;:&quot;Perbandingan senilai (direct proportion) secara semantik identik dengan konsep proporsi/rasio yang disebutkan eksplisit di CP Fase D elemen Bilangan. Placement Turo di Fase D (Kelas 7) sesuai dengan Fase D CP.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B6.01</code>
+        <span class="sub-name">Perbandingan senilai (direct proportion)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan rasio (skala, proporsi, dan laju perubahan) dalam penyelesaian masalah&quot;,&quot;reasoning&quot;:&quot;Perbandingan berbalik nilai adalah bagian dari konsep proporsi dan rasio yang secara eksplisit disebutkan di CP Fase D elemen Bilangan. Placement Turo di Fase D (K7) sesuai dengan fase yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B6.02</code>
+        <span class="sub-name">Perbandingan berbalik nilai (inverse proportion)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan rasio (skala, proporsi, dan laju perubahan) dalam penyelesaian masalah&quot;,&quot;reasoning&quot;:&quot;CP Fase D elemen Bilangan secara eksplisit menyebut &#39;skala&#39; sebagai bagian dari penggunaan rasio, sehingga &#39;Skala pada peta dan gambar&#39; di Kelas 7 (Fase D) merupakan MATCH langsung.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B6.03</code>
+        <span class="sub-name">Skala pada peta dan gambar</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan rasio (skala, proporsi, dan laju perubahan) dalam penyelesaian masalah&quot;,&quot;reasoning&quot;:&quot;Aplikasi perbandingan seperti resep (proporsi), kecepatan (laju perubahan), dan kepadatan (rasio) secara langsung tercakup dalam frasa &#39;rasio (skala, proporsi, dan laju perubahan)&#39; di CP Fase D elemen Bilangan.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B6.04</code>
+        <span class="sub-name">Aplikasi perbandingan (resep, kecepatan, kepadatan)</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 7">
+      <div class="bab-header">
+        <span class="bab-id">Bab 7</span>
+        <span class="bab-name">Aritmetika Sosial</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menerapkan operasi aritmatika pada bilangan real, dan memberikan estimasi/perkiraan dalam menyelesaikan masalah (termasuk berkaitan dengan literasi finansial)&quot;,&quot;reasoning&quot;:&quot;Harga beli, harga jual, untung, dan rugi adalah inti dari aritmetika sosial yang secara eksplisit tercakup dalam frasa &#39;literasi finansial&#39; pada elemen Bilangan Fase D. Topik ini berada di Fase D (SMP), sesuai placement Turo.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B7.01</code>
+        <span class="sub-name">Harga beli, harga jual, untung, rugi</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menerapkan operasi aritmatika pada bilangan real, dan memberikan estimasi/perkiraan dalam menyelesaikan masalah (termasuk berkaitan dengan literasi finansial)&quot;,&quot;reasoning&quot;:&quot;Persentase untung-rugi adalah bagian dari aritmetika sosial/literasi finansial yang secara eksplisit tercakup dalam CP Fase D elemen Bilangan, khususnya frasa &#39;literasi finansial&#39; dan penerapan operasi aritmatika pada bilangan real.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B7.02</code>
+        <span class="sub-name">Persentase untung-rugi</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menerapkan operasi aritmatika pada bilangan real, dan memberikan estimasi/perkiraan dalam menyelesaikan masalah (termasuk berkaitan dengan literasi finansial)&quot;,&quot;reasoning&quot;:&quot;Diskon, rabat, pajak, bruto-netto-tara merupakan topik aritmetika sosial yang termasuk dalam literasi finansial. CP Fase D secara eksplisit menyebut penyelesaian masalah &#39;berkaitan dengan literasi finansial&#39; dalam elemen Bilangan, sehingga placement di Fase D (K7) sudah sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B7.03</code>
+        <span class="sub-name">Diskon, rabat, pajak, bruto-netto-tara</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;menerapkan operasi aritmatika pada bilangan real, dan memberikan estimasi/perkiraan dalam menyelesaikan masalah (termasuk berkaitan dengan literasi finansial)&quot;,&quot;reasoning&quot;:&quot;Bunga tunggal adalah bagian dari aritmetika sosial/literasi finansial yang secara eksplisit tercakup dalam Fase D melalui frasa &#39;literasi finansial&#39; pada elemen Bilangan. Placement Turo di Fase D (SMP) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B7.04</code>
+        <span class="sub-name">Bunga tunggal</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 8">
+      <div class="bab-header">
+        <span class="bab-id">Bab 8</span>
+        <span class="bab-name">Garis dan Sudut</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan hubungan antar-sudut yang terbentuk oleh dua garis yang berpotongan, dan oleh dua garis sejajar yang dipotong sebuah garis transversal untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Kedudukan dua garis (sejajar, berpotongan, berimpit) merupakan prasyarat konseptual yang tersirat dalam CP Fase D Geometri yang membahas hubungan antar-sudut dari dua garis berpotongan dan dua garis sejajar yang dipotong transversal. Konsep ini implisit dalam pembahasan tersebut sehingga termasuk Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B8.01</code>
+        <span class="sub-name">Kedudukan dua garis (sejajar, berpotongan, berimpit)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan hubungan antar-sudut yang terbentuk oleh dua garis yang berpotongan, dan oleh dua garis sejajar yang dipotong sebuah garis transversal untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Sudut berpelurus (180°) dan sudut bertolak belakang merupakan hubungan antar-sudut yang terbentuk dari dua garis yang berpotongan, yang secara eksplisit disebut di CP Fase D Geometri. Placement Turo di Fase D (Kelas 7) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B8.02</code>
+        <span class="sub-name">Sudut berpelurus (180°) dan sudut bertolak belakang</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan hubungan antar-sudut yang terbentuk oleh dua garis yang berpotongan, dan oleh dua garis sejajar yang dipotong sebuah garis transversal untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Topik sudut pada dua garis sejajar yang dipotong transversal disebutkan secara eksplisit di CP Fase D elemen Geometri. Placement Turo di Fase D (Kelas 7) sesuai dengan Fase D CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B8.03</code>
+        <span class="sub-name">Sudut pada dua garis sejajar + transversal</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan hubungan antar-sudut yang terbentuk oleh dua garis yang berpotongan, dan oleh dua garis sejajar yang dipotong sebuah garis transversal untuk menyelesaikan masalah (termasuk menentukan jumlah besar sudut dalam sebuah segitiga, menentukan besar sudut yang belum diketahui pada sebuah segitiga)&quot;,&quot;reasoning&quot;:&quot;Aplikasi hubungan sudut (garis dan sudut) secara eksplisit disebutkan di CP Fase D Geometri, mencakup hubungan antar sudut dari dua garis berpotongan dan garis sejajar dipotong transversal untuk menyelesaikan masalah.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B8.04</code>
+        <span class="sub-name">Aplikasi hubungan sudut</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 9">
+      <div class="bab-header">
+        <span class="bab-id">Bab 9</span>
+        <span class="bab-name">Segitiga dan Segi Empat</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 5</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan hubungan antar-sudut yang terbentuk oleh dua garis yang berpotongan, dan oleh dua garis sejajar yang dipotong sebuah garis transversal untuk menyelesaikan masalah (termasuk menentukan jumlah besar sudut dalam sebuah segitiga, menentukan besar sudut yang belum diketahui pada sebuah segitiga)&quot;,&quot;reasoning&quot;:&quot;CP Fase D secara eksplisit menyebut &#39;jumlah besar sudut dalam sebuah segitiga&#39; dan penentuan sudut segitiga. Meskipun topik ini adalah review dari materi K4 (Fase B), penguasaan penuh dan penerapannya dalam konteks geometri analitik berada di Fase D, sehingga placement di Kelas 7 Fase D tetap sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B9.01</code>
+        <span class="sub-name">Review jenis segitiga &amp; jumlah sudut (dari K4)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan hubungan antar-sudut yang terbentuk oleh dua garis yang berpotongan, dan oleh dua garis sejajar yang dipotong sebuah garis transversal untuk menyelesaikan masalah (termasuk menentukan jumlah besar sudut dalam sebuah segitiga, menentukan besar sudut yang belum diketahui pada sebuah segitiga)&quot;,&quot;reasoning&quot;:&quot;Teorema sudut luar segitiga (sudut luar = jumlah dua sudut dalam tidak bersebelahan) merupakan konsep yang secara implisit tercakup dalam CP Fase D yang menyebut penentuan besar sudut pada segitiga, termasuk hubungan sudut-sudut yang berkaitan dengan segitiga.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B9.02</code>
+        <span class="sub-name">Sudut luar segitiga = jumlah 2 sudut dalam tidak bersebelahan</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait; menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Keliling dan luas segitiga termasuk dalam elemen Pengukuran Fase D yang secara eksplisit mencakup penentuan keliling dan luas bangun datar, serta konteks &#39;perluasan&#39; dari K4 (Fase B) menunjukkan pendalaman yang sesuai dengan lingkup SMP Fase D.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B9.03</code>
+        <span class="sub-name">Keliling &amp; luas segitiga (perluasan K4)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait; menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;CP Fase D elemen Pengukuran secara implisit mencakup luas bangun datar termasuk segi empat (persegi, persegi panjang, jajargenjang, belah ketupat, layang-layang, trapesium) sebagai prasyarat untuk menentukan luas permukaan bangun ruang; selain itu elemen Geometri Fase D juga menyebut sifat-sifat kekongruenan pada segiempat. Topik ini sesuai dengan Fase D (SMP) tempat Turo menempatkannya.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B9.04</code>
+        <span class="sub-name">Sifat &amp; luas segi empat (persegi, PP, jajargenjang, belah ketupat, layang-layang, trapesium)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Keliling dan luas bangun gabungan merupakan perluasan langsung dari kompetensi menentukan keliling dan luas yang disebutkan di elemen Pengukuran Fase D. Bangun gabungan terdiri dari bangun-bangun datar (termasuk segitiga dan segiempat) yang keliling dan luasnya termasuk dalam cakupan Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B9.05</code>
+        <span class="sub-name">Keliling dan luas bangun gabungan</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 9">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 9">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 10">
+      <div class="bab-header">
+        <span class="bab-id">Bab 10</span>
+        <span class="bab-name">Penyajian dan Analisis Data</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;menentukan dan menafsirkan rerata (mean), median, modus, dan jangkauan (range) dari data tersebut untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Mean, median, dan modus secara eksplisit disebut di CP Fase D elemen Analisis Data dan Peluang. Meskipun ini adalah review dari K5, CP Fase D tetap mencakup topik ini secara penuh, sehingga placement di Fase D (K7) adalah MATCH_FASE_SAMA.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B10.01</code>
+        <span class="sub-name">Review mean, median, modus (dari K5)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;menentukan dan menafsirkan rerata (mean), median, modus, dan jangkauan (range) dari data tersebut untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Jangkauan (range) data disebut secara eksplisit di CP Fase D elemen Analisis Data dan Peluang. Placement Turo di Fase D (Kelas 7) sesuai dengan Fase yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B10.02</code>
+        <span class="sub-name">Jangkauan (range) data</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan diagram batang dan diagram lingkaran untuk menyajikan dan menginterpretasi data&quot;,&quot;reasoning&quot;:&quot;CP Fase D secara eksplisit menyebut penyajian data menggunakan berbagai diagram (batang, lingkaran) serta merumuskan pertanyaan, mengumpulkan, menyajikan, dan menganalisis data. Review berbagai jenis diagram masuk dalam cakupan ini. Stem-and-leaf tidak disebut eksplisit di CP, namun tersirat sebagai salah satu bentuk penyajian data dalam konteks analisis data Fase D.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B10.03</code>
+        <span class="sub-name">Berbagai jenis diagram (review + stem-and-leaf)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;Merumuskan pertanyaan, mengumpulkan, menyajikan, dan menganalisis data untuk menjawab pertanyaan dari situasi atau masalah; menggunakan diagram batang dan diagram lingkaran untuk menyajikan dan menginterpretasi data&quot;,&quot;reasoning&quot;:&quot;Interpretasi kritis grafik di media termasuk dalam kemampuan menganalisis dan menginterpretasi data yang disebut di CP Fase D. Konteks &#39;di media&#39; sejalan dengan frasa &#39;situasi atau masalah&#39; yang ada di CP.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.7.B10.04</code>
+        <span class="sub-name">Interpretasi kritis grafik di media</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 10">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 10">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+        </div>
+      </div>
+    </section>
+  
+    </div>
+  
+    <div class="tab-content " data-kelas="8">
+      
+    <section class="kelas-section" data-kelas="8">
+      <header class="kelas-header">
+        <h2>Kelas 8 <span class="fase-name">— Fase D (Kelas 7-9 SMP)</span></h2>
+      </header>
+      <div class="two-col">
+        <div class="col col-cp">
+          <h3>📘 CP 046 ASLI (autoritatif)</h3>
+          
+    <div class="cp-fase-card" data-fase="Fase D (Kelas 7-9 SMP)">
+      <div class="cp-fase-name">Fase D (Kelas 7-9 SMP)</div>
+      
+    <div class="elemen-block">
+      <div class="elemen-name">Bilangan</div>
+      <div class="elemen-text">Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah; menerapkan operasi aritmatika pada bilangan real, dan memberikan estimasi/perkiraan dalam menyelesaikan masalah (termasuk berkaitan dengan literasi finansial). Murid dapat menggunakan rasio (skala, proporsi, dan laju perubahan) dalam penyelesaian masalah.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Aljabar</div>
+      <div class="elemen-text">Mengenali, memprediksi dan menggeneralisasi pola dalam bentuk susunan benda dan bilangan; Menyatakan suatu situasi ke dalam bentuk aljabar; menggunakan sifat-sifat operasi (komutatif, asosiatif, dan distributif) untuk menghasilkan bentuk aljabar yang ekuivalen. Murid dapat memahami relasi dan fungsi (domain, kodomain, range) serta menyajikannya dalam bentuk diagram panah, tabel, himpunan pasangan berurutan, dan grafik; membedakan beberapa fungsi non linear dari fungsi linear secara grafik; menyelesaikan persamaan dan pertidaksamaan linear satu variabel; menyajikan, menganalisis, dan menyelesaikan masalah dengan menggunakan relasi, fungsi dan persamaan linear; serta menyelesaikan sistem persaman linear dua variabel melalui beberapa cara untuk penyelesaian masalah.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Pengukuran</div>
+      <div class="elemen-text">Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait; menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait; dan menjelaskan pengaruh perubahan secara proporsional dari bangun datar dan bangun ruang terhadap ukuran panjang, besar sudut, luas, dan/atau volume.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Geometri</div>
+      <div class="elemen-text">Membuat jaring-jaring bangun ruang (prisma, tabung, limas dan kerucut) dan membuat bangun ruang dari jaring-jaringnya. Murid dapat menggunakan hubungan antar-sudut yang terbentuk oleh dua garis yang berpotongan, dan oleh dua garis sejajar yang dipotong sebuah garis transversal untuk menyelesaikan masalah (termasuk menentukan jumlah besar sudut dalam sebuah segitiga, menentukan besar sudut yang belum diketahui pada sebuah segitiga); menjelaskan sifat-sifat kekongruenan dan kesebangunan pada segitiga dan segiempat, dan menggunakannya untuk menyelesaikan masalah; menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah (termasuk pengenalan bilangan irasional dan jarak antara dua titik pada bidang koordinat Kartesius). Murid dapat melakukan transformasi tunggal (refleksi, translasi, rotasi, dan dilatasi) titik, garis, dan bangun datar pada bidang koordinat Kartesius dan menggunakannya untuk menyelesaikan masalah.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Analisis Data dan Peluang</div>
+      <div class="elemen-text">Merumuskan pertanyaan, mengumpulkan, menyajikan, dan menganalisis data untuk menjawab pertanyaan dari situasi atau masalah; menggunakan diagram batang dan diagram lingkaran untuk menyajikan dan menginterpretasi data; mengambil sampel yang mewakili suatu populasi untuk mendapatkan data yang terkait dengan diri dan lingkungan mereka; menentukan dan menafsirkan rerata (mean), median, modus, dan jangkauan (range) dari data tersebut untuk menyelesaikan masalah (termasuk membandingkan suatu data terhadap kelompoknya, membandingkan dua kelompok data, memprediksi, membuat keputusan); menyelidiki kemungkinan adanya perubahan pengukuran pusat tersebut akibat perubahan data. Murid dapat menjelaskan dan menggunakan pengertian peluang dan frekuensi relatif untuk menentukan frekuensi harapan satu kejadian pada suatu percobaan sederhana (semua hasil percobaan dapat muncul secara merata).</div>
+    </div>
+  
+    </div>
+  
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Turo Strict + AI Verdict</h3>
+          
+    <div class="bab-card turo-card" data-bab-kode="Bab 1">
+      <div class="bab-header">
+        <span class="bab-id">Bab 1</span>
+        <span class="bab-name">Pola Bilangan dan Barisan</span>
+        <span class="badge badge-mixed">Mixed</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 1</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;Mengenali, memprediksi dan menggeneralisasi pola dalam bentuk susunan benda dan bilangan&quot;,&quot;reasoning&quot;:&quot;Topik &#39;mengidentifikasi pola bilangan&#39; secara eksplisit tercakup dalam CP Fase D elemen Aljabar yang menyebut &#39;mengenali, memprediksi dan menggeneralisasi pola dalam bentuk susunan benda dan bilangan&#39;. Placement Turo di Fase D (SMP) sesuai dengan CP.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B1.01</code>
+        <span class="sub-name">Mengidentifikasi pola bilangan</span>
+      </li>
+    
+      <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+        <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+        <code>SMP.8.B1.02</code>
+        <span class="sub-name">Barisan aritmetika — Un = a + (n−1)b</span>
+      </li>
+    
+      <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+        <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+        <code>SMP.8.B1.03</code>
+        <span class="sub-name">Barisan geometri — Un = a·r^(n−1)</span>
+      </li>
+    
+      <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+        <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+        <code>SMP.8.B1.04</code>
+        <span class="sub-name">Deret aritmetika — Sn = n/2 · (a + Un)</span>
+      </li>
+    
+      <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+        <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+        <code>SMP.8.B1.05</code>
+        <span class="sub-name">Deret geometri — Sn = a(r^n − 1)/(r − 1)</span>
+      </li>
+    
+      <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+        <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+        <code>SMP.8.B1.06</code>
+        <span class="sub-name">Aplikasi barisan &amp; deret (soal cerita)</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 2">
+      <div class="bab-header">
+        <span class="bab-id">Bab 2</span>
+        <span class="bab-name">Koordinat Kartesius (Perluasan)</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 3</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah (termasuk pengenalan bilangan irasional dan jarak antara dua titik pada bidang koordinat Kartesius)&quot;,&quot;reasoning&quot;:&quot;Bidang koordinat Kartesius (termasuk 4 kuadran) secara implisit tercakup dalam CP Fase D Geometri yang menyebut &#39;bidang koordinat Kartesius&#39; dan transformasi pada bidang koordinat Kartesius. Review 4 kuadran adalah prasyarat/bagian integral dari topik ini di Fase D.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B2.01</code>
+        <span class="sub-name">Review 4 kuadran (dari K6)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah (termasuk pengenalan bilangan irasional dan jarak antara dua titik pada bidang koordinat Kartesius)&quot;,&quot;reasoning&quot;:&quot;CP Fase D secara eksplisit menyebut &#39;jarak antara dua titik pada bidang koordinat Kartesius&#39; dalam elemen Geometri. Jarak antar dua titik horizontal/vertikal adalah kasus khusus (sederhana) dari konsep tersebut, sehingga termasuk dalam cakupan yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B2.02</code>
+        <span class="sub-name">Jarak antar dua titik horizontal/vertikal</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;melakukan transformasi tunggal (refleksi, translasi, rotasi, dan dilatasi) titik, garis, dan bangun datar pada bidang koordinat Kartesius dan menggunakannya untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;CP Fase D secara eksplisit menyebut bangun datar pada bidang koordinat Kartesius dalam konteks transformasi, yang mencakup penentuan posisi dan representasi bangun datar di sistem koordinat. Placement Turo di Fase D (SMP K8) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B2.03</code>
+        <span class="sub-name">Bangun datar pada bidang koordinat</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 3">
+      <div class="bab-header">
+        <span class="bab-id">Bab 3</span>
+        <span class="bab-name">Relasi dan Fungsi</span>
+        <span class="badge badge-mixed">Mixed</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-bridge verdict-none" data-verdict="none" data-audit=''>
+        <span class="vbadge vbadge-none" title="Belum diaudit / Bridge">·</span>
+        <code>SMP.8.B3.01</code>
+        <span class="sub-name">Relasi antara dua himpunan (diagram panah)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;memahami relasi dan fungsi (domain, kodomain, range) serta menyajikannya dalam bentuk diagram panah, tabel, himpunan pasangan berurutan, dan grafik&quot;,&quot;reasoning&quot;:&quot;Konsep &#39;mesin input-output&#39; adalah representasi pedagogis dari fungsi (input = domain, output = range) yang secara eksplisit disebut di CP Fase D elemen Aljabar. Placement Turo di Fase D (SMP K8) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B3.02</code>
+        <span class="sub-name">Fungsi — mesin input-output</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;memahami relasi dan fungsi (domain, kodomain, range) serta menyajikannya dalam bentuk diagram panah, tabel, himpunan pasangan berurutan, dan grafik&quot;,&quot;reasoning&quot;:&quot;Domain, kodomain, dan range beserta 4 representasi (diagram panah, tabel, himpunan pasangan berurutan, grafik) disebut secara eksplisit di CP Fase D elemen Aljabar, sesuai dengan placement Turo di Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B3.03</code>
+        <span class="sub-name">Domain, kodomain, range (4 representasi)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;memahami relasi dan fungsi (domain, kodomain, range) serta menyajikannya dalam bentuk diagram panah, tabel, himpunan pasangan berurutan, dan grafik&quot;,&quot;reasoning&quot;:&quot;Notasi fungsi f(x) dan nilai fungsi merupakan bagian dari pemahaman relasi dan fungsi yang secara eksplisit disebutkan di CP Fase D elemen Aljabar. Menentukan nilai fungsi adalah konsekuensi langsung dari pemahaman fungsi beserta domain, kodomain, dan range-nya.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B3.04</code>
+        <span class="sub-name">Notasi fungsi f(x) dan nilai fungsi</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;membedakan beberapa fungsi non linear dari fungsi linear secara grafik&quot;,&quot;reasoning&quot;:&quot;CP Fase D secara eksplisit menyebut &#39;membedakan beberapa fungsi non linear dari fungsi linear secara grafik&#39;, yang persis sesuai dengan topik grafik fungsi linear vs non-linear di Turo Fase D (SMP K8).&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B3.05</code>
+        <span class="sub-name">Grafik fungsi linear vs non-linear</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 4">
+      <div class="bab-header">
+        <span class="bab-id">Bab 4</span>
+        <span class="bab-name">Persamaan Garis Lurus</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyajikan, menganalisis, dan menyelesaikan masalah dengan menggunakan relasi, fungsi dan persamaan linear&quot;,&quot;reasoning&quot;:&quot;Gradien/kemiringan garis adalah komponen inti dari persamaan garis lurus (fungsi linear), yang secara implisit tercakup dalam CP Fase D elemen Aljabar. Konsep gradien tidak dapat dipisahkan dari pembahasan persamaan linear dan fungsi linear yang disebutkan eksplisit di CP Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B4.01</code>
+        <span class="sub-name">Gradien — kemiringan garis</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyajikan, menganalisis, dan menyelesaikan masalah dengan menggunakan relasi, fungsi dan persamaan linear&quot;,&quot;reasoning&quot;:&quot;Persamaan garis y = mx + c adalah bentuk eksplisit dari persamaan linear yang melibatkan fungsi linear. CP Fase D secara eksplisit menyebut relasi, fungsi, dan persamaan linear, serta grafik fungsi linear dalam konteks &#39;membedakan beberapa fungsi non linear dari fungsi linear secara grafik&#39;.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B4.02</code>
+        <span class="sub-name">Persamaan garis y = mx + c</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyajikan, menganalisis, dan menyelesaikan masalah dengan menggunakan relasi, fungsi dan persamaan linear&quot;,&quot;reasoning&quot;:&quot;Persamaan garis lurus melalui 1 titik dan 2 titik adalah bagian dari topik persamaan linear dan fungsi linear yang secara eksplisit disebut di CP Fase D. Placement Turo di Fase D (SMP K8) sesuai dengan cakupan Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B4.03</code>
+        <span class="sub-name">Persamaan garis melalui 1 titik &amp; 2 titik</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyajikan, menganalisis, dan menyelesaikan masalah dengan menggunakan relasi, fungsi dan persamaan linear&quot;,&quot;reasoning&quot;:&quot;Garis sejajar dan tegak lurus dalam konteks Persamaan Garis Lurus berkaitan dengan sifat gradien dua garis (m1=m2 untuk sejajar, m1×m2=−1 untuk tegak lurus), yang merupakan bagian integral dari pembahasan fungsi/persamaan linear di Fase D. CP Fase D Aljabar secara implisit mencakup topik ini melalui analisis dan penyelesaian masalah persamaan linear.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B4.04</code>
+        <span class="sub-name">Garis sejajar dan tegak lurus</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 5">
+      <div class="bab-header">
+        <span class="bab-id">Bab 5</span>
+        <span class="bab-name">Sistem Persamaan Linear Dua Variabel (SPLDV)</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 5</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan sistem persaman linear dua variabel melalui beberapa cara untuk penyelesaian masalah&quot;,&quot;reasoning&quot;:&quot;SPLDV (Sistem Persamaan Linear Dua Variabel) secara eksplisit disebut di CP Fase D elemen Aljabar. Konsep dua persamaan dua variabel adalah inti dari topik SPLDV tersebut, dan Turo menempatkannya di Fase D (SMP) — sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B5.01</code>
+        <span class="sub-name">Konsep SPLDV — dua persamaan, dua variabel</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan sistem persaman linear dua variabel melalui beberapa cara untuk penyelesaian masalah&quot;,&quot;reasoning&quot;:&quot;SPLDV dengan metode grafik (titik potong 2 garis) adalah salah satu &#39;beberapa cara&#39; untuk menyelesaikan sistem persamaan linear dua variabel yang secara eksplisit disebutkan di CP Fase D elemen Aljabar. Placement Turo di Fase D (SMP K8) sudah tepat.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B5.02</code>
+        <span class="sub-name">Metode grafik — titik potong 2 garis</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan sistem persaman linear dua variabel melalui beberapa cara untuk penyelesaian masalah&quot;,&quot;reasoning&quot;:&quot;Metode substitusi adalah salah satu &#39;beberapa cara&#39; yang dimaksud dalam CP Fase D untuk menyelesaikan SPLDV. Placement Turo di Fase D (Kelas 8 SMP) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B5.03</code>
+        <span class="sub-name">Metode substitusi</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan sistem persaman linear dua variabel melalui beberapa cara untuk penyelesaian masalah&quot;,&quot;reasoning&quot;:&quot;Metode eliminasi adalah salah satu dari &#39;beberapa cara&#39; yang dimaksud CP Fase D untuk menyelesaikan SPLDV. Turo menempatkannya di Fase D (Kelas 8 SMP), sesuai dengan cakupan Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B5.04</code>
+        <span class="sub-name">Metode eliminasi</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan sistem persaman linear dua variabel melalui beberapa cara untuk penyelesaian masalah&quot;,&quot;reasoning&quot;:&quot;Soal cerita SPLDV merupakan aplikasi penyelesaian masalah menggunakan SPLDV, yang secara eksplisit disebutkan dalam CP Fase D Aljabar sebagai &#39;menyelesaikan sistem persamaan linear dua variabel melalui beberapa cara untuk penyelesaian masalah&#39;. Placement Turo di Fase D sudah sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B5.05</code>
+        <span class="sub-name">Soal cerita SPLDV</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 6">
+      <div class="bab-header">
+        <span class="bab-id">Bab 6</span>
+        <span class="bab-name">Teorema Pythagoras</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 5</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah (termasuk pengenalan bilangan irasional dan jarak antara dua titik pada bidang koordinat Kartesius)&quot;,&quot;reasoning&quot;:&quot;Teorema Pythagoras (a² + b² = c²) secara eksplisit disebut di CP Fase D elemen Geometri. Placement Turo di Fase D (Kelas 8 SMP) sesuai dengan fase yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B6.01</code>
+        <span class="sub-name">Teorema Pythagoras — a² + b² = c²</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Pembuktian Pythagoras melalui potongan puzzle adalah salah satu pendekatan untuk &#39;menunjukkan kebenaran teorema Pythagoras&#39; yang secara eksplisit disebut di CP Fase D elemen Geometri. Placement Turo di Fase D (Kelas 8) sesuai dengan CP.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B6.02</code>
+        <span class="sub-name">Pembuktian Pythagoras — potongan puzzle</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah (termasuk pengenalan bilangan irasional dan jarak antara dua titik pada bidang koordinat Kartesius)&quot;,&quot;reasoning&quot;:&quot;CP Fase D secara eksplisit menyebut penggunaan teorema Pythagoras untuk menyelesaikan masalah, yang mencakup aplikasinya dalam konteks geometri. Placement Turo di Fase D (SMP) sudah sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B6.03</code>
+        <span class="sub-name">Aplikasi Pythagoras dalam geometri</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah (termasuk pengenalan bilangan irasional dan jarak antara dua titik pada bidang koordinat Kartesius)&quot;,&quot;reasoning&quot;:&quot;CP Fase D secara eksplisit menyebut &#39;jarak antara dua titik pada bidang koordinat Kartesius&#39; sebagai bagian dari aplikasi Teorema Pythagoras, yang persis sesuai dengan sub-materi ini. Placement Turo di Fase D sudah tepat.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B6.04</code>
+        <span class="sub-name">Jarak 2 titik dalam bidang koordinat</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah (termasuk pengenalan bilangan irasional dan jarak antara dua titik pada bidang koordinat Kartesius)&quot;,&quot;reasoning&quot;:&quot;Tripel Pythagoras merupakan bagian integral dari pembahasan Teorema Pythagoras, yang secara eksplisit disebut di CP Fase D elemen Geometri. Tripel Pythagoras adalah himpunan bilangan bulat yang memenuhi teorema Pythagoras, sehingga tersirat dalam konteks &#39;menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah&#39;.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B6.05</code>
+        <span class="sub-name">Tripel Pythagoras</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 7">
+      <div class="bab-header">
+        <span class="bab-id">Bab 7</span>
+        <span class="bab-name">Lingkaran (Unsur dan Hubungan Sudut)</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Unsur-unsur lingkaran (titik pusat, jari-jari, diameter, busur, tali busur, juring) merupakan prasyarat/bagian implisit dari pembahasan lingkaran di CP Fase D yang menyebut panjang busur dan luas juring lingkaran — pemahaman unsur-unsur tersebut secara inheren tercakup. Placement Turo di Fase D (SMP) sesuai dengan CP Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B7.01</code>
+        <span class="sub-name">Review unsur lingkaran (titik pusat, jari-jari, diameter, busur, tali busur, juring)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Keliling dan luas lingkaran secara eksplisit disebut dalam elemen Pengukuran Fase D. Meskipun sub-materi ini merupakan perluasan dari K6, CP Fase D secara jelas mencakup topik ini untuk jenjang SMP (K7-K9).&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B7.02</code>
+        <span class="sub-name">Keliling dan luas lingkaran (perluasan K6)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Sudut pusat dan sudut keliling adalah bagian dari topik sudut pada lingkaran yang secara eksplisit disebut dalam CP Fase D elemen Pengukuran (&#39;sudut dan luas juring lingkaran&#39;). Placement Turo di Fase D (SMP) sudah sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B7.03</code>
+        <span class="sub-name">Sudut pusat dan sudut keliling</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Panjang busur dan luas juring lingkaran disebut secara eksplisit di CP Fase D elemen Pengukuran. Placement Turo di Fase D (SMP K8) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B7.04</code>
+        <span class="sub-name">Panjang busur dan luas juring</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 8">
+      <div class="bab-header">
+        <span class="bab-id">Bab 8</span>
+        <span class="bab-name">Bangun Ruang Sisi Datar (Limas dan Prisma)</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Prisma (termasuk prisma segi-n) secara eksplisit disebut dalam CP Fase D elemen Pengukuran. Review dan perluasan ke prisma segi-n masih dalam cakupan yang sama karena CP tidak membatasi jenis prisma tertentu.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B8.01</code>
+        <span class="sub-name">Prisma (review &amp; perluasan ke prisma segi-n)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Volume limas (V = 1/3 × alas × tinggi) secara eksplisit tercakup dalam CP Fase D elemen Pengukuran yang menyebut &#39;limas&#39; sebagai salah satu bangun ruang yang harus ditentukan volumenya. Placement Turo di Fase D (Kelas 8 SMP) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B8.02</code>
+        <span class="sub-name">Limas — V = 1/3 × alas × tinggi</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Luas permukaan prisma dan limas secara eksplisit disebutkan dalam CP Fase D elemen Pengukuran. Placement Turo di Fase D (SMP) sesuai dengan CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B8.03</code>
+        <span class="sub-name">Luas permukaan prisma &amp; limas</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Topik bangun gabungan (prisma + limas) merupakan perluasan dari materi luas permukaan dan volume prisma serta limas yang secara eksplisit disebut di CP Fase D elemen Pengukuran. Penggabungan dua bangun ruang tersebut tersirat dalam konteks &#39;menyelesaikan masalah yang terkait&#39;.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B8.04</code>
+        <span class="sub-name">Bangun gabungan (prisma + limas)</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 8">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 8">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 9">
+      <div class="bab-header">
+        <span class="bab-id">Bab 9</span>
+        <span class="bab-name">Transformasi Geometri</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      
+      <span class="vs vs-no">🚨 1</span>
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;melakukan transformasi tunggal (refleksi, translasi, rotasi, dan dilatasi) titik, garis, dan bangun datar pada bidang koordinat Kartesius dan menggunakannya untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Translasi (pergeseran) dengan notasi (x, y) → (x+a, y+b) secara eksplisit tercakup dalam &#39;transformasi tunggal... translasi&#39; di CP Fase D Geometri. Placement Turo di Fase D (SMP K8) sesuai dengan fase yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B9.01</code>
+        <span class="sub-name">Translasi (pergeseran) — (x, y) → (x+a, y+b)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;melakukan transformasi tunggal (refleksi, translasi, rotasi, dan dilatasi) titik, garis, dan bangun datar pada bidang koordinat Kartesius dan menggunakannya untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Refleksi (pencerminan) terhadap sumbu/garis secara eksplisit disebut sebagai bagian dari transformasi tunggal di CP Fase D Geometri. Placement Turo di Fase D (SMP K8) sudah sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B9.02</code>
+        <span class="sub-name">Refleksi (pencerminan) — terhadap sumbu/garis</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;melakukan transformasi tunggal (refleksi, translasi, rotasi, dan dilatasi) titik, garis, dan bangun datar pada bidang koordinat Kartesius dan menggunakannya untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Rotasi (termasuk putaran 90°, 180°, 270°) secara eksplisit disebut sebagai bagian dari transformasi tunggal di CP Fase D Geometri. Placement Turo di Fase D (SMP K8) sesuai dengan fase yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B9.03</code>
+        <span class="sub-name">Rotasi — putaran 90°, 180°, 270°</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;melakukan transformasi tunggal (refleksi, translasi, rotasi, dan dilatasi) titik, garis, dan bangun datar pada bidang koordinat Kartesius dan menggunakannya untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Dilatasi (perbesaran/pengecilan dengan faktor skala) secara eksplisit disebut dalam CP Fase D elemen Geometri sebagai salah satu transformasi tunggal. Placement Turo di Fase D (SMP) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B9.04</code>
+        <span class="sub-name">Dilatasi — perbesaran/pengecilan dengan faktor skala</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_fase&quot;:null,&quot;matched_elemen&quot;:null,&quot;kutipan_cp&quot;:null,&quot;reasoning&quot;:&quot;CP Fase D Geometri menyebut &#39;transformasi tunggal (refleksi, translasi, rotasi, dan dilatasi)&#39; — kata kunci &#39;tunggal&#39; secara eksplisit membatasi cakupan pada satu transformasi saja, bukan komposisi/gabungan transformasi. Komposisi transformasi tidak disebut di fase manapun dalam CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-no" title="🚨 AI: tidak ada di CP 046">🚨</span>
+        <code>SMP.8.B9.05</code>
+        <span class="sub-name">Komposisi transformasi</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 9">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 9">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 10">
+      <div class="bab-header">
+        <span class="bab-id">Bab 10</span>
+        <span class="bab-name">Statistika dan Peluang</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      <span class="vs vs-other">⚠ 2</span>
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;menentukan dan menafsirkan rerata (mean), median, modus, dan jangkauan (range) dari data tersebut untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Kuartil (Q1, Q2, Q3) adalah perluasan dari konsep median dan ukuran pemusatan/penyebaran data. CP Fase D menyebut median secara eksplisit dalam konteks analisis data, dan kuartil merupakan bagian tak terpisahkan dari statistika deskriptif yang tercakup dalam Fase D. Placement Turo di Fase D sudah sesuai.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B10.01</code>
+        <span class="sub-name">Kuartil (Q1, Q2, Q3)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;Merepresentasikan dan menginterpretasi data dengan cara menentukan jangkauan kuartil dan interkuartil&quot;,&quot;reasoning&quot;:&quot;Jangkauan interkuartil (IQR) secara eksplisit disebut di CP Fase E (Kelas 10 SMA), bukan di Fase D (SMP). CP Fase D hanya menyebut mean, median, modus, dan jangkauan (range) — tidak menyebut kuartil atau IQR. Penempatan Turo di Fase D (Kelas 8) tidak sesuai dengan CP asli.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.8.B10.02</code>
+        <span class="sub-name">Jangkauan interkuartil (IQR)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;membuat dan menginterpretasi diagram box plot dan menggunakannya untuk membandingkan himpunan data&quot;,&quot;reasoning&quot;:&quot;Diagram box plot secara eksplisit disebut di CP Fase E (Kelas 10 SMA), bukan Fase D (SMP). CP Fase D tidak menyebut box plot sama sekali — hanya menyebut diagram batang dan diagram lingkaran. Penempatan Turo di Kelas 8 (Fase D) tidak sesuai dengan CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.8.B10.03</code>
+        <span class="sub-name">Diagram box plot</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan dan menggunakan pengertian peluang dan frekuensi relatif untuk menentukan frekuensi harapan satu kejadian pada suatu percobaan sederhana (semua hasil percobaan dapat muncul secara merata)&quot;,&quot;reasoning&quot;:&quot;Topik &#39;frekuensi harapan&#39; disebut secara eksplisit di CP Fase D elemen Analisis Data dan Peluang. Placement Turo di Fase D (SMP K8) sesuai dengan fase yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B10.04</code>
+        <span class="sub-name">Peluang — review &amp; frekuensi harapan</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan dan menggunakan pengertian peluang dan frekuensi relatif untuk menentukan frekuensi harapan satu kejadian pada suatu percobaan sederhana (semua hasil percobaan dapat muncul secara merata)&quot;,&quot;reasoning&quot;:&quot;Diagram pohon adalah alat bantu visual untuk menghitung/menyajikan ruang sampel kejadian majemuk dalam konteks peluang, yang secara implisit tercakup dalam pembelajaran peluang Fase D. Namun kutipan CP Fase D hanya menyebut &#39;satu kejadian pada suatu percobaan sederhana&#39;, sedangkan kejadian majemuk secara eksplisit baru disebut di Fase F (&#39;menjelaskan peluang dan menentukan frekuensi harapan dari kejadian majemuk&#39;). Diagram pohon sebagai representasi percobaan dapat dianggap tersirat dalam Fase D, meskipun &#39;kejadian majemuk&#39; lebih eksplisit di Fase F.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B10.05</code>
+        <span class="sub-name">Kejadian majemuk — diagram pohon</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan dan menggunakan pengertian peluang dan frekuensi relatif untuk menentukan frekuensi harapan satu kejadian pada suatu percobaan sederhana (semua hasil percobaan dapat muncul secara merata)&quot;,&quot;reasoning&quot;:&quot;Peluang kejadian saling lepas dan tidak saling lepas berada dalam lingkup konsep peluang Fase D, meskipun CP 046 Fase D menyebutnya secara umum sebagai &#39;pengertian peluang&#39; pada percobaan sederhana. Topik kejadian saling lepas secara eksplisit disebut di Fase F, sehingga ada tumpang tindih; namun konteks Fase D (SMP K8) dengan level sederhana masih dapat dianggap tersirat dalam cakupan peluang Fase D.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.8.B10.06</code>
+        <span class="sub-name">Peluang kejadian saling lepas dan tidak</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 10">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 10">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+        </div>
+      </div>
+    </section>
+  
+    </div>
+  
+    <div class="tab-content " data-kelas="9">
+      
+    <section class="kelas-section" data-kelas="9">
+      <header class="kelas-header">
+        <h2>Kelas 9 <span class="fase-name">— Fase D (Kelas 7-9 SMP)</span></h2>
+      </header>
+      <div class="two-col">
+        <div class="col col-cp">
+          <h3>📘 CP 046 ASLI (autoritatif)</h3>
+          
+    <div class="cp-fase-card" data-fase="Fase D (Kelas 7-9 SMP)">
+      <div class="cp-fase-name">Fase D (Kelas 7-9 SMP)</div>
+      
+    <div class="elemen-block">
+      <div class="elemen-name">Bilangan</div>
+      <div class="elemen-text">Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah; menerapkan operasi aritmatika pada bilangan real, dan memberikan estimasi/perkiraan dalam menyelesaikan masalah (termasuk berkaitan dengan literasi finansial). Murid dapat menggunakan rasio (skala, proporsi, dan laju perubahan) dalam penyelesaian masalah.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Aljabar</div>
+      <div class="elemen-text">Mengenali, memprediksi dan menggeneralisasi pola dalam bentuk susunan benda dan bilangan; Menyatakan suatu situasi ke dalam bentuk aljabar; menggunakan sifat-sifat operasi (komutatif, asosiatif, dan distributif) untuk menghasilkan bentuk aljabar yang ekuivalen. Murid dapat memahami relasi dan fungsi (domain, kodomain, range) serta menyajikannya dalam bentuk diagram panah, tabel, himpunan pasangan berurutan, dan grafik; membedakan beberapa fungsi non linear dari fungsi linear secara grafik; menyelesaikan persamaan dan pertidaksamaan linear satu variabel; menyajikan, menganalisis, dan menyelesaikan masalah dengan menggunakan relasi, fungsi dan persamaan linear; serta menyelesaikan sistem persaman linear dua variabel melalui beberapa cara untuk penyelesaian masalah.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Pengukuran</div>
+      <div class="elemen-text">Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait; menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait; dan menjelaskan pengaruh perubahan secara proporsional dari bangun datar dan bangun ruang terhadap ukuran panjang, besar sudut, luas, dan/atau volume.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Geometri</div>
+      <div class="elemen-text">Membuat jaring-jaring bangun ruang (prisma, tabung, limas dan kerucut) dan membuat bangun ruang dari jaring-jaringnya. Murid dapat menggunakan hubungan antar-sudut yang terbentuk oleh dua garis yang berpotongan, dan oleh dua garis sejajar yang dipotong sebuah garis transversal untuk menyelesaikan masalah (termasuk menentukan jumlah besar sudut dalam sebuah segitiga, menentukan besar sudut yang belum diketahui pada sebuah segitiga); menjelaskan sifat-sifat kekongruenan dan kesebangunan pada segitiga dan segiempat, dan menggunakannya untuk menyelesaikan masalah; menunjukkan kebenaran teorema Pythagoras dan menggunakannya dalam menyelesaikan masalah (termasuk pengenalan bilangan irasional dan jarak antara dua titik pada bidang koordinat Kartesius). Murid dapat melakukan transformasi tunggal (refleksi, translasi, rotasi, dan dilatasi) titik, garis, dan bangun datar pada bidang koordinat Kartesius dan menggunakannya untuk menyelesaikan masalah.</div>
+    </div>
+  
+    <div class="elemen-block">
+      <div class="elemen-name">Analisis Data dan Peluang</div>
+      <div class="elemen-text">Merumuskan pertanyaan, mengumpulkan, menyajikan, dan menganalisis data untuk menjawab pertanyaan dari situasi atau masalah; menggunakan diagram batang dan diagram lingkaran untuk menyajikan dan menginterpretasi data; mengambil sampel yang mewakili suatu populasi untuk mendapatkan data yang terkait dengan diri dan lingkungan mereka; menentukan dan menafsirkan rerata (mean), median, modus, dan jangkauan (range) dari data tersebut untuk menyelesaikan masalah (termasuk membandingkan suatu data terhadap kelompoknya, membandingkan dua kelompok data, memprediksi, membuat keputusan); menyelidiki kemungkinan adanya perubahan pengukuran pusat tersebut akibat perubahan data. Murid dapat menjelaskan dan menggunakan pengertian peluang dan frekuensi relatif untuk menentukan frekuensi harapan satu kejadian pada suatu percobaan sederhana (semua hasil percobaan dapat muncul secara merata).</div>
+    </div>
+  
+    </div>
+  
+        </div>
+        <div class="col col-turo">
+          <h3>🎯 Turo Strict + AI Verdict</h3>
+          
+    <div class="bab-card turo-card" data-bab-kode="Bab 1">
+      <div class="bab-header">
+        <span class="bab-id">Bab 1</span>
+        <span class="bab-name">Bilangan Berpangkat dan Bentuk Akar</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 6</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah; menerapkan operasi aritmatika pada bilangan real&quot;,&quot;reasoning&quot;:&quot;CP Fase D secara eksplisit menyebut &#39;bilangan berpangkat bulat dan akar&#39; serta operasi aritmatika pada bilangan real, yang mencakup pangkat bulat positif beserta sifat-sifatnya. Placement Turo di Fase D (K9 SMP) sesuai dengan Fase D CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B1.01</code>
+        <span class="sub-name">Pangkat bulat positif — review &amp; sifat</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah&quot;,&quot;reasoning&quot;:&quot;Pangkat nol dan pangkat negatif termasuk dalam cakupan &#39;bilangan berpangkat bulat&#39; yang disebut eksplisit di CP Fase D elemen Bilangan. Pangkat nol (a^0) dan pangkat negatif (a^-n) adalah bagian dari sifat bilangan berpangkat bulat, sehingga placement di Fase D (SMP K9) sudah sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B1.02</code>
+        <span class="sub-name">Pangkat nol dan pangkat negatif</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah&quot;,&quot;reasoning&quot;:&quot;CP Fase D secara eksplisit menyebut &#39;bilangan berpangkat bulat dan akar&#39;, yang mencakup pangkat pecahan sebagai representasi dari bentuk akar (misal akar kuadrat = pangkat 1/2). Topik ini sesuai dengan placement Turo di Fase D (SMP).&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B1.03</code>
+        <span class="sub-name">Pangkat pecahan — akar</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah; menerapkan operasi aritmatika pada bilangan real&quot;,&quot;reasoning&quot;:&quot;CP Fase D secara eksplisit menyebut &#39;bilangan berpangkat bulat dan akar&#39; serta &#39;operasi aritmatika pada bilangan real&#39;, yang mencakup operasi bentuk akar termasuk menyederhanakan. Placement Turo di Fase D (Kelas 9 SMP) sudah tepat.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B1.04</code>
+        <span class="sub-name">Operasi bentuk akar (menyederhanakan)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah; menerapkan operasi aritmatika pada bilangan real&quot;,&quot;reasoning&quot;:&quot;Merasionalkan pecahan dengan akar adalah operasi aritmatika pada bilangan real yang melibatkan bilangan berpangkat dan akar, keduanya disebut eksplisit di CP Fase D elemen Bilangan. Topik ini secara semantik tercakup dalam &#39;menerapkan operasi aritmatika pada bilangan real&#39; dan &#39;bilangan berpangkat bulat dan akar&#39;.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B1.05</code>
+        <span class="sub-name">Merasionalkan pecahan dengan akar</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Bilangan&quot;,&quot;kutipan_cp&quot;:&quot;Membaca, menulis, dan membandingkan bilangan bulat, bilangan rasional, bilangan desimal, bilangan berpangkat bulat dan akar, bilangan dalam notasi ilmiah&quot;,&quot;reasoning&quot;:&quot;Notasi ilmiah (scientific notation) disebut secara eksplisit dalam CP Fase D elemen Bilangan. Placement Turo di Fase D (Kelas 9 SMP) sesuai dengan fase yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B1.06</code>
+        <span class="sub-name">Notasi ilmiah (scientific notation)</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 1">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 1">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 2">
+      <div class="bab-header">
+        <span class="bab-id">Bab 2</span>
+        <span class="bab-name">Persamaan Kuadrat</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 1</span>
+      <span class="vs vs-other">⚠ 5</span>
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Aljabar dan Fungsi&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan masalah yang berkaitan dengan persamaan dan fungsi kuadrat (termasuk akar imajiner)&quot;,&quot;reasoning&quot;:&quot;CP 046 menempatkan persamaan kuadrat secara eksplisit di Fase E (Kelas 10 SMA), bukan Fase D (SMP). Turo menempatkannya di K9 (Fase D), sehingga terjadi mismatch fase.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.9.B2.01</code>
+        <span class="sub-name">Pengenalan persamaan kuadrat — ax² + bx + c = 0</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan masalah yang berkaitan dengan persamaan dan fungsi kuadrat (termasuk akar imajiner), serta persamaan eksponensial (berbasis/ bilangan pokok sama) dan fungsi eksponensial&quot;,&quot;reasoning&quot;:&quot;Penyelesaian persamaan kuadrat dengan faktorisasi secara semantik termasuk dalam topik &#39;persamaan dan fungsi kuadrat&#39; yang disebut di CP Fase E (Kelas 10 SMA), bukan Fase D. Placement Turo di Fase D (K9) tidak sesuai dengan lokasi topik ini di CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.9.B2.02</code>
+        <span class="sub-name">Penyelesaian dengan faktorisasi</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan masalah yang berkaitan dengan persamaan dan fungsi kuadrat (termasuk akar imajiner), serta persamaan eksponensial (berbasis/ bilangan pokok sama) dan fungsi eksponensial&quot;,&quot;reasoning&quot;:&quot;Melengkapkan kuadrat sempurna adalah metode penyelesaian persamaan kuadrat. CP 046 menyebut persamaan kuadrat secara eksplisit di Fase E (Kelas 10 SMA), bukan Fase D (SMP). Turo menempatkannya di Kelas 9 (Fase D), sehingga ini adalah mismatch fase.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.9.B2.03</code>
+        <span class="sub-name">Melengkapkan kuadrat sempurna</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Aljabar dan Fungsi&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan masalah yang berkaitan dengan persamaan dan fungsi kuadrat (termasuk akar imajiner), serta persamaan eksponensial (berbasis/ bilangan pokok sama) dan fungsi eksponensial&quot;,&quot;reasoning&quot;:&quot;Persamaan kuadrat (termasuk rumus abc/kuadratik) secara eksplisit disebut di CP Fase E (Kelas 10 SMA), bukan di Fase D (Kelas 7-9 SMP). Fase D tidak menyebut persamaan kuadrat sama sekali — hanya mencakup persamaan dan pertidaksamaan linear satu variabel serta sistem persamaan linear dua variabel.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.9.B2.04</code>
+        <span class="sub-name">Rumus abc — x = (−b ± √(b²−4ac))/2a</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan masalah yang berkaitan dengan persamaan dan fungsi kuadrat (termasuk akar imajiner)&quot;,&quot;reasoning&quot;:&quot;Jumlah dan hasil kali akar-akar persamaan kuadrat (rumus Vieta) adalah bagian dari topik persamaan kuadrat, yang secara eksplisit disebut di CP Fase E (SMA K10), bukan Fase D. CP Fase D hanya menyebut persamaan linear secara eksplisit.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.9.B2.05</code>
+        <span class="sub-name">Jumlah &amp; hasil kali akar-akar</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;menyajikan, menganalisis, dan menyelesaikan masalah dengan menggunakan relasi, fungsi dan persamaan linear; serta menyelesaikan sistem persaman linear dua variabel melalui beberapa cara untuk penyelesaian masalah&quot;,&quot;reasoning&quot;:&quot;Fase D secara eksplisit mencakup penyelesaian persamaan dan masalah kontekstual menggunakan persamaan. Meskipun kutipan di atas merujuk persamaan linear, teks CP Fase D Aljabar juga menyebut &#39;membedakan beberapa fungsi non linear dari fungsi linear&#39; dan konteks penyelesaian masalah secara umum. Aplikasi persamaan kuadrat (penggunaan persamaan kuadrat untuk menyelesaikan masalah nyata) tersirat dalam cakupan Fase D yang mencakup persamaan dan fungsi non-linear, sehingga placement di Fase D sudah sesuai.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B2.06</code>
+        <span class="sub-name">Aplikasi persamaan kuadrat</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 2">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 2">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 3">
+      <div class="bab-header">
+        <span class="bab-id">Bab 3</span>
+        <span class="bab-name">Fungsi Kuadrat dan Parabola</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 1</span>
+      <span class="vs vs-other">⚠ 4</span>
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Aljabar&quot;,&quot;kutipan_cp&quot;:&quot;membedakan beberapa fungsi non linear dari fungsi linear secara grafik&quot;,&quot;reasoning&quot;:&quot;Grafik f(x) = x² (parabola dasar) adalah fungsi nonlinear paling mendasar. CP Fase D secara eksplisit menyebut &#39;membedakan beberapa fungsi non linear dari fungsi linear secara grafik&#39;, yang secara langsung mencakup pengenalan dan penggambaran parabola dasar sebagai representasi fungsi kuadrat.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B3.01</code>
+        <span class="sub-name">Grafik f(x) = x² — parabola dasar</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Aljabar dan Fungsi&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan masalah yang berkaitan dengan persamaan dan fungsi kuadrat (termasuk akar imajiner), serta persamaan eksponensial (berbasis/ bilangan pokok sama) dan fungsi eksponensial&quot;,&quot;reasoning&quot;:&quot;Fungsi kuadrat dan parabola (termasuk analisis pengaruh parameter a, b, c) secara eksplisit disebutkan di CP Fase E (Kelas 10 SMA), bukan di Fase D (SMP). Turo menempatkan topik ini di Kelas 9 Fase D, sehingga terjadi mismatch fase.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.9.B3.02</code>
+        <span class="sub-name">Pengaruh parameter a, b, c terhadap parabola</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Aljabar dan Fungsi&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan masalah yang berkaitan dengan persamaan dan fungsi kuadrat (termasuk akar imajiner), serta persamaan eksponensial (berbasis/ bilangan pokok sama) dan fungsi eksponensial&quot;,&quot;reasoning&quot;:&quot;Titik puncak dan sumbu simetri adalah bagian integral dari topik fungsi kuadrat/parabola. Dalam CP 046, fungsi kuadrat secara eksplisit disebutkan di Fase E (Kelas 10 SMA), bukan di Fase D (SMP). CP Fase D hanya menyebut fungsi linear dan relasi/fungsi umum, tidak mencakup fungsi kuadrat atau parabola.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.9.B3.03</code>
+        <span class="sub-name">Titik puncak dan sumbu simetri</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Aljabar dan Fungsi&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan masalah yang berkaitan dengan persamaan dan fungsi kuadrat (termasuk akar imajiner)&quot;,&quot;reasoning&quot;:&quot;Topik fungsi kuadrat dan akar-akarnya secara eksplisit disebut di CP Fase E (&#39;persamaan dan fungsi kuadrat&#39;), bukan di Fase D. Placement Turo di Kelas 9 (Fase D) tidak sesuai dengan CP yang menempatkan materi ini di Fase E.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.9.B3.04</code>
+        <span class="sub-name">Akar-akar fungsi kuadrat = titik potong sumbu x</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Aljabar dan Fungsi&quot;,&quot;kutipan_cp&quot;:&quot;menyelesaikan masalah yang berkaitan dengan persamaan dan fungsi kuadrat (termasuk akar imajiner), serta persamaan eksponensial (berbasis/bilangan pokok sama) dan fungsi eksponensial&quot;,&quot;reasoning&quot;:&quot;Nilai maksimum/minimum fungsi kuadrat secara eksplisit disebut dalam konteks fungsi kuadrat di Fase E (Kelas 10 SMA). CP Fase D hanya menyebut &#39;membedakan beberapa fungsi non linear dari fungsi linear secara grafik&#39; tanpa menyebut fungsi kuadrat atau nilai ekstremumnya secara spesifik, sehingga placement Turo di Fase D (Kelas 9) tidak sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.9.B3.05</code>
+        <span class="sub-name">Nilai maksimum/minimum fungsi kuadrat</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 3">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 3">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 4">
+      <div class="bab-header">
+        <span class="bab-id">Bab 4</span>
+        <span class="bab-name">Kekongruenan dan Kesebangunan</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 6</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan sifat-sifat kekongruenan dan kesebangunan pada segitiga dan segiempat, dan menggunakannya untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Kekongruenan (sama bentuk &amp; ukuran) secara eksplisit disebutkan di CP Fase D elemen Geometri, mencakup sifat-sifat kekongruenan pada segitiga dan segiempat. Placement Turo di Fase D (K9) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B4.01</code>
+        <span class="sub-name">Kekongruenan — sama bentuk &amp; ukuran</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan sifat-sifat kekongruenan dan kesebangunan pada segitiga dan segiempat, dan menggunakannya untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Syarat kekongruenan segitiga (SSS, SAS, ASA, AAS) secara langsung merupakan bagian dari &#39;sifat-sifat kekongruenan pada segitiga&#39; yang disebutkan eksplisit di CP Fase D Geometri. Placement Turo di Fase D (SMP K9) sesuai dengan Fase D CP.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B4.02</code>
+        <span class="sub-name">Syarat kekongruenan segitiga (SSS, SAS, ASA, AAS)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan sifat-sifat kekongruenan dan kesebangunan pada segitiga dan segiempat, dan menggunakannya untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Kesebangunan (sama bentuk, beda ukuran) secara eksplisit disebut dalam CP Fase D elemen Geometri, yaitu &#39;sifat-sifat kekongruenan dan kesebangunan pada segitiga dan segiempat&#39;. Placement Turo di Fase D (K9 SMP) sesuai karena Fase D mencakup K7–K9.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B4.03</code>
+        <span class="sub-name">Kesebangunan — sama bentuk, beda ukuran</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan sifat-sifat kekongruenan dan kesebangunan pada segitiga dan segiempat, dan menggunakannya untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Syarat kesebangunan segitiga (AA, SAS, SSS) secara eksplisit tercakup dalam CP Fase D Geometri yang menyebut &#39;kesebangunan pada segitiga&#39;. Placement Turo di Fase D (K9) sesuai dengan fase CP yang sama.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B4.04</code>
+        <span class="sub-name">Syarat kesebangunan segitiga (AA, SAS, SSS)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan sifat-sifat kekongruenan dan kesebangunan pada segitiga dan segiempat, dan menggunakannya untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Aplikasi kesebangunan secara eksplisit tercakup dalam CP Fase D Geometri yang menyebut &#39;kesebangunan pada segitiga dan segiempat dan menggunakannya untuk menyelesaikan masalah&#39;. Placement Turo di Fase D (SMP K9) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B4.05</code>
+        <span class="sub-name">Aplikasi kesebangunan</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan sifat-sifat kekongruenan dan kesebangunan pada segitiga dan segiempat, dan menggunakannya untuk menyelesaikan masalah&quot;,&quot;reasoning&quot;:&quot;Teorema dasar segitiga (garis sejajar memotong sisi-sisi segitiga secara proporsional) adalah bagian inti dari topik kesebangunan segitiga, yang secara eksplisit disebut dalam CP Fase D elemen Geometri. Topik ini merupakan landasan teoritis kesebangunan segitiga.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B4.06</code>
+        <span class="sub-name">Teorema dasar segitiga (garis sejajar memotong proporsional)</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 4">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 4">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 5">
+      <div class="bab-header">
+        <span class="bab-id">Bab 5</span>
+        <span class="bab-name">Bangun Ruang Sisi Lengkung (BRSL)</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 6</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Tabung (silinder) secara eksplisit disebut dalam CP Fase D elemen Pengukuran, mencakup luas permukaan dan volume. Placement Turo di Fase D (SMP K9) sesuai dengan Fase D CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B5.01</code>
+        <span class="sub-name">Tabung (review K6 + perluasan)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Volume kerucut V=(1/3)πr²t secara eksplisit tercakup dalam CP Fase D elemen Pengukuran yang menyebut &#39;volume bangun ruang ... kerucut&#39;. Placement Turo di Fase D (SMP K9) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B5.02</code>
+        <span class="sub-name">Kerucut — V = (1/3)πr²t</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Geometri&quot;,&quot;kutipan_cp&quot;:&quot;Membuat jaring-jaring bangun ruang (prisma, tabung, limas dan kerucut) dan membuat bangun ruang dari jaring-jaringnya.&quot;,&quot;reasoning&quot;:&quot;Jaring-jaring kerucut secara eksplisit disebutkan dalam CP Fase D elemen Geometri, yang mencakup pembuatan jaring-jaring kerucut. Placement Turo di Fase D (K9) sesuai dengan Fase D CP 046.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B5.03</code>
+        <span class="sub-name">Jaring-jaring kerucut</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Luas permukaan kerucut (πr² + πrs) secara eksplisit tercakup dalam CP Fase D elemen Pengukuran yang menyebut &#39;kerucut&#39; sebagai salah satu bangun ruang yang ditentukan luas permukaannya. Placement Turo di Fase D (K9) sesuai.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B5.04</code>
+        <span class="sub-name">Luas permukaan kerucut — πr² + πrs</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Bola disebutkan secara eksplisit dalam CP Fase D elemen Pengukuran sebagai salah satu bangun ruang yang harus ditentukan luas permukaan dan volumenya. Formula V = (4/3)πr³ dan Lp = 4πr² adalah inti dari kompetensi tersebut.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B5.05</code>
+        <span class="sub-name">Bola — V = (4/3)πr³ dan Lp = 4πr²</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;menjelaskan cara untuk menentukan luas permukaan dan volume bangun ruang (prisma, tabung, bola, limas dan kerucut) dan menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Aplikasi BRSL seperti kemasan dan tangki merupakan penerapan luas permukaan dan volume bangun ruang sisi lengkung (tabung, bola, kerucut) dalam konteks masalah nyata, yang secara eksplisit tercakup dalam frasa &#39;menyelesaikan masalah yang terkait&#39; pada elemen Pengukuran Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B5.06</code>
+        <span class="sub-name">Aplikasi BRSL (kemasan, tangki)</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 5">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 5">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 6">
+      <div class="bab-header">
+        <span class="bab-id">Bab 6</span>
+        <span class="bab-name">Lingkaran — Hubungan Sudut dan Garis Singgung</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      <span class="vs vs-same">✓ 4</span>
+      
+      
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Garis singgung lingkaran termasuk dalam topik lingkaran di Fase D. Meskipun frasa eksplisit &#39;garis singgung&#39; tidak muncul verbatim, konteks &#39;sudut dan lingkaran&#39; serta penyelesaian masalah terkait lingkaran di Fase D secara implisit mencakup hubungan sudut dan garis singgung lingkaran yang merupakan bagian standar kurikulum SMP.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B6.01</code>
+        <span class="sub-name">Garis singgung lingkaran</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Panjang garis singgung dari titik luar berkaitan langsung dengan topik lingkaran di Fase D. Meskipun kutipan utama ada di elemen Pengukuran, topik garis singgung juga berkaitan dengan hubungan sudut dan sifat geometri lingkaran yang tersirat dalam pembahasan lingkaran Fase D (termasuk teorema Pythagoras yang digunakan untuk menghitung panjang garis singgung). CP Fase D secara eksplisit membahas lingkaran dan penggunaan teorema Pythagoras, keduanya di Fase yang sama dengan placement Turo.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B6.02</code>
+        <span class="sub-name">Panjang garis singgung dari titik luar</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Topik garis singgung dari titik luar lingkaran merupakan bagian dari hubungan sudut dan garis singgung lingkaran, yang secara implisit tercakup dalam CP Fase D elemen Pengukuran yang menyebut &#39;sudut&#39; dan &#39;lingkaran&#39;. Konsep garis singgung lingkaran adalah bagian integral dari materi lingkaran di SMP (Fase D).&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B6.03</code>
+        <span class="sub-name">Dua garis singgung dari satu titik luar</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_SAMA" data-verdict="MATCH_FASE_SAMA" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_SAMA&quot;,&quot;matched_fase&quot;:&quot;Fase D&quot;,&quot;matched_elemen&quot;:&quot;Pengukuran&quot;,&quot;kutipan_cp&quot;:&quot;Menentukan keliling, luas, panjang busur, sudut dan luas juring lingkaran, serta menyelesaikan masalah yang terkait&quot;,&quot;reasoning&quot;:&quot;Garis singgung persekutuan dua lingkaran termasuk dalam topik lingkaran (hubungan sudut dan garis singgung) yang secara implisit tercakup dalam elemen Pengukuran Fase D yang membahas lingkaran secara komprehensif. Meski kutipan eksplisit CP menyebut &#39;panjang busur, sudut dan luas juring&#39;, konteks &#39;menyelesaikan masalah yang terkait&#39; dengan lingkaran di Fase D secara implisit mencakup garis singgung lingkaran.&quot;,&quot;confidence&quot;:&quot;medium&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-same" title="✓ AI: di CP 046, Fase sama">✓</span>
+        <code>SMP.9.B6.04</code>
+        <span class="sub-name">Garis singgung persekutuan dua lingkaran</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 6">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 6">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+    <div class="bab-card turo-card" data-bab-kode="Bab 7">
+      <div class="bab-header">
+        <span class="bab-id">Bab 7</span>
+        <span class="bab-name">Analisis Data Bivariate</span>
+        <span class="badge badge-strict">All Strict</span>
+      </div>
+      
+    <div class="verdict-summary">
+      
+      <span class="vs vs-other">⚠ 2</span>
+      <span class="vs vs-no">🚨 1</span>
+    </div>
+  
+      <ul class="sub-list">
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan diagram pencar untuk menyelidiki dan menjelaskan hubungan antara dua variabel numerik/kuantitatif (termasuk salah satunya variabel bebas berupa waktu)&quot;,&quot;reasoning&quot;:&quot;Analisis data bivariate (dua variabel numerik) secara eksplisit disebut di CP Fase E (Kelas 10 SMA) melalui diagram pencar dan hubungan dua variabel numerik/kuantitatif. CP Fase D tidak menyebut data bivariate sama sekali — Fase D hanya mencakup mean, median, modus, jangkauan, diagram batang, dan diagram lingkaran untuk data univariat.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.9.B7.01</code>
+        <span class="sub-name">Data bivariate — dua variabel numerik</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-MATCH_FASE_LAIN" data-verdict="MATCH_FASE_LAIN" data-audit='{&quot;verdict&quot;:&quot;MATCH_FASE_LAIN&quot;,&quot;matched_fase&quot;:&quot;Fase E&quot;,&quot;matched_elemen&quot;:&quot;Analisis Data dan Peluang&quot;,&quot;kutipan_cp&quot;:&quot;menggunakan diagram pencar untuk menyelidiki dan menjelaskan hubungan antara dua variabel numerik/kuantitatif (termasuk salah satunya variabel bebas berupa waktu)&quot;,&quot;reasoning&quot;:&quot;Diagram pencar (scatter plot) secara eksplisit disebut di CP 046 pada Fase E (Kelas 10 SMA), bukan Fase D (SMP). Turo menempatkan topik ini di Kelas 9 SMP (Fase D), sehingga terjadi mismatch fase — topik ada di CP tetapi di fase yang berbeda.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-other" title="⚠ AI: di CP 046, tapi Fase berbeda">⚠</span>
+        <code>SMP.9.B7.02</code>
+        <span class="sub-name">Diagram pencar (scatter plot)</span>
+      </li>
+    
+      <li class="sub-item sub-strict verdict-NO_MATCH" data-verdict="NO_MATCH" data-audit='{&quot;verdict&quot;:&quot;NO_MATCH&quot;,&quot;matched_fase&quot;:null,&quot;matched_elemen&quot;:null,&quot;kutipan_cp&quot;:null,&quot;reasoning&quot;:&quot;CP Fase D hanya menyebut analisis data univariat (mean, median, modus, jangkauan, diagram batang, diagram lingkaran) dan tidak menyinggung data bivariate, diagram pencar, maupun korelasi antar dua variabel. Topik korelasi visual (positif, negatif, tidak ada) baru muncul di CP Fase E (&#39;menggunakan diagram pencar untuk menyelidiki dan menjelaskan hubungan antara dua variabel numerik/kuantitatif&#39;), sehingga topik ini tidak memiliki landasan di Fase D.&quot;,&quot;confidence&quot;:&quot;high&quot;,&quot;_expected_fase&quot;:&quot;Fase D (Kelas 7-9 SMP)&quot;}'>
+        <span class="vbadge vbadge-no" title="🚨 AI: tidak ada di CP 046">🚨</span>
+        <code>SMP.9.B7.03</code>
+        <span class="sub-name">Korelasi visual — positif, negatif, tidak ada</span>
+      </li>
+    </ul>
+      
+        <div class="actions">
+          <button class="btn btn-untag" data-action="untag" data-key="untag:Bab 7">🌉 UNTAG → Bridge</button>
+          <button class="btn btn-keep" data-action="keep" data-key="keep:Bab 7">✓ KEEP Strict</button>
+        </div>
+      
+    </div>
+  
+        </div>
+      </div>
+    </section>
+  
+    </div>
+  
+
+<div class="modal" id="detailModal">
+  <div class="modal-content">
+    <h2 id="detailTitle">Sub-materi Detail</h2>
+    <div id="detailBody"></div>
+    <div class="modal-actions">
+      <button class="primary" onclick="document.getElementById('detailModal').classList.remove('show')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="exportModal">
+  <div class="modal-content">
+    <h2>Export Decisions</h2>
+    <p style="color:#64748b; font-size:13px;">Copy text di bawah → kirim ke Claude untuk apply ke peta-prasyarat.json.</p>
+    <textarea id="exportText" readonly></textarea>
+    <div class="modal-actions">
+      <button onclick="copyExport()">📋 Copy</button>
+      <button class="primary" onclick="document.getElementById('exportModal').classList.remove('show')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const decisions = { untag: [], keep: [] };
+  let currentFilter = "all";
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const k = btn.dataset.kelas;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.kelas === k));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.dataset.kelas === k));
+      window.scrollTo(0, 0);
+    });
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentFilter = btn.dataset.filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.sub-item').forEach(item => {
+        if (currentFilter === "all") {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.toggle('hidden', item.dataset.verdict !== currentFilter);
+        }
+      });
+    });
+  });
+
+  document.querySelectorAll('.sub-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const auditAttr = item.dataset.audit;
+      const code = item.querySelector('code')?.textContent ?? '?';
+      const name = item.querySelector('.sub-name')?.textContent ?? '?';
+      let body = '<p><strong>' + code + '</strong>: ' + name + '</p>';
+      if (auditAttr) {
+        try {
+          const a = JSON.parse(auditAttr);
+          const verdictLabel = {
+            MATCH_FASE_SAMA: '✓ MATCH FASE SAMA (valid strict)',
+            MATCH_FASE_LAIN: '⚠ MATCH FASE LAIN (placement mismatch)',
+            NO_MATCH: '🚨 NO MATCH (tidak di CP 046)',
+          }[a.verdict] || a.verdict;
+          body += '<div class="audit-detail">';
+          body += '<div class="field"><span class="label">Verdict:</span> <strong>' + verdictLabel + '</strong></div>';
+          if (a._expected_fase) body += '<div class="field"><span class="label">Placement Turo:</span> ' + a._expected_fase + '</div>';
+          if (a.matched_fase) body += '<div class="field"><span class="label">CP taruh di:</span> <strong>' + a.matched_fase + '</strong>' + (a.matched_elemen ? ' (elemen ' + a.matched_elemen + ')' : '') + '</div>';
+          if (a.confidence) body += '<div class="field"><span class="label">Confidence:</span> <span class="conf-' + a.confidence + '">' + a.confidence.toUpperCase() + '</span></div>';
+          if (a.kutipan_cp) body += '<div class="quote">"' + a.kutipan_cp + '"</div>';
+          if (a.reasoning) body += '<div class="reasoning"><strong>Alasan:</strong> ' + a.reasoning + '</div>';
+          body += '</div>';
+        } catch (err) {
+          body += '<p style="color: #b91c1c;">Error parsing: ' + err.message + '</p>';
+        }
+      } else {
+        body += '<p style="color: #94a3b8; font-style: italic;">Sub belum diaudit (mungkin bridge / non-strict).</p>';
+      }
+      document.getElementById('detailTitle').textContent = code;
+      document.getElementById('detailBody').innerHTML = body;
+      document.getElementById('detailModal').classList.add('show');
+    });
+  });
+
+  document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('show'); });
+  });
+
+  document.querySelectorAll('button[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      const key = btn.dataset.key;
+      const card = btn.closest('.bab-card');
+      const wasActive = btn.classList.contains('active');
+
+      card.querySelectorAll('button[data-action]').forEach(b => b.classList.remove('active'));
+      card.classList.remove('marked-untag', 'marked-keep');
+      decisions.untag = decisions.untag.filter(d => d.babKode !== card.dataset.babKode);
+      decisions.keep = decisions.keep.filter(d => d.babKode !== card.dataset.babKode);
+
+      if (!wasActive) {
+        btn.classList.add('active');
+        if (action === 'untag') {
+          card.classList.add('marked-untag');
+          decisions.untag.push({ key, babKode: card.dataset.babKode });
+        } else {
+          card.classList.add('marked-keep');
+          decisions.keep.push({ key, babKode: card.dataset.babKode });
+        }
+      }
+    });
+  });
+
+  function showExport() {
+    const out = {
+      jenjang: 'SMP',
+      generated: new Date().toISOString(),
+      untag_bab_kodes: decisions.untag.map(d => d.babKode),
+      keep_strict_bab_kodes: decisions.keep.map(d => d.babKode),
+    };
+    document.getElementById('exportText').value = JSON.stringify(out, null, 2);
+    document.getElementById('exportModal').classList.add('show');
+  }
+
+  function copyExport() {
+    const ta = document.getElementById('exportText');
+    ta.select();
+    document.execCommand('copy');
+    alert('Copied!');
+  }
+</script>
+
+</body>
+</html>
