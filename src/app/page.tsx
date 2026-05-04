@@ -29,7 +29,7 @@ import {
 } from "@/lib/kategori-tema";
 
 // ============================================================
-// Landing
+// Landing — pure marketing, CTA → /login
 // ============================================================
 
 function FloatingMath() {
@@ -59,136 +59,306 @@ function FloatingMath() {
   );
 }
 
-function LandingPage() {
-  const { loginEmail, registerEmail, loginGoogle } = useAuth();
-  const [isRegister, setIsRegister] = useState(false);
-  const [nama, setNama] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setSubmitting(true);
-    try {
-      if (isRegister) {
-        await registerEmail(email, password, nama);
-      } else {
-        await loginEmail(email, password);
-      }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
-      if (msg.includes("invalid-credential") || msg.includes("wrong-password")) setError("Email atau password salah.");
-      else if (msg.includes("email-already-in-use")) setError("Email sudah terdaftar. Silakan masuk.");
-      else if (msg.includes("weak-password")) setError("Password minimal 6 karakter.");
-      else if (msg.includes("invalid-email")) setError("Format email tidak valid.");
-      else setError(msg);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleGoogle() {
-    setError("");
-    setSubmitting(true);
-    try {
-      await loginGoogle();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
-      if (!msg.includes("popup-closed")) setError(msg);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
+function LandingHeader() {
   return (
-    <main className="flex-1 flex flex-col lg:flex-row">
-      <div className="relative flex-1 overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-cyan-900 text-white flex flex-col justify-center px-8 py-16 lg:px-16">
-        <div className="bg-grid-dark absolute inset-0 opacity-40" />
-        <FloatingMath />
-        <div className="relative max-w-lg mx-auto lg:mx-0 animate-rise">
+    <header className="absolute top-0 inset-x-0 z-20">
+      <div className="mx-auto max-w-6xl flex items-center justify-between px-6 sm:px-10 py-5">
+        <div className="flex items-center gap-2">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/15 backdrop-blur ring-1 ring-white/30 text-white font-bold shadow-lg">
+            t
+          </span>
+          <span className="font-extrabold text-lg tracking-tight text-white">
+            turo<span className="text-teal-300">.</span>
+          </span>
+        </div>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href="/login"
+            className="text-sm text-white/85 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition font-medium"
+          >
+            Masuk
+          </Link>
+          <Link
+            href="/login?mode=register"
+            className="text-sm bg-white text-teal-700 hover:bg-teal-50 px-4 py-1.5 rounded-lg font-semibold shadow-md hover:shadow-lg transition"
+          >
+            Daftar gratis
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-cyan-900 text-white">
+      <div className="bg-grid-dark absolute inset-0 opacity-40" />
+      <FloatingMath />
+      <LandingHeader />
+
+      <div className="relative mx-auto max-w-6xl px-6 sm:px-10 pt-28 sm:pt-36 pb-20 sm:pb-28">
+        <div className="max-w-3xl animate-rise">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-3 py-1 text-xs font-medium text-teal-50 ring-1 ring-white/20 mb-6">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 animate-pulse" />
             mainmaku.id · belajar matematika adaptif
           </div>
-          <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight mb-4">
-            turo<span className="text-teal-300">.</span>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
+            Belajar matematika<br />
+            dari <span className="text-teal-300">dasar</span> sampai <span className="text-cyan-300">olimpiade</span>.
           </h1>
-          <p className="text-lg text-teal-50/90 mb-8 leading-relaxed">
-            Sekolah, SNBT, atau Olimpiade — semua dalam satu platform. Peta prasyarat & bantuan visual AI bantu kamu naik level dari dasar.
+          <p className="text-lg sm:text-xl text-teal-50/90 mb-8 leading-relaxed max-w-2xl">
+            Sekolah reguler, persiapan SNBT, atau latihan olimpiade — semua dalam satu platform.
+            Peta prasyarat & bantuan visual AI bantu kamu naik level dari titik yang tepat.
           </p>
-          <div className="grid grid-cols-3 gap-3 max-w-md">
-            {[
-              { e: "🎯", t: "Soal adaptif" },
-              { e: "🤖", t: "Bantuan AI" },
-              { e: "✨", t: "Gratis" },
-            ].map((x) => (
-              <div key={x.t} className="rounded-xl bg-white/10 backdrop-blur p-3 ring-1 ring-white/15 text-center">
-                <div className="text-2xl mb-1">{x.e}</div>
-                <div className="text-xs text-teal-50/90">{x.t}</div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/login?mode=register"
+              className="inline-flex items-center gap-2 bg-white text-teal-700 hover:bg-teal-50 px-6 py-3.5 rounded-xl font-semibold shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all"
+            >
+              Mulai gratis →
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur ring-1 ring-white/30 hover:bg-white/20 text-white px-6 py-3.5 rounded-xl font-semibold transition"
+            >
+              Sudah punya akun? Masuk
+            </Link>
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-teal-50/80">
+            <span className="flex items-center gap-1.5">✓ Tanpa biaya</span>
+            <span className="flex items-center gap-1.5">✓ Diagnostik adaptif</span>
+            <span className="flex items-center gap-1.5">✓ Bantuan AI per soal</span>
+            <span className="flex items-center gap-1.5">✓ SD · SMP · SMA · SNBT · Olimpiade</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative h-12 sm:h-16 bg-gradient-to-b from-transparent to-background" />
+    </section>
+  );
+}
+
+function JalurSection() {
+  const jalur: { ku: KategoriUtama; emoji: string }[] = [
+    { ku: "reguler", emoji: "🏫" },
+    { ku: "snbt", emoji: "🎓" },
+    { ku: "olimpiade", emoji: "🏆" },
+  ];
+  return (
+    <section className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
+      <div className="text-center mb-10 sm:mb-12 animate-rise">
+        <div className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong mb-3">
+          <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+          tiga jalur belajar
+        </div>
+        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+          Pilih sesuai targetmu<span className="text-brand">.</span>
+        </h2>
+        <p className="text-muted mt-2 max-w-xl mx-auto">
+          Kurikulum sekolah, persiapan SNBT, atau latihan olimpiade — masing-masing punya peta dan soal yang berbeda.
+        </p>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {jalur.map(({ ku, emoji }, idx) => {
+          const t = TEMA_KATEGORI_UTAMA[ku];
+          const Icon = t.Icon;
+          const Orn = t.Ornament;
+          return (
+            <div
+              key={ku}
+              style={{ animationDelay: `${idx * 80}ms` }}
+              className={`group relative overflow-hidden rounded-2xl p-6 text-white ${t.gradient} ${t.shadow} shadow-lg animate-pop`}
+            >
+              <div className="absolute inset-0 text-white"><Orn /></div>
+              <div className="relative flex items-start justify-between">
+                <div className="h-14 w-14 rounded-xl bg-white/20 backdrop-blur p-3 text-white ring-1 ring-white/30">
+                  <Icon />
+                </div>
+                <span className="text-2xl">{emoji}</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 flex items-center justify-center px-8 py-12 lg:py-0 bg-background">
-        <div className="w-full max-w-sm animate-rise">
-          <h2 className="text-3xl font-bold text-center mb-2 text-foreground">
-            {isRegister ? "Buat Akun" : "Selamat Datang"}
-          </h2>
-          <p className="text-muted text-center text-sm mb-8">
-            {isRegister ? "Daftar untuk mulai belajar" : "Masuk untuk melanjutkan belajar"}
-          </p>
-
-          <button
-            onClick={handleGoogle}
-            disabled={submitting}
-            className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-3 hover:bg-slate-50 hover:border-slate-300 transition disabled:opacity-50 mb-4 shadow-sm font-medium text-slate-700"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            {isRegister ? "Daftar" : "Masuk"} dengan Google
-          </button>
-
-          <div className="relative mb-4">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-background px-3 text-slate-400 uppercase tracking-wider">atau</span>
+              <h3 className="relative font-bold text-2xl mt-4">{KATEGORI_UTAMA_LABEL[ku]}</h3>
+              <p className="relative text-sm text-white/85 mt-1.5 leading-relaxed">
+                {KATEGORI_UTAMA_DESKRIPSI[ku]}
+              </p>
             </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function FiturSection() {
+  const fitur = [
+    {
+      e: "🎯",
+      t: "Soal adaptif",
+      d: "Tingkat kesulitan menyesuaikan kemampuanmu lewat sistem IRT. Tidak terlalu mudah, tidak bikin frustrasi.",
+    },
+    {
+      e: "🗺️",
+      t: "Peta prasyarat",
+      d: "Tahu pasti sub-materi mana yang perlu diperbaiki sebelum lanjut. Tidak ada lagi belajar dari materi yang tidak siap.",
+    },
+    {
+      e: "🤖",
+      t: "Bantuan visual AI",
+      d: "Penjelasan bertahap dan visual untuk soal yang sulit. AI bantu sampai kamu paham, bukan sekedar kasih jawaban.",
+    },
+    {
+      e: "📊",
+      t: "Estimasi skor UTBK",
+      d: "Lapis 1.5 cek kesiapan tiap bab dengan estimasi skor SNBT. Targetmu jelas, latihanmu fokus.",
+    },
+    {
+      e: "📚",
+      t: "Dual-track kurikulum",
+      d: "Pilih mode Strict CP 046 (sesuai sekolah) atau Comprehensive Full untuk pendalaman lebih luas.",
+    },
+    {
+      e: "✨",
+      t: "Sepenuhnya gratis",
+      d: "Semua fitur tersedia tanpa biaya. Bagian dari ekosistem mainmaku.id untuk pendidikan terbuka.",
+    },
+  ];
+  return (
+    <section className="relative bg-white border-y border-slate-200/70">
+      <div className="bg-grid absolute inset-0 opacity-50" />
+      <div className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
+        <div className="text-center mb-10 sm:mb-12 animate-rise">
+          <div className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong mb-3">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+            kenapa turo
           </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+            Bukan sekadar bank soal<span className="text-brand">.</span>
+          </h2>
+          <p className="text-muted mt-2 max-w-xl mx-auto">
+            Sistem yang tahu kamu di mana, mau ke mana, dan jalur tercepatnya seperti apa.
+          </p>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3">
-            {isRegister && (
-              <input type="text" placeholder="Nama lengkap" value={nama} onChange={(e) => setNama(e.target.value)} required
-                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 transition shadow-sm" />
-            )}
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required
-              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 transition shadow-sm" />
-            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6}
-              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 transition shadow-sm" />
-            {error && <p className="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">{error}</p>}
-            <button type="submit" disabled={submitting}
-              className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl px-4 py-3 font-semibold transition disabled:opacity-50 shadow-md shadow-teal-500/30 active:scale-[0.98]">
-              {submitting ? "Memproses..." : isRegister ? "Daftar" : "Masuk"}
-            </button>
-          </form>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {fitur.map((f, i) => (
+            <div
+              key={f.t}
+              style={{ animationDelay: `${i * 60}ms` }}
+              className="rounded-2xl bg-white p-6 border border-slate-200 hover:border-brand hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 animate-pop"
+            >
+              <div className="text-3xl mb-3">{f.e}</div>
+              <h3 className="font-semibold text-lg text-foreground">{f.t}</h3>
+              <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">{f.d}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
-          <p className="text-center text-sm text-muted mt-6">
-            {isRegister ? "Sudah punya akun?" : "Belum punya akun?"}{" "}
-            <button onClick={() => { setIsRegister(!isRegister); setError(""); }}
-              className="text-brand hover:text-brand-strong font-semibold underline-offset-2 hover:underline">
-              {isRegister ? "Masuk" : "Daftar"}
-            </button>
+function CaraKerjaSection() {
+  const langkah = [
+    { n: "1", t: "Daftar & cek kemampuan", d: "Diagnostik adaptif 3 tahap (~15-30 menit) menentukan level kelas dan area lemah." },
+    { n: "2", t: "Ikuti rekomendasi", d: "Sistem kasih sub-materi yang perlu diperbaiki dulu, sesuai peta prasyaratmu." },
+    { n: "3", t: "Latihan & naik level", d: "Soal adaptif + bantuan AI per langkah. Cek kesiapan bab sebelum lanjut." },
+  ];
+  return (
+    <section className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
+      <div className="text-center mb-10 sm:mb-12 animate-rise">
+        <div className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong mb-3">
+          <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+          cara kerja
+        </div>
+        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+          Tiga langkah, kamu mulai.
+        </h2>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-3">
+        {langkah.map((l, i) => (
+          <div
+            key={l.n}
+            style={{ animationDelay: `${i * 80}ms` }}
+            className="relative rounded-2xl bg-white p-6 border border-slate-200 animate-pop"
+          >
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white font-bold shadow-md shadow-teal-300/40 mb-4">
+              {l.n}
+            </div>
+            <h3 className="font-semibold text-lg">{l.t}</h3>
+            <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">{l.d}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function CtaSection() {
+  return (
+    <section className="relative mx-auto max-w-6xl px-6 sm:px-10 pb-16 sm:pb-24">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-600 via-teal-700 to-cyan-900 p-10 sm:p-14 text-center text-white">
+        <div className="bg-grid-dark absolute inset-0 opacity-40" />
+        <FloatingMath />
+        <div className="relative animate-rise">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
+            Siap mulai dari titik yang tepat?
+          </h2>
+          <p className="text-teal-50/90 max-w-xl mx-auto mb-7">
+            Daftar gratis, ikuti diagnostik singkat, dan dapatkan jalur belajar yang sesuai kemampuanmu hari ini.
+          </p>
+          <Link
+            href="/login?mode=register"
+            className="inline-flex items-center gap-2 bg-white text-teal-700 hover:bg-teal-50 px-7 py-4 rounded-xl font-semibold shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all"
+          >
+            Buat akun gratis →
+          </Link>
+          <p className="text-sm text-teal-100/70 mt-5">
+            Sudah punya akun?{" "}
+            <Link href="/login" className="underline underline-offset-2 hover:text-white font-medium">
+              Masuk di sini
+            </Link>
           </p>
         </div>
       </div>
+    </section>
+  );
+}
+
+function LandingFooter() {
+  return (
+    <footer className="border-t border-slate-200/70 bg-white">
+      <div className="mx-auto max-w-6xl px-6 sm:px-10 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
+        <div className="flex items-center gap-2">
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 text-white font-bold text-xs">
+            t
+          </span>
+          <span className="font-semibold text-slate-700">
+            turo<span className="text-brand">.</span>
+          </span>
+          <span className="text-slate-400">·</span>
+          <span>bagian dari mainmaku.id</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <Link href="/login" className="hover:text-brand transition">Masuk</Link>
+          <Link href="/login?mode=register" className="hover:text-brand transition">Daftar</Link>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function LandingPage() {
+  return (
+    <main className="flex-1 flex flex-col">
+      <HeroSection />
+      <JalurSection />
+      <FiturSection />
+      <CaraKerjaSection />
+      <CtaSection />
+      <LandingFooter />
     </main>
   );
 }
