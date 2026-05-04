@@ -32,10 +32,10 @@
     "strict_only": 438,
     "full": 472,
     "label_counts": {
-      "CP-2025": 318,
-      "Buku-2025": 111,
-      "Pengayaan": 40,
-      "UTBK": 3
+      "CP-2025": 444,
+      "Buku-2025": 16,
+      "UTBK": 3,
+      "Pengayaan": 9
     }
   },
   "submateri": [
@@ -980,7 +980,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B1.03",
@@ -1005,7 +1005,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B1.04",
@@ -1030,7 +1030,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B1.05",
@@ -1055,7 +1055,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B2.01",
@@ -1211,7 +1211,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B3.02",
@@ -1242,7 +1242,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B3.03",
@@ -1273,7 +1273,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B3.04",
@@ -1298,7 +1298,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B3.05",
@@ -1329,7 +1329,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B4.01",
@@ -1416,7 +1416,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B4.04",
@@ -1447,7 +1447,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B5.01",
@@ -1522,7 +1522,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B6.01",
@@ -1547,7 +1547,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B6.02",
@@ -1572,7 +1572,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B6.03",
@@ -1597,7 +1597,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B6.04",
@@ -1622,7 +1622,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B7.01",
@@ -1697,7 +1697,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B7.04",
@@ -1772,7 +1772,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B8.03",
@@ -1847,7 +1847,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B9.02",
@@ -1872,7 +1872,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.2.B9.03",
@@ -1897,7 +1897,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B1.01",
@@ -2115,7 +2115,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B2.04",
@@ -2233,7 +2233,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B3.03",
@@ -2326,7 +2326,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B4.02",
@@ -2357,7 +2357,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B4.03",
@@ -2388,7 +2388,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B5.01",
@@ -2737,7 +2737,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.3.B8.03",
@@ -2762,7 +2762,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B1.01",
@@ -2787,7 +2787,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B1.02",
@@ -2843,7 +2843,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B1.04",
@@ -2936,7 +2936,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B2.03",
@@ -2979,7 +2979,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B2.04",
@@ -3016,7 +3016,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B3.01",
@@ -3084,7 +3084,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B3.03",
@@ -3115,7 +3115,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B3.04",
@@ -3140,7 +3140,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B3.05",
@@ -3165,7 +3165,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B4.01",
@@ -3332,7 +3332,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B5.02",
@@ -3468,7 +3468,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B6.03",
@@ -3493,7 +3493,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B7.01",
@@ -3568,7 +3568,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B8.01",
@@ -3593,7 +3593,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B8.02",
@@ -3686,7 +3686,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.4.B8.05",
@@ -3717,7 +3717,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B1.01",
@@ -4052,7 +4052,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B3.03",
@@ -4338,7 +4338,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B5.06",
@@ -4363,7 +4363,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B6.01",
@@ -4394,7 +4394,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B6.02",
@@ -4425,7 +4425,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B6.03",
@@ -4450,7 +4450,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B6.04",
@@ -4487,7 +4487,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B7.01",
@@ -4618,7 +4618,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.5.B9.01",
@@ -4699,7 +4699,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B1.01",
@@ -4799,7 +4799,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B2.01",
@@ -4917,7 +4917,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B3.02",
@@ -4942,7 +4942,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B3.03",
@@ -4967,7 +4967,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B3.04",
@@ -4992,7 +4992,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B4.01",
@@ -5023,7 +5023,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B4.02",
@@ -5060,7 +5060,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B4.03",
@@ -5085,7 +5085,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B4.04",
@@ -5110,7 +5110,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B5.01",
@@ -5135,7 +5135,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B5.02",
@@ -5185,7 +5185,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B6.01",
@@ -5235,7 +5235,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B6.03",
@@ -5316,7 +5316,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B7.02",
@@ -5347,7 +5347,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SD.6.B7.03",
@@ -5528,7 +5528,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.7.B10.01",
@@ -6878,7 +6878,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B10.03",
@@ -6903,7 +6903,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.8.B10.04",
@@ -7955,7 +7955,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B1.01",
@@ -8130,7 +8130,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B2.02",
@@ -8155,7 +8155,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B2.03",
@@ -8180,7 +8180,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B2.04",
@@ -8205,7 +8205,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B2.05",
@@ -8230,7 +8230,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B2.06",
@@ -8311,7 +8311,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B3.03",
@@ -8336,7 +8336,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B3.04",
@@ -8367,7 +8367,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B3.05",
@@ -8398,7 +8398,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B4.01",
@@ -8871,7 +8871,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B7.02",
@@ -8902,7 +8902,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMP.9.B7.03",
@@ -8927,7 +8927,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B1.01",
@@ -9083,7 +9083,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B2.01",
@@ -9400,7 +9400,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B4.02",
@@ -9425,7 +9425,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B4.03",
@@ -9450,7 +9450,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B4.04",
@@ -9506,7 +9506,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B4.06",
@@ -9531,7 +9531,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.01",
@@ -9568,7 +9568,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.02",
@@ -9605,7 +9605,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.03",
@@ -9642,7 +9642,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.04",
@@ -9679,7 +9679,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.05",
@@ -9716,7 +9716,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.06",
@@ -9753,7 +9753,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B5.07",
@@ -9778,7 +9778,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B6.01",
@@ -10008,7 +10008,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B7.05",
@@ -10039,7 +10039,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B7.06",
@@ -10157,7 +10157,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B8.04",
@@ -10213,7 +10213,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B8.06",
@@ -10269,7 +10269,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B9.02",
@@ -10294,7 +10294,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B9.03",
@@ -10319,7 +10319,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B9.04",
@@ -10344,7 +10344,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.10.B9.05",
@@ -10369,7 +10369,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B1.01",
@@ -10556,7 +10556,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B10.03",
@@ -11005,7 +11005,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B3.02",
@@ -11030,7 +11030,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B3.03",
@@ -11055,7 +11055,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B3.04",
@@ -11080,7 +11080,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B4.01",
@@ -11142,7 +11142,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B4.03",
@@ -11235,7 +11235,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B4.06",
@@ -11421,7 +11421,7 @@
       "is_entry_point": true,
       "prereq": [],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B6.02",
@@ -11446,7 +11446,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B6.03",
@@ -11471,7 +11471,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B6.04",
@@ -11496,7 +11496,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B6.05",
@@ -11521,7 +11521,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B7.01",
@@ -11546,7 +11546,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B7.02",
@@ -11571,7 +11571,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B7.03",
@@ -11596,7 +11596,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B7.04",
@@ -11621,7 +11621,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B8.01",
@@ -11802,7 +11802,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.11.B9.02",
@@ -11895,7 +11895,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B1.01",
@@ -12045,7 +12045,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B2.03",
@@ -12474,7 +12474,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B6.02",
@@ -12580,7 +12580,7 @@
         }
       ],
       "strict": true,
-      "label": "Pengayaan"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B7.01",
@@ -12686,7 +12686,7 @@
         }
       ],
       "strict": true,
-      "label": "CP-2025"
+      "label": "Pengayaan"
     },
     {
       "kode": "SMA.12.B8.01",
@@ -12811,7 +12811,7 @@
         }
       ],
       "strict": true,
-      "label": "Buku-2025"
+      "label": "CP-2025"
     },
     {
       "kode": "SMA.12.B9.01",
