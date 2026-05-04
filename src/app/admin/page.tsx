@@ -29,6 +29,8 @@ export default function AdminIndexPage() {
   }
 
   const tools = [
+    { href: "/admin/pricing", emoji: "💰", judul: "Pengaturan Harga", desc: "Edit harga plan (Solo/Family/UTBK), free tier limits, trial config. Live di Firestore — bisa diubah kapan saja." },
+    { href: "/admin/labels", emoji: "🏷️", judul: "Label Sub-Materi", desc: "Adjust label per sub: 📘 Inti / 🌉 Pendukung / 🚀 Tantangan / 🎯 UTBK. AI verdict + reasoning sebagai context. (Dev-only)" },
     { href: "/admin/materi", emoji: "📚", judul: "Materi & Pohon Prasyarat", desc: "Lihat 472 sub-materi resmi & pohon prasyarat dari peta-prasyarat.json." },
     { href: "/admin/item-bank", emoji: "🏦", judul: "Item Bank", desc: "Seed soal MC ke item_bank per sub-materi prioritas (untuk diagnostik IRT)." },
     { href: "/admin/diagnostic-sessions", emoji: "🎯", judul: "Sesi Diagnostik IRT", desc: "Audit sesi onboarding Phase B (Locator/Coverage/Deep): soal, jawaban, kecocokan vs peta." },
