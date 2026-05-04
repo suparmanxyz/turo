@@ -4,6 +4,25 @@ import { DAFTAR_MATERI } from "@/data/materi";
 import { temaUntukMateri } from "@/lib/kategori-tema";
 import { ELEMEN_LABEL, JENJANG_LABEL, KATEGORI_UTAMA_LABEL } from "@/types";
 import { MateriPrereqWarning } from "@/components/MateriPrereqWarning";
+import { cariSubMateriResmi } from "@/data/peta-resmi";
+
+/** Map label kurikulum → badge UI (1-mode + label approach). */
+function labelBadge(slug: string) {
+  const sub = cariSubMateriResmi(slug);
+  if (!sub) return null;
+  switch (sub.label) {
+    case "CP-2025":
+      return { emoji: "📘", text: "Inti", title: "Sesuai standar Kemdikbud terbaru (CP 046)", classes: "bg-emerald-50 text-emerald-700 border-emerald-200" };
+    case "Buku-2025":
+      return { emoji: "🌉", text: "Pendukung", title: "Diajarkan banyak sekolah, walau placement berbeda di CP 046 terbaru", classes: "bg-sky-50 text-sky-700 border-sky-200" };
+    case "Pengayaan":
+      return { emoji: "🚀", text: "Tantangan", title: "Topik tambahan untuk persiapan olimpiade / extra", classes: "bg-violet-50 text-violet-700 border-violet-200" };
+    case "UTBK":
+      return { emoji: "🎯", text: "UTBK", title: "Topik untuk persiapan SNBT/UTBK", classes: "bg-amber-50 text-amber-700 border-amber-200" };
+    default:
+      return null;
+  }
+}
 
 function konteksLabel(m: ReturnType<typeof DAFTAR_MATERI.find> & object): string {
   if (m.kategoriUtama === "snbt") return KATEGORI_UTAMA_LABEL.snbt;
@@ -105,6 +124,18 @@ export default async function MateriPage({ params }: { params: Promise<{ slug: s
                       {ELEMEN_LABEL[s.elemen]}
                     </span>
                   )}
+                  {(() => {
+                    const b = labelBadge(s.slug);
+                    if (!b) return null;
+                    return (
+                      <span
+                        className={`inline-flex items-center text-[10px] uppercase tracking-wider rounded-full border ${b.classes} px-2 py-0.5 font-medium`}
+                        title={b.title}
+                      >
+                        {b.emoji} {b.text}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <p className="text-sm text-slate-600 mt-0.5 line-clamp-2">{s.ringkasan}</p>
                 <p className="text-[10px] text-slate-400 mt-1 font-mono">{s.slug}</p>

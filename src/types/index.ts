@@ -168,8 +168,18 @@ export interface PrereqRelation {
 /** Label kategori sub-materi di dual-track curriculum (Turo v3.0). */
 export type LabelKurikulum = "CP-2025" | "Buku-2025" | "UTBK" | "Pengayaan";
 
-/** Mode kurikulum yang dipilih user. */
-export type ModeKurikulum = "strict" | "full";
+/**
+ * Mode kurikulum yang dipilih user.
+ *   - strict        : ikut CP 046/2025 saja (438 sub) — siswa sekolah Indonesia standar
+ *   - comprehensive : peta penuh + bridge sub-materi (472 sub) — siswa yang mau detail lengkap
+ *   - accelerated   : skip foundation procedural, fokus topik tantangan/HOTS — anak cepat / olimpiade
+ *
+ * Alias backwards-compat: "full" → "comprehensive" (di-handle di filter helper).
+ */
+export type ModeKurikulum = "strict" | "comprehensive" | "accelerated";
+
+/** Alias untuk backwards-compat — sebelumnya pakai "full". */
+export type ModeKurikulumLegacy = ModeKurikulum | "full";
 
 export interface SubMateriResmi {
   /** Format: {JENJANG}.{KELAS}.B{NOMOR_BAB}.{NOMOR_URUT} */
@@ -189,6 +199,18 @@ export interface SubMateriResmi {
   prereq: PrereqRelation[];
   /** Apakah masuk Jalur Strict CP 046 (true) atau hanya Comprehensive Full (false). */
   strict: boolean;
+  /**
+   * Optional explicit tag untuk Bridge sub-materi (penghubung antar topik di
+   * mode comprehensive). Kalau undefined, derived dari strict==false +
+   * dependents_count >= 2 di runtime.
+   */
+  bridge?: boolean;
+  /**
+   * Optional explicit tag untuk Accelerated mode (sub-materi tantangan / HOTS).
+   * Kalau undefined, derived dari is_maku && (depth >= 3 || dependents_count >= 5)
+   * di kelas SMP/SMA.
+   */
+  accelerated?: boolean;
   /** Label kategori untuk audit transparansi. */
   label: LabelKurikulum;
 }

@@ -385,20 +385,26 @@ export async function itemsForSubMateri(kode: string): Promise<ItemBankEntry[]> 
   return snap.docs.map((d) => d.data() as ItemBankEntry);
 }
 
-/** Items per jalur (e.g. "smp"). Optional filter mode kurikulum strict vs full. */
+/** Items per jalur (e.g. "smp"). Optional filter mode kurikulum 3-mode + legacy "full". */
 export async function itemsForJalur(
   jalur: JalurDiagnostik,
-  modeKurikulum: "strict" | "full" = "full",
+  modeKurikulum: import("@/types").ModeKurikulumLegacy = "comprehensive",
 ): Promise<ItemBankEntry[]> {
   const snap = await getAdminDb()
     .collection(COLLECTION)
     .where("jalur", "array-contains", jalur)
     .get();
   const items = snap.docs.map((d) => d.data() as ItemBankEntry);
-  if (modeKurikulum === "full") return items;
-  // Filter strict via peta resmi (item bank gak punya field strict per item — sub-level)
-  const { isStrict } = await import("@/data/peta-resmi");
-  return items.filter((it) => isStrict(it.subMateriKode));
+  // Normalize legacy "full" → "comprehensive"
+  const mode = modeKurikulum === "full" ? "comprehensive" : modeKurikulum;
+  if (mode === "comprehensive") return items;
+  if (mode === "strict") {
+    const { isStrict } = await import("@/data/peta-resmi");
+    return items.filter((it) => isStrict(it.subMateriKode));
+  }
+  // accelerated
+  const { isAccelerated } = await import("@/data/peta-resmi");
+  return items.filter((it) => isAccelerated(it.subMateriKode));
 }
 
 /** Items per (jenjang, kelas) — untuk locator stage. */

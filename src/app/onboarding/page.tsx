@@ -23,7 +23,7 @@ export default function OnboardingPage() {
   const [kategori, setKategori] = useState<KategoriUtama>("reguler");
   const [jenjang, setJenjang] = useState<Jenjang | "">("");
   const [kelas, setKelas] = useState<Kelas | "">("");
-  const [modeKurikulum, setModeKurikulum] = useState<ModeKurikulum>("full");
+  const [modeKurikulum, setModeKurikulum] = useState<ModeKurikulum>("comprehensive");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -146,32 +146,11 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Mode Kurikulum (dual-track) */}
-        <div>
-          <label className="block text-sm font-semibold mb-2">4. Mode kurikulum</label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => setModeKurikulum("full")}
-              className={`text-left rounded-xl border-2 p-3 transition ${
-                modeKurikulum === "full" ? "border-brand bg-brand-soft" : "border-slate-200 hover:border-slate-300"
-              }`}
-            >
-              <div className="font-medium">Comprehensive Full <span className="text-xs text-slate-500">(default)</span></div>
-              <div className="text-xs text-slate-500 mt-0.5">472 sub — termasuk Buku-K2013, UTBK, Pengayaan. Cocok kalau sekolah pakai buku lama atau target SNBT/olimpiade.</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => setModeKurikulum("strict")}
-              className={`text-left rounded-xl border-2 p-3 transition ${
-                modeKurikulum === "strict" ? "border-brand bg-brand-soft" : "border-slate-200 hover:border-slate-300"
-              }`}
-            >
-              <div className="font-medium">Strict CP 046 <span className="text-xs text-emerald-600">(audit ketat)</span></div>
-              <div className="text-xs text-slate-500 mt-0.5">438 sub — hanya yang lolos CP 046/H/KR/2025. Cocok untuk sekolah Kurikulum Merdeka murni.</div>
-            </button>
-          </div>
-        </div>
+        {/*
+          Mode kurikulum dihapus dari onboarding (single mode = comprehensive).
+          Materi tampil semua dengan label badge per sub: 📘 Inti / 🌉 Pendukung / 🚀 Tantangan.
+          Filter optional ada di UI /materi/[slug] untuk power users.
+        */}
 
         {/* Preview jalur */}
         {jalur && (

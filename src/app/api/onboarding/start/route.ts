@@ -26,7 +26,11 @@ export async function POST(req: NextRequest) {
   const kelas = body.kelas as Kelas | undefined;
   const kategoriUtama = (body.kategoriUtama ?? "reguler") as KategoriUtama;
   const modePersiapan = body.modePersiapan as "sekolah" | "utbk" | "olimpiade" | undefined;
-  const modeKurikulum: ModeKurikulum = body.modeKurikulum === "strict" ? "strict" : "full";
+  const rawMode = body.modeKurikulum;
+  const modeKurikulum: ModeKurikulum =
+    rawMode === "strict" || rawMode === "comprehensive" || rawMode === "accelerated"
+      ? rawMode
+      : "comprehensive"; // legacy "full" / undefined → comprehensive
 
   const jalur = pilihJalur({ jenjang, kelas, kategoriUtama, modePersiapan });
   const jenjangResmi: JenjangResmi = jenjang ? JENJANG_MAP[jenjang] : (jalur.startsWith("sd") ? "SD" : jalur.startsWith("smp") ? "SMP" : "SMA");

@@ -55,7 +55,7 @@ const LOCATOR_MAX_ITEMS = 7;
 /** Init Locator state — load pool dari item bank. */
 export async function initLocator(
   jalur: JalurDiagnostik,
-  modeKurikulum: "strict" | "full" = "full",
+  modeKurikulum: import("@/types").ModeKurikulumLegacy = "comprehensive",
 ): Promise<LocatorState> {
   const pool = await itemsForJalur(jalur, modeKurikulum);
   const range = JALUR_KELAS_RANGE[jalur];

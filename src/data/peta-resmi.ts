@@ -165,20 +165,91 @@ export function petaUntukSubMateri(
 }
 
 // ============================================================
-// Dual-track helpers
+// Multi-mode kurikulum helpers (Strict / Comprehensive / Accelerated)
 // ============================================================
+
+import type { ModeKurikulum, ModeKurikulumLegacy } from "@/types";
+
+/** Normalisasi alias legacy "full" → "comprehensive". */
+export function normalizeMode(mode: ModeKurikulumLegacy): ModeKurikulum {
+  return mode === "full" ? "comprehensive" : mode;
+}
+
+/** Apakah sub-materi masuk Jalur Strict CP 046. */
+export function isStrict(kode: string): boolean {
+  return (INDEX.strict_kodes ?? []).includes(kode);
+}
+
+/**
+ * Apakah sub-materi adalah "Bridge" — non-strict tapi punya dependents
+ * (penghubung antar topik di mode comprehensive).
+ *
+ * Derived rule: bridge==true (explicit) OR (strict==false && dependents_count >= 2).
+ */
+export function isBridge(kode: string): boolean {
+  const sub = byKode.get(kode);
+  if (!sub) return false;
+  if (sub.bridge !== undefined) return sub.bridge;
+  return !sub.strict && sub.dependents_count >= 2;
+}
+
+/**
+ * Apakah sub-materi cocok untuk mode Accelerated (anak cepat / olimpiade).
+ *
+ * Derived rule: accelerated==true (explicit) OR
+ *   (is_maku && (depth >= 3 || dependents_count >= 5) && jenjang in [SMP, SMA])
+ *
+ * Logika: di mode Accelerated, prereq procedural di SD di-skip. Sub yang
+ * masuk = MAKU di topik kompleks SMP/SMA + entry-point materi tantangan.
+ */
+export function isAccelerated(kode: string): boolean {
+  const sub = byKode.get(kode);
+  if (!sub) return false;
+  if (sub.accelerated !== undefined) return sub.accelerated;
+  if (sub.jenjang === "SD") return false;
+  return sub.is_maku && (sub.depth >= 3 || sub.dependents_count >= 5);
+}
 
 /** Filter sub-materi by mode kurikulum. */
 export function filterByMode<T extends { kode: string }>(
   items: T[],
-  mode: "strict" | "full",
+  mode: ModeKurikulumLegacy,
 ): T[] {
-  if (mode === "full") return items;
-  const strictSet = new Set(INDEX.strict_kodes ?? []);
-  return items.filter((it) => strictSet.has(it.kode));
+  const m = normalizeMode(mode);
+  if (m === "comprehensive") return items;
+  if (m === "strict") {
+    const strictSet = new Set(INDEX.strict_kodes ?? []);
+    return items.filter((it) => strictSet.has(it.kode));
+  }
+  // accelerated
+  return items.filter((it) => isAccelerated(it.kode));
 }
 
-/** Apakah sub-materi masuk Jalur Strict. */
-export function isStrict(kode: string): boolean {
-  return (INDEX.strict_kodes ?? []).includes(kode);
+/** Label mode untuk UI. */
+export const MODE_LABEL: Record<ModeKurikulum, { label: string; deskripsi: string; emoji: string }> = {
+  strict: {
+    label: "Standar (CP 046)",
+    deskripsi: "Sesuai Kurikulum Merdeka resmi — siswa sekolah Indonesia.",
+    emoji: "📘",
+  },
+  comprehensive: {
+    label: "Lengkap + Bridge",
+    deskripsi: "Peta penuh termasuk topik penghubung — siswa yang mau pondasi kuat.",
+    emoji: "📚",
+  },
+  accelerated: {
+    label: "Akselerasi",
+    deskripsi: "Skip dasar prosedural, langsung ke topik tantangan/HOTS — anak cepat / olimpiade.",
+    emoji: "🚀",
+  },
+};
+
+/** Cek mode mana yang berlaku untuk satu sub-materi (untuk badge UI). */
+export function modesForSub(kode: string): ModeKurikulum[] {
+  const out: ModeKurikulum[] = [];
+  if (isStrict(kode)) out.push("strict");
+  // Comprehensive selalu include semua sub
+  out.push("comprehensive");
+  if (isAccelerated(kode)) out.push("accelerated");
+  return out;
 }
