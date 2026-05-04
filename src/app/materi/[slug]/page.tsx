@@ -5,12 +5,15 @@ import { temaUntukMateri } from "@/lib/kategori-tema";
 import { ELEMEN_LABEL, JENJANG_LABEL, KATEGORI_UTAMA_LABEL } from "@/types";
 import { MateriPrereqWarning } from "@/components/MateriPrereqWarning";
 import { cariSubMateriResmi } from "@/data/peta-resmi";
+import { getLabelOverrides } from "@/lib/label-overrides";
 
-/** Map label kurikulum → badge UI (1-mode + label approach). */
-function labelBadge(slug: string) {
+/** Map label kurikulum → badge UI (1-mode + label approach).
+ *  Apply Firestore override kalau ada (live editable via /admin/labels). */
+function labelBadge(slug: string, overrides: Record<string, string>) {
   const sub = cariSubMateriResmi(slug);
   if (!sub) return null;
-  switch (sub.label) {
+  const effectiveLabel = overrides[slug] ?? sub.label;
+  switch (effectiveLabel) {
     case "CP-2025":
       return { emoji: "📘", text: "Inti", title: "Sesuai standar Kemdikbud terbaru (CP 046)", classes: "bg-emerald-50 text-emerald-700 border-emerald-200" };
     case "Buku-2025":
@@ -42,6 +45,8 @@ export default async function MateriPage({ params }: { params: Promise<{ slug: s
 
   const t = temaUntukMateri(materi);
   const Icon = t.Icon;
+  // Load label overrides dari Firestore (cached 60s) — apply ke tiap sub badge
+  const labelOverrides = await getLabelOverrides();
 
   return (
     <main className="mx-auto max-w-4xl p-6 sm:p-10">
@@ -125,7 +130,7 @@ export default async function MateriPage({ params }: { params: Promise<{ slug: s
                     </span>
                   )}
                   {(() => {
-                    const b = labelBadge(s.slug);
+                    const b = labelBadge(s.slug, labelOverrides);
                     if (!b) return null;
                     return (
                       <span

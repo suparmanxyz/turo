@@ -46,8 +46,28 @@ export default function AdminLabelsPage() {
   const [savingKode, setSavingKode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [okMsg, setOkMsg] = useState<string | null>(null);
-  // Local override map for instant UI feedback (sebelum reload page)
+  // Override map dari Firestore + local edits (instant UI feedback)
   const [localLabel, setLocalLabel] = useState<Record<string, LabelKurikulum>>({});
+  const [overridesLoaded, setOverridesLoaded] = useState(false);
+
+  // Load overrides dari Firestore saat mount
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      try {
+        const idToken = await user.getIdToken();
+        const res = await fetch("/api/admin/labels/list", {
+          headers: { authorization: `Bearer ${idToken}` },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setLocalLabel(data.overrides ?? {});
+        setOverridesLoaded(true);
+      } catch (e) {
+        setError(`Gagal load overrides: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    })();
+  }, [user]);
 
   const allKelas = useMemo(() => {
     const s = new Set<number>();
@@ -120,6 +140,9 @@ export default function AdminLabelsPage() {
 
   if (loading) return <main className="p-8 text-slate-500">Memuat...</main>;
   if (!user) return <main className="p-8"><Link href="/login" className="text-brand underline">Login dulu</Link></main>;
+  if (!overridesLoaded) return <main className="p-8 text-slate-500">Memuat label overrides...</main>;
+
+  const overrideCount = Object.keys(localLabel).length;
 
   return (
     <main className="mx-auto max-w-7xl p-4 sm:p-6">
@@ -129,7 +152,8 @@ export default function AdminLabelsPage() {
           Admin: Adjust Label Sub-Materi
         </h1>
         <p className="text-muted text-sm mt-1">
-          Edit label kurikulum per sub. Perubahan langsung tersimpan ke <code>peta-prasyarat.json</code> (dev-only — production read-only).
+          Edit label kurikulum per sub. Perubahan disimpan ke Firestore — <strong>works live di production</strong>.
+          {overrideCount > 0 && <span className="ml-2 text-xs">({overrideCount} override aktif)</span>}
         </p>
       </div>
 
