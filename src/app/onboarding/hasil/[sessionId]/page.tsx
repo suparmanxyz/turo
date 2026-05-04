@@ -61,6 +61,7 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
 
   const cov = session.hasilCoverage;
   const deep = session.hasilDeep;
+  const drilling = session.hasilDrilling;
 
   return (
     <main className="mx-auto max-w-3xl p-4 sm:p-6">
@@ -294,6 +295,90 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         return null;
       })()}
 
+      {/* Drilling result (Phase 2) — show kalau ada hasilDrilling */}
+      {drilling && (
+        <section className="mb-6">
+          <h2 className="text-xl font-bold mb-3">Hasil Drilling Adaptif (Phase 2)</h2>
+          <div className={`rounded-2xl border-2 p-5 ${
+            drilling.path === "ADVANCED" ? "bg-emerald-50 border-emerald-300" :
+            drilling.path === "STANDARD" ? "bg-sky-50 border-sky-300" :
+            drilling.path === "COMPREHENSIVE" ? "bg-amber-50 border-amber-300" :
+            "bg-rose-50 border-rose-300"
+          }`}>
+            <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
+              <div>
+                <div className="text-xs uppercase tracking-wider text-slate-500 mb-1">Path</div>
+                <div className="text-2xl font-extrabold">{drilling.path}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-slate-500">Accuracy keseluruhan</div>
+                <div className="text-2xl font-bold">{Math.round(drilling.overallAccuracy * 100)}%</div>
+                <div className="text-xs text-slate-500">{drilling.itemsAnswered}/{drilling.itemsTotal} soal</div>
+              </div>
+            </div>
+
+            {/* Stepper */}
+            <div className="space-y-2 mb-4">
+              {drilling.steps.map((step, idx) => (
+                <div key={idx} className="rounded-xl bg-white border border-slate-200 p-3">
+                  <div className="flex items-center justify-between gap-3 mb-1">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={`shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                        step.status === "passed" ? "bg-emerald-500 text-white" :
+                        step.status === "weak" ? "bg-rose-500 text-white" :
+                        step.status === "skipped" ? "bg-slate-300 text-slate-600" :
+                        "bg-slate-200 text-slate-500"
+                      }`}>
+                        {idx + 1}
+                      </span>
+                      <span className="font-medium text-sm truncate">{step.label}</span>
+                    </div>
+                    <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-semibold uppercase ${
+                      step.status === "passed" ? "bg-emerald-100 text-emerald-700" :
+                      step.status === "weak" ? "bg-rose-100 text-rose-700" :
+                      step.status === "skipped" ? "bg-slate-100 text-slate-500" :
+                      "bg-slate-100 text-slate-500"
+                    }`}>{step.status}</span>
+                  </div>
+                  <div className="text-xs text-slate-500 ml-8">
+                    {step.itemsAnswered > 0 ? (
+                      <>
+                        {Math.round((step.accuracy ?? 0) * 100)}% accuracy · {step.itemsAnswered}/{step.itemsTotal} soal · target ≥{Math.round(step.passThreshold * 100)}%
+                      </>
+                    ) : step.status === "skipped" ? (
+                      <>Skip — pool item belum cukup untuk step ini</>
+                    ) : (
+                      <>Belum dijawab</>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-xl bg-white border border-slate-200 p-3">
+              <div className="text-xs uppercase tracking-wider text-slate-500 mb-1">Rekomendasi</div>
+              <p className="text-sm text-slate-700">{drilling.recommendation}</p>
+            </div>
+
+            {drilling.weakKodes.length > 0 && (
+              <div className="mt-3 rounded-xl bg-white border border-rose-200 p-3">
+                <div className="text-xs uppercase tracking-wider text-rose-600 mb-2">
+                  Sub-materi prioritas perlu dipertajam ({drilling.weakKodes.length})
+                </div>
+                <ul className="space-y-1 text-xs font-mono text-rose-800">
+                  {drilling.weakKodes.slice(0, 8).map((kode) => (
+                    <li key={kode}>• {kode}</li>
+                  ))}
+                  {drilling.weakKodes.length > 8 && (
+                    <li className="text-rose-500">+ {drilling.weakKodes.length - 8} lainnya</li>
+                  )}
+                </ul>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Indicator stage progression */}
       {(deep || cov) && (
         <section className="mb-6">
@@ -301,7 +386,8 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
             <span className="font-semibold">Tahap selesai:</span>{" "}
             {session.hasilLocator ? "✓ Locator" : "○ Locator"}{" · "}
             {cov ? "✓ Coverage" : "○ Coverage"}{" · "}
-            {deep ? "✓ Deep" : "○ Deep (item bank kurang)"}
+            {deep ? "✓ Deep" : "○ Deep (item bank kurang)"}{" · "}
+            {drilling ? "✓ Drilling" : "○ Drilling (skip)"}
           </div>
         </section>
       )}

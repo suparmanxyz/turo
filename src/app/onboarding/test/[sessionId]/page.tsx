@@ -15,17 +15,38 @@ type SanitizedItem = {
 };
 
 type Progress = {
-  stage: "locator" | "coverage" | "deep" | "selesai";
+  stage: "locator" | "coverage" | "deep" | "drilling" | "selesai";
   itemsAnswered: number;
   estimatedTotal: number;
   label: string;
 };
 
+type StateLite = {
+  hasilCoverage?: {
+    pathRoute?: { path: "ADVANCED" | "STANDARD" | "COMPREHENSIVE" | "INTENSIVE"; duration: string; fokus: string };
+  };
+};
+
 type StoredState = {
-  state: unknown;
+  state: StateLite & Record<string, unknown>;
   nextItem: SanitizedItem | null;
   progress: Progress;
   startedAt: number;
+};
+
+const STAGE_COLOR: Record<Progress["stage"], string> = {
+  locator: "bg-sky-500",
+  coverage: "bg-blue-500",
+  deep: "bg-indigo-500",
+  drilling: "bg-violet-500",
+  selesai: "bg-emerald-500",
+};
+
+const PATH_BADGE: Record<"ADVANCED" | "STANDARD" | "COMPREHENSIVE" | "INTENSIVE", { label: string; classes: string }> = {
+  ADVANCED: { label: "Advanced", classes: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  STANDARD: { label: "Standard", classes: "bg-sky-50 text-sky-700 border-sky-200" },
+  COMPREHENSIVE: { label: "Comprehensive", classes: "bg-amber-50 text-amber-700 border-amber-200" },
+  INTENSIVE: { label: "Intensive", classes: "bg-rose-50 text-rose-700 border-rose-200" },
 };
 
 export default function OnboardingTestPage(props: { params: Promise<{ sessionId: string }> }) {
@@ -73,6 +94,8 @@ export default function OnboardingTestPage(props: { params: Promise<{ sessionId:
   const item = stored.nextItem;
   const progress = stored.progress;
   const progressPct = Math.min(100, (progress.itemsAnswered / Math.max(1, progress.estimatedTotal)) * 100);
+  const pathRoute = stored.state?.hasilCoverage?.pathRoute;
+  const showPathBadge = progress.stage === "drilling" && pathRoute;
 
   async function submit() {
     if (pilihIdx === null || !user || !stored) return;
@@ -121,12 +144,17 @@ export default function OnboardingTestPage(props: { params: Promise<{ sessionId:
     <main className="mx-auto max-w-3xl p-4 sm:p-6">
       {/* Header */}
       <div className="mb-4">
-        <div className="flex items-center justify-between text-sm mb-2">
-          <span className="font-medium text-slate-700">{progress.label}</span>
-          <span className="text-slate-500">{progress.itemsAnswered} / ~{progress.estimatedTotal}</span>
+        <div className="flex items-center justify-between text-sm mb-2 gap-3">
+          <span className="font-medium text-slate-700 flex-1 truncate">{progress.label}</span>
+          {showPathBadge && pathRoute && (
+            <span className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full border text-xs font-medium ${PATH_BADGE[pathRoute.path].classes}`}>
+              Path: {PATH_BADGE[pathRoute.path].label}
+            </span>
+          )}
+          <span className="shrink-0 text-slate-500">{progress.itemsAnswered} / {progress.estimatedTotal}</span>
         </div>
         <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-          <div className="h-full bg-brand transition-all duration-300" style={{ width: `${progressPct}%` }} />
+          <div className={`h-full transition-all duration-300 ${STAGE_COLOR[progress.stage]}`} style={{ width: `${progressPct}%` }} />
         </div>
       </div>
 

@@ -32,11 +32,19 @@ import {
   type DeepState,
   type DeepResult,
 } from "@/lib/diagnostic-deep";
+import {
+  initDrilling,
+  pickNextDrillingItem,
+  submitDrillingResponse,
+  finalizeDrilling,
+  type DrillingState,
+  type DrillingResult,
+} from "@/lib/diagnostic-drilling";
 import type { ItemBankEntry, JalurDiagnostik } from "@/lib/item-bank";
 import type { JenjangResmi, ModeKurikulum } from "@/types";
 import type { Response as IrtRespEngine } from "@/lib/irt-engine";
 
-export type OnboardingStage = "locator" | "coverage" | "deep" | "selesai";
+export type OnboardingStage = "locator" | "coverage" | "deep" | "drilling" | "selesai";
 
 /** State minimal yang round-trip antar request. */
 export type OnboardingState = {
@@ -53,6 +61,12 @@ export type OnboardingState = {
   hasilLocator?: LocatorResult;
   hasilCoverage?: CoverageResult;
   hasilDeep?: DeepResult;
+  hasilDrilling?: DrillingResult;
+  /**
+   * Snapshot drilling state (items pre-allocated saat init) — disimpan
+   * supaya rehydrate konsisten antar request, tidak re-roll item selection.
+   */
+  drillingSnapshot?: DrillingState;
 };
 
 export type OnboardingStep = {
@@ -74,6 +88,7 @@ const ESTIMATED_TOTALS: Record<OnboardingStage, number> = {
   locator: 7,
   coverage: 18,
   deep: 30,
+  drilling: 30,
   selesai: 0,
 };
 
@@ -81,6 +96,7 @@ const STAGE_LABEL: Record<OnboardingStage, string> = {
   locator: "Tahap 1: Cek level kelas",
   coverage: "Tahap 2: Cek per area",
   deep: "Tahap 3: Cek detail",
+  drilling: "Tahap 4: Drilling adaptif",
   selesai: "Selesai",
 };
 
@@ -123,6 +139,36 @@ async function rehydrateDeep(state: OnboardingState): Promise<DeepState> {
   return s;
 }
 
+async function ensureDrillingSnapshot(state: OnboardingState): Promise<DrillingState> {
+  if (!state.hasilCoverage) throw new Error("Drilling butuh coverage result");
+  if (state.kelas === undefined) throw new Error("Drilling butuh kelas user");
+  // Pakai snapshot kalau ada (item allocation deterministic — tidak boleh re-roll)
+  if (state.drillingSnapshot) return state.drillingSnapshot;
+  return await initDrilling(state.jenjang, state.kelas, state.hasilCoverage);
+}
+
+function rehydrateDrillingFromSnapshot(
+  snapshot: DrillingState,
+  state: OnboardingState,
+): DrillingState {
+  // Cari response yang BUKAN bagian dari Locator/Coverage/Deep stages
+  const previousIds = new Set<string>();
+  if (state.hasilCoverage) {
+    for (const r of state.hasilCoverage.responses) previousIds.add(r.itemId);
+  }
+  // Deep responses: semua items yang berada di pool deep stage
+  // (gak punya hasilDeep.responses → infer dari snapshot.usedIds awal)
+  const initialUsed = new Set(snapshot.usedIds);
+  const drillingResponses = state.responses.filter(
+    (r) => !previousIds.has(r.itemId) && !initialUsed.has(r.itemId),
+  );
+  let s = snapshot;
+  for (const r of drillingResponses) {
+    s = submitDrillingResponse(s, r.itemId, r.correct, r.responseTimeMs);
+  }
+  return s;
+}
+
 // ============================================================
 // Step orchestration
 // ============================================================
@@ -131,7 +177,7 @@ async function rehydrateDeep(state: OnboardingState): Promise<DeepState> {
 export async function startOnboarding(
   jalur: JalurDiagnostik,
   jenjang: JenjangResmi,
-  modeKurikulum: ModeKurikulum = "full",
+  modeKurikulum: ModeKurikulum = "comprehensive",
   kelas?: number,
 ): Promise<OnboardingStep> {
   const state: OnboardingState = {
@@ -221,21 +267,21 @@ async function nextStep(state: OnboardingState): Promise<OnboardingStep> {
   // STAGE 3: DEEP
   if (state.stage === "deep") {
     if (!state.hasilCoverage) {
-      // No coverage result → skip deep, langsung selesai
+      // No coverage result → skip deep+drilling, langsung selesai
       const newState: OnboardingState = { ...state, stage: "selesai" };
       return { state: newState, nextItem: null, done: true, progress: { stage: "selesai", itemsAnswered: state.responses.length, estimatedTotal: 0, label: STAGE_LABEL.selesai } };
     }
     const deep = await rehydrateDeep(state);
     if (deep.done) {
       const result = finalizeDeep(deep);
-      const newState: OnboardingState = { ...state, stage: "selesai", hasilDeep: result ?? undefined };
-      return { state: newState, nextItem: null, done: true, progress: { stage: "selesai", itemsAnswered: state.responses.length, estimatedTotal: 0, label: STAGE_LABEL.selesai } };
+      const newState: OnboardingState = { ...state, stage: "drilling", hasilDeep: result ?? undefined };
+      return await nextStep(newState);
     }
     const next = pickNextDeepItem(deep);
     if (!next) {
       const result = finalizeDeep({ ...deep, done: true, stopReason: "queue_empty" });
-      const newState: OnboardingState = { ...state, stage: "selesai", hasilDeep: result ?? undefined };
-      return { state: newState, nextItem: null, done: true, progress: { stage: "selesai", itemsAnswered: state.responses.length, estimatedTotal: 0, label: STAGE_LABEL.selesai } };
+      const newState: OnboardingState = { ...state, stage: "drilling", hasilDeep: result ?? undefined };
+      return await nextStep(newState);
     }
     const itemsAtStage = state.responses.length - (state.hasilLocator?.itemsUsed ?? 0) - (state.hasilCoverage.itemsUsed - (state.hasilLocator?.itemsUsed ?? 0));
     return {
@@ -247,6 +293,59 @@ async function nextStep(state: OnboardingState): Promise<OnboardingStep> {
         itemsAnswered: itemsAtStage,
         estimatedTotal: ESTIMATED_TOTALS.deep,
         label: STAGE_LABEL.deep,
+      },
+    };
+  }
+
+  // STAGE 4: DRILLING
+  if (state.stage === "drilling") {
+    // Skip kalau prereq tidak terpenuhi
+    if (!state.hasilCoverage || state.kelas === undefined || !state.hasilCoverage.pathRoute) {
+      const newState: OnboardingState = { ...state, stage: "selesai" };
+      return { state: newState, nextItem: null, done: true, progress: { stage: "selesai", itemsAnswered: state.responses.length, estimatedTotal: 0, label: STAGE_LABEL.selesai } };
+    }
+    // Init or load snapshot
+    const snapshot = await ensureDrillingSnapshot(state);
+    const stateWithSnapshot: OnboardingState = state.drillingSnapshot
+      ? state
+      : { ...state, drillingSnapshot: snapshot };
+
+    const drill = rehydrateDrillingFromSnapshot(snapshot, stateWithSnapshot);
+    if (drill.done) {
+      const result = finalizeDrilling(drill);
+      const newState: OnboardingState = {
+        ...stateWithSnapshot,
+        stage: "selesai",
+        hasilDrilling: result ?? undefined,
+        drillingSnapshot: drill,
+      };
+      return { state: newState, nextItem: null, done: true, progress: { stage: "selesai", itemsAnswered: state.responses.length, estimatedTotal: 0, label: STAGE_LABEL.selesai } };
+    }
+    const next = pickNextDrillingItem(drill);
+    if (!next) {
+      // Force done — semua sub-step sudah dieksekusi tapi belum di-mark done
+      const newState: OnboardingState = {
+        ...stateWithSnapshot,
+        stage: "selesai",
+        hasilDrilling: finalizeDrilling({ ...drill, done: true, stopReason: "all_done" }) ?? undefined,
+        drillingSnapshot: drill,
+      };
+      return { state: newState, nextItem: null, done: true, progress: { stage: "selesai", itemsAnswered: state.responses.length, estimatedTotal: 0, label: STAGE_LABEL.selesai } };
+    }
+    // Hitung items at stage = total drilling responses sejauh ini
+    const drillingItemsAnswered = drill.steps.reduce((sum, s) => sum + s.responses.length, 0);
+    const drillingItemsTotal = drill.steps.reduce((sum, s) => sum + s.items.length, 0);
+    const currentStep = drill.steps[drill.currentStepIdx];
+    const stepLabel = currentStep ? `Drilling — ${currentStep.config.label}` : STAGE_LABEL.drilling;
+    return {
+      state: stateWithSnapshot,
+      nextItem: next.item,
+      done: false,
+      progress: {
+        stage: "drilling",
+        itemsAnswered: drillingItemsAnswered,
+        estimatedTotal: drillingItemsTotal || ESTIMATED_TOTALS.drilling,
+        label: stepLabel,
       },
     };
   }
@@ -269,6 +368,7 @@ export type OnboardingResult = {
   hasilLocator?: LocatorResult;
   hasilCoverage?: CoverageResult;
   hasilDeep?: DeepResult;
+  hasilDrilling?: DrillingResult;
 };
 
 export function buildResult(state: OnboardingState): OnboardingResult {
@@ -282,6 +382,7 @@ export function buildResult(state: OnboardingState): OnboardingResult {
     hasilLocator: state.hasilLocator,
     hasilCoverage: state.hasilCoverage,
     hasilDeep: state.hasilDeep,
+    hasilDrilling: state.hasilDrilling,
   };
 }
 

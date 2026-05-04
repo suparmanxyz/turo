@@ -96,7 +96,7 @@ export async function upsertUserProfile(
 // 2. diagnostic_session
 // ============================================================
 
-export type DiagnosticStage = "fast-locator" | "fast-coverage" | "deep" | "selesai";
+export type DiagnosticStage = "fast-locator" | "fast-coverage" | "deep" | "drilling" | "selesai";
 
 export type DiagnosticSessionDoc = {
   id: string;
@@ -127,6 +127,28 @@ export type DiagnosticSessionDoc = {
     itemsUsed: number;
     masteryCount: { siap: number; review: number; remediasi: number; unknown: number };
     remediasiKodes: string[];
+  };
+  hasilDrilling?: {
+    path: "ADVANCED" | "STANDARD" | "COMPREHENSIVE" | "INTENSIVE";
+    totalSteps: number;
+    stepsPassed: number;
+    stepsWeak: number;
+    stepsSkipped: number;
+    itemsTotal: number;
+    itemsAnswered: number;
+    overallAccuracy: number;
+    weakKodes: string[];
+    recommendation: string;
+    steps: {
+      kind: string;
+      label: string;
+      status: "pending" | "in_progress" | "passed" | "weak" | "skipped";
+      accuracy?: number;
+      passThreshold: number;
+      itemsAnswered: number;
+      itemsTotal: number;
+      targetKodes: string[];
+    }[];
   };
   /** Counter untuk indikator stop. */
   itemsAnswered: number;

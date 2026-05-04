@@ -45,7 +45,13 @@ export async function POST(req: NextRequest) {
     itemId,
     subMateriKode: item.subMateriKode,
     area: item.area,
-    stage: state.stage === "locator" ? "fast-locator" : state.stage === "coverage" ? "fast-coverage" : "deep",
+    stage: state.stage === "locator"
+      ? "fast-locator"
+      : state.stage === "coverage"
+        ? "fast-coverage"
+        : state.stage === "drilling"
+          ? "drilling"
+          : "deep",
     correct,
     pilihIdx,
     responseTimeMs: responseTimeMs ?? 0,
@@ -98,6 +104,30 @@ export async function POST(req: NextRequest) {
             itemsUsed: result.hasilDeep.itemsUsed,
             masteryCount: countByStatus(result.hasilDeep.mastery),
             remediasiKodes: result.hasilDeep.remediasi.map((m) => m.kode),
+          }
+        : undefined,
+      hasilDrilling: result.hasilDrilling
+        ? {
+            path: result.hasilDrilling.path,
+            totalSteps: result.hasilDrilling.totalSteps,
+            stepsPassed: result.hasilDrilling.stepsPassed,
+            stepsWeak: result.hasilDrilling.stepsWeak,
+            stepsSkipped: result.hasilDrilling.stepsSkipped,
+            itemsTotal: result.hasilDrilling.itemsTotal,
+            itemsAnswered: result.hasilDrilling.itemsAnswered,
+            overallAccuracy: result.hasilDrilling.overallAccuracy,
+            weakKodes: result.hasilDrilling.weakKodes,
+            recommendation: result.hasilDrilling.recommendation,
+            steps: result.hasilDrilling.steps.map((s) => ({
+              kind: s.kind,
+              label: s.label,
+              status: s.status,
+              accuracy: s.accuracy,
+              passThreshold: s.passThreshold,
+              itemsAnswered: s.itemsAnswered,
+              itemsTotal: s.itemsTotal,
+              targetKodes: s.targetKodes,
+            })),
           }
         : undefined,
     });
