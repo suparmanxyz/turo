@@ -5,6 +5,7 @@ import {
   updateDiagnosticSession,
   upsertUserProfile,
   batchUpsertMastery,
+  appendMaturityHistory,
 } from "@/lib/firestore-schema";
 import { loadItem, incrementCalibration } from "@/lib/item-bank";
 import { bumpItemAggregate } from "@/lib/firestore-schema";
@@ -167,6 +168,21 @@ export async function POST(req: NextRequest) {
       kelasEstimasi: result.kelasEstimasi,
       onboardingStatus: result.hasilDeep ? "deep-done" : "fast-done",
     });
+
+    // Append Maturity snapshot ke history user (untuk trend tracking)
+    if (maturity) {
+      const dimensionsScores: Record<string, number> = {};
+      for (const d of maturity.dimensions) dimensionsScores[d.dimension] = d.overall;
+      await appendMaturityHistory(uid, {
+        timestamp: Date.now(),
+        sessionId,
+        overall: maturity.overall,
+        level: maturity.level,
+        dimensionsScores,
+        totalItems: maturity.totalItems,
+        kelasAtSession: step.state.kelas,
+      });
+    }
   }
 
   return NextResponse.json({

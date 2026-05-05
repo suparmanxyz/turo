@@ -44,6 +44,19 @@ export const COL = {
 // 1. user_profile
 // ============================================================
 
+/** Snapshot Maturity dari satu sesi diagnostik (untuk trend tracking). */
+export type MaturitySnapshot = {
+  timestamp: number;
+  sessionId: string;
+  overall: number;
+  level: "MASTERY" | "PROFICIENT" | "DEVELOPING" | "EMERGING" | "BEGINNING";
+  /** Per dimensi score (5 dimensi). */
+  dimensionsScores: Record<string, number>;
+  totalItems: number;
+  /** Optional: kelas user saat sesi (untuk track perkembangan vs jenjang). */
+  kelasAtSession?: number;
+};
+
 export type UserProfileDoc = {
   uid: string;
   email?: string;
@@ -61,6 +74,8 @@ export type UserProfileDoc = {
   kelasEstimasi?: number;
   /** Onboarding state: belum / fast-done / deep-done. */
   onboardingStatus: "belum" | "fast-done" | "deep-done";
+  /** History Mathematical Maturity — last 20 snapshots (oldest first). */
+  maturityHistory?: MaturitySnapshot[];
   createdAt: number;
   updatedAt: number;
 };
@@ -89,6 +104,38 @@ export async function upsertUserProfile(
       updatedAt: now,
     } as UserProfileDoc;
     await ref.set(doc);
+  }
+}
+
+/**
+ * Append Maturity snapshot ke user profile history.
+ * Keep last 20 entries (rolling buffer, oldest first).
+ * Idempotent: kalau sessionId sudah ada, replace existing (untuk re-compute confidence).
+ */
+export async function appendMaturityHistory(
+  uid: string,
+  snapshot: MaturitySnapshot,
+): Promise<void> {
+  const ref = getAdminDb().collection(COL.USER_PROFILE).doc(uid);
+  const snap = await ref.get();
+  const profile = snap.exists ? (snap.data() as UserProfileDoc) : null;
+  const existing = profile?.maturityHistory ?? [];
+  // Replace kalau sessionId sudah ada (re-compute scenario)
+  const filtered = existing.filter((s) => s.sessionId !== snapshot.sessionId);
+  // Append + cap 20 entries (oldest first, drop oldest)
+  const updated = [...filtered, snapshot].slice(-20);
+  if (snap.exists) {
+    await ref.update({ maturityHistory: updated, updatedAt: Date.now() });
+  } else {
+    // Create new profile dengan minimal fields
+    await ref.set({
+      uid,
+      kategoriUtama: "reguler",
+      onboardingStatus: "fast-done",
+      maturityHistory: updated,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    } as UserProfileDoc);
   }
 }
 

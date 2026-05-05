@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminAuth } from "@/lib/firebase-admin";
-import { getDiagnosticSession, updateDiagnosticSession, listResponses } from "@/lib/firestore-schema";
+import { getDiagnosticSession, updateDiagnosticSession, listResponses, appendMaturityHistory } from "@/lib/firestore-schema";
 import { loadItem } from "@/lib/item-bank";
 import { computeMaturity, type BehavioralResponse } from "@/lib/mathematical-maturity";
 
@@ -69,6 +69,18 @@ export async function POST(req: NextRequest) {
       userConfidenceRating: maturity.userConfidenceRating,
       totalItems: maturity.totalItems,
     },
+  });
+
+  // Update history snapshot dengan rating user (replace existing entry by sessionId)
+  const dimensionsScores: Record<string, number> = {};
+  for (const d of maturity.dimensions) dimensionsScores[d.dimension] = d.overall;
+  await appendMaturityHistory(uid, {
+    timestamp: Date.now(),
+    sessionId,
+    overall: maturity.overall,
+    level: maturity.level,
+    dimensionsScores,
+    totalItems: maturity.totalItems,
   });
 
   return NextResponse.json({ ok: true, overall: maturity.overall, level: maturity.level });

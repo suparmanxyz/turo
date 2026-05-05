@@ -469,13 +469,22 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         </section>
       )}
 
-      <div className="flex gap-3 mt-8">
+      <div className="flex gap-3 mt-8 flex-wrap">
         <Link
           href="/"
-          className="flex-1 rounded-xl bg-brand hover:bg-brand-strong text-white font-semibold py-3 text-center transition"
+          className="flex-1 min-w-[200px] rounded-xl bg-brand hover:bg-brand-strong text-white font-semibold py-3 text-center transition"
         >
           Mulai Belajar →
         </Link>
+        {maturity && (
+          <Link
+            href="/profil/maturity"
+            className="rounded-xl bg-violet-100 hover:bg-violet-200 text-violet-700 font-semibold py-3 px-5 text-center transition"
+            title="Lihat trend Maturity dari riwayat sesi"
+          >
+            🧠 Trend Maturity
+          </Link>
+        )}
         <Link
           href="/onboarding"
           className="rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-5 text-center transition"
