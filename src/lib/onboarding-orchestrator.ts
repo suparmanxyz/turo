@@ -369,6 +369,7 @@ export type OnboardingResult = {
   hasilCoverage?: CoverageResult;
   hasilDeep?: DeepResult;
   hasilDrilling?: DrillingResult;
+  hasilMaturity?: import("@/lib/mathematical-maturity").MaturityProfile;
 };
 
 export function buildResult(state: OnboardingState): OnboardingResult {
@@ -384,5 +385,26 @@ export function buildResult(state: OnboardingState): OnboardingResult {
     hasilDeep: state.hasilDeep,
     hasilDrilling: state.hasilDrilling,
   };
+}
+
+/**
+ * Async helper: compute Mathematical Maturity dari responses + items.
+ * Dipanggil terpisah dari buildResult() karena butuh fetch items dari Firestore.
+ *
+ * @param state OnboardingState dengan responses lengkap
+ * @param userConfidenceRating Optional dari user (1-5)
+ */
+export async function computeMaturityProfile(
+  state: OnboardingState,
+  userConfidenceRating?: number,
+): Promise<import("@/lib/mathematical-maturity").MaturityProfile | null> {
+  if (state.responses.length === 0) return null;
+  const { computeMaturity } = await import("@/lib/mathematical-maturity");
+  const { loadItem } = await import("@/lib/item-bank");
+  const itemIds = [...new Set(state.responses.map((r) => r.itemId))];
+  const items = (await Promise.all(itemIds.map((id) => loadItem(id)))).filter(
+    (it): it is import("@/lib/item-bank").ItemBankEntry => it !== null,
+  );
+  return computeMaturity(state.responses, items, userConfidenceRating);
 }
 

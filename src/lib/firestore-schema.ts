@@ -150,6 +150,29 @@ export type DiagnosticSessionDoc = {
       targetKodes: string[];
     }[];
   };
+  /** Mathematical Maturity profile — 5 dimensi kognitif. */
+  hasilMaturity?: {
+    overall: number;
+    level: "MASTERY" | "PROFICIENT" | "DEVELOPING" | "EMERGING" | "BEGINNING";
+    dimensions: {
+      dimension: string;
+      weight: number;
+      overall: number;
+      level: "MASTERY" | "PROFICIENT" | "DEVELOPING" | "EMERGING" | "BEGINNING";
+      subScores: {
+        subDimension: string;
+        score: number;
+        level: "MASTERY" | "PROFICIENT" | "DEVELOPING" | "EMERGING" | "BEGINNING";
+        itemsContributing: number;
+        interpretation: string;
+        recommendation: string;
+      }[];
+    }[];
+    strengths: { subDimension: string; score: number; level: string }[];
+    priorityAreas: { subDimension: string; score: number; level: string }[];
+    userConfidenceRating?: number;
+    totalItems: number;
+  };
   /** Counter untuk indikator stop. */
   itemsAnswered: number;
   itemsSkipped: number;

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { submitAnswer, buildResult, type OnboardingState } from "@/lib/onboarding-orchestrator";
+import { submitAnswer, buildResult, computeMaturityProfile, type OnboardingState } from "@/lib/onboarding-orchestrator";
 import {
   appendResponse,
   updateDiagnosticSession,
@@ -64,9 +64,12 @@ export async function POST(req: NextRequest) {
   // Advance state machine
   const step = await submitAnswer(state, itemId, correct, responseTimeMs);
 
-  // Kalau selesai → finalize: update session, save mastery, update user profile
+  // Kalau selesai → finalize: update session, save mastery, compute maturity, update user profile
   if (step.done) {
     const result = buildResult(step.state);
+    // Compute Mathematical Maturity (async — fetch items + analyze behavioral data)
+    const userConfidenceRating = body.userConfidenceRating as number | undefined;
+    const maturity = await computeMaturityProfile(step.state, userConfidenceRating);
     await updateDiagnosticSession(sessionId, {
       stage: "selesai",
       thetaGlobal: result.thetaGlobal,
@@ -128,6 +131,30 @@ export async function POST(req: NextRequest) {
               itemsTotal: s.itemsTotal,
               targetKodes: s.targetKodes,
             })),
+          }
+        : undefined,
+      hasilMaturity: maturity
+        ? {
+            overall: maturity.overall,
+            level: maturity.level,
+            dimensions: maturity.dimensions.map((d) => ({
+              dimension: d.dimension,
+              weight: d.weight,
+              overall: d.overall,
+              level: d.level,
+              subScores: d.subScores.map((s) => ({
+                subDimension: s.subDimension,
+                score: s.score,
+                level: s.level,
+                itemsContributing: s.itemsContributing,
+                interpretation: s.interpretation,
+                recommendation: s.recommendation,
+              })),
+            })),
+            strengths: maturity.strengths.map((s) => ({ subDimension: s.subDimension, score: s.score, level: s.level })),
+            priorityAreas: maturity.priorityAreas.map((s) => ({ subDimension: s.subDimension, score: s.score, level: s.level })),
+            userConfidenceRating: maturity.userConfidenceRating,
+            totalItems: maturity.totalItems,
           }
         : undefined,
     });

@@ -62,6 +62,7 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
   const cov = session.hasilCoverage;
   const deep = session.hasilDeep;
   const drilling = session.hasilDrilling;
+  const maturity = session.hasilMaturity;
 
   return (
     <main className="mx-auto max-w-3xl p-4 sm:p-6">
@@ -295,6 +296,9 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         return null;
       })()}
 
+      {/* Mathematical Maturity — 5 dimensi profil kognitif */}
+      {maturity && <MaturitySection m={maturity} />}
+
       {/* Drilling result (Phase 2) — show kalau ada hasilDrilling */}
       {drilling && (
         <section className="mb-6">
@@ -459,6 +463,171 @@ function Card({ title, value, sub }: { title: string; value: string; sub?: strin
       <div className="text-2xl font-bold mt-1">{value}</div>
       {sub && <div className="text-xs text-slate-400 mt-0.5">{sub}</div>}
     </div>
+  );
+}
+
+// ============================================================
+// Mathematical Maturity Section — 5 dimensi profil kognitif
+// ============================================================
+
+const MATURITY_LABELS: Record<string, string> = {
+  abstract_reasoning: "Penalaran Abstrak",
+  problem_solving: "Pemecahan Masalah",
+  communication: "Komunikasi Matematis",
+  persistence: "Ketekunan & Fokus",
+  confidence: "Kepercayaan Diri & Regulasi",
+  pattern_recognition: "Pengenalan Pola",
+  symbolic_manipulation: "Manipulasi Simbolik",
+  conceptual_understanding: "Pemahaman Konsep",
+  logical_reasoning: "Penalaran Logis",
+  multi_step_problems: "Soal Multi-Langkah",
+  analytical_consistency: "Konsistensi Analitis",
+  strategy_selection: "Pemilihan Strategi",
+  solution_efficiency: "Efisiensi Solusi",
+  reasoning_quality: "Kualitas Penalaran",
+  explanation_clarity: "Kejelasan Penjelasan",
+  language_processing: "Pemrosesan Bahasa Matematis",
+  logical_flow: "Alur Logis",
+  time_consistency: "Konsistensi Waktu",
+  completion_rate: "Tingkat Penyelesaian",
+  effort_maintenance: "Pemeliharaan Usaha",
+  attention_to_detail: "Perhatian Detail",
+  performance_consistency: "Konsistensi Performa",
+  risk_management: "Manajemen Risiko",
+  self_assessment_accuracy: "Akurasi Penilaian Diri",
+  adaptive_behavior: "Perilaku Adaptif",
+};
+
+const LEVEL_COLOR: Record<string, string> = {
+  MASTERY: "bg-emerald-500 text-white",
+  PROFICIENT: "bg-emerald-100 text-emerald-700",
+  DEVELOPING: "bg-sky-100 text-sky-700",
+  EMERGING: "bg-amber-100 text-amber-700",
+  BEGINNING: "bg-rose-100 text-rose-700",
+};
+
+const DIMENSION_EMOJI: Record<string, string> = {
+  abstract_reasoning: "🧠",
+  problem_solving: "🎯",
+  communication: "💬",
+  persistence: "💪",
+  confidence: "🎓",
+};
+
+type MaturityData = NonNullable<DiagnosticSessionDoc["hasilMaturity"]>;
+
+function MaturitySection({ m }: { m: MaturityData }) {
+  return (
+    <section className="mb-6">
+      <h2 className="text-xl font-bold mb-3">🧠 Profil Kematangan Matematis</h2>
+      <div className="rounded-2xl bg-gradient-to-br from-violet-50 to-indigo-50 border-2 border-violet-200 p-5">
+        {/* Overall summary */}
+        <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-slate-500 mb-1">Skor Keseluruhan</div>
+            <div className="text-4xl font-extrabold text-violet-900">{m.overall}</div>
+            <div className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full font-semibold mt-1 ${LEVEL_COLOR[m.level] ?? ""}`}>
+              {m.level}
+            </div>
+          </div>
+          <div className="text-xs text-slate-500 max-w-xs">
+            Profil dari {m.totalItems} jawaban — bukan apa yang kamu tahu, tapi <strong>bagaimana</strong> kamu mengerjakan matematika.
+          </div>
+        </div>
+
+        {/* Per dimensi summary */}
+        <div className="grid sm:grid-cols-2 gap-3 mb-4">
+          {m.dimensions.map((d) => (
+            <div key={d.dimension} className="rounded-xl bg-white border border-violet-200 p-3">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-xl">{DIMENSION_EMOJI[d.dimension] ?? "•"}</span>
+                  <span className="font-medium text-sm truncate">{MATURITY_LABELS[d.dimension] ?? d.dimension}</span>
+                </div>
+                <span className="text-xs text-slate-400">{Math.round(d.weight * 100)}%</span>
+              </div>
+              <div className="flex items-baseline gap-2 mb-2">
+                <div className="text-2xl font-bold">{d.overall}</div>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase ${LEVEL_COLOR[d.level] ?? ""}`}>
+                  {d.level}
+                </span>
+              </div>
+              {/* Mini progress bar */}
+              <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className={`h-full ${d.level === "MASTERY" || d.level === "PROFICIENT" ? "bg-emerald-500" : d.level === "DEVELOPING" ? "bg-sky-500" : d.level === "EMERGING" ? "bg-amber-500" : "bg-rose-500"}`}
+                  style={{ width: `${d.overall}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Strengths & priorities */}
+        <div className="grid sm:grid-cols-2 gap-3">
+          {m.strengths.length > 0 && (
+            <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3">
+              <div className="text-xs uppercase tracking-wider text-emerald-700 font-semibold mb-2">✨ Top Strengths</div>
+              <ul className="space-y-1 text-xs text-emerald-900">
+                {m.strengths.map((s, i) => (
+                  <li key={i} className="flex items-center gap-2">
+                    <span className="font-bold">{s.score}</span>
+                    <span>{MATURITY_LABELS[s.subDimension] ?? s.subDimension}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {m.priorityAreas.length > 0 && (
+            <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+              <div className="text-xs uppercase tracking-wider text-amber-700 font-semibold mb-2">⚠ Priority Areas</div>
+              <ul className="space-y-1 text-xs text-amber-900">
+                {m.priorityAreas.map((s, i) => (
+                  <li key={i} className="flex items-center gap-2">
+                    <span className="font-bold">{s.score}</span>
+                    <span>{MATURITY_LABELS[s.subDimension] ?? s.subDimension}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {/* Detail per sub-dimensi (collapsible) */}
+        <details className="mt-4">
+          <summary className="cursor-pointer text-sm font-medium text-violet-700 hover:text-violet-900">
+            Lihat detail interpretasi & rekomendasi per sub-dimensi
+          </summary>
+          <div className="mt-3 space-y-3">
+            {m.dimensions.map((d) => (
+              <div key={d.dimension} className="rounded-xl bg-white border border-slate-200 p-3">
+                <div className="font-semibold text-sm mb-2">
+                  {DIMENSION_EMOJI[d.dimension]} {MATURITY_LABELS[d.dimension] ?? d.dimension}
+                </div>
+                <ul className="space-y-2 text-xs">
+                  {d.subScores.map((s) => (
+                    <li key={s.subDimension} className="border-l-2 border-slate-200 pl-3">
+                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                        <span className="font-medium">{MATURITY_LABELS[s.subDimension] ?? s.subDimension}</span>
+                        <span className="font-bold">{s.score}</span>
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase ${LEVEL_COLOR[s.level] ?? ""}`}>
+                          {s.level}
+                        </span>
+                        {s.itemsContributing > 0 && (
+                          <span className="text-[10px] text-slate-400">({s.itemsContributing} soal)</span>
+                        )}
+                      </div>
+                      <p className="text-slate-700 italic">{s.interpretation}</p>
+                      <p className="text-slate-600 mt-0.5">→ {s.recommendation}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </details>
+      </div>
+    </section>
   );
 }
 
