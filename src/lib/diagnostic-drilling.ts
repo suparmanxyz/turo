@@ -34,6 +34,7 @@ import {
   pickFoundationTarget,
   type FoundationTarget,
 } from "@/lib/foundation-set";
+import { getSmartGranularity, type GranularityClassification } from "@/lib/smart-granularity";
 import type { CoverageResult } from "@/lib/diagnostic-coverage";
 import type { AreaMatematika, JenjangResmi, SubMateriResmi } from "@/types";
 
@@ -405,6 +406,45 @@ function resolveTargetSubs(
 }
 
 // ============================================================
+// Smart Granularity adjustment — adapt items count per sub
+// ============================================================
+
+/**
+ * Adjust item mix berdasar classification dari Smart Granularity.
+ *
+ * Strategi (Time efficiency tanpa kehilangan precision):
+ *   - MANDATORY (gateway+complexity tinggi) → minimum 5 items untuk precision
+ *   - CONDITIONAL → keep blueprint default
+ *   - SUFFICIENT → maksimum 2 items, hemat waktu
+ */
+function adjustMixForGranularity(
+  baseMix: ItemMix,
+  classification: GranularityClassification,
+): ItemMix {
+  switch (classification) {
+    case "SUB_DRILLING_MANDATORY":
+      // Minimum 5 items: 1E + 2M + 2H (precision testing)
+      return {
+        easy: Math.max(1, baseMix.easy),
+        medium: Math.max(2, baseMix.medium),
+        hard: Math.max(2, baseMix.hard),
+      };
+    case "SUB_DRILLING_CONDITIONAL":
+      // Keep blueprint default
+      return baseMix;
+    case "MATERIAL_LEVEL_SUFFICIENT": {
+      // Maximum 2 items: 0E + 1M + (1H kalau blueprint punya hard)
+      const easy = Math.min(0, baseMix.easy);
+      const medium = baseMix.medium > 0 ? 1 : 0;
+      const hard = baseMix.hard > 0 ? 1 : 0;
+      // Pastikan minimal 1 item (kalau semua jadi 0, force 1 medium)
+      const total = easy + medium + hard;
+      return total > 0 ? { easy, medium, hard } : { easy: 0, medium: 1, hard: 0 };
+    }
+  }
+}
+
+// ============================================================
 // Init drilling — pre-allocate items per step
 // ============================================================
 
@@ -430,7 +470,10 @@ export async function initDrilling(
     const targetSubs = resolveTargetSubs(config.source, ctx, config.targetSubCount);
     const items: ItemBankEntry[] = [];
     for (const sub of targetSubs) {
-      const picks = await pickItemsWithMix(sub.kode, config.mixPerSub, used);
+      // Smart Granularity: adapt mix per sub berdasar Gateway × Complexity
+      const granularity = getSmartGranularity(sub);
+      const adjustedMix = adjustMixForGranularity(config.mixPerSub, granularity.classification);
+      const picks = await pickItemsWithMix(sub.kode, adjustedMix, used);
       for (const it of picks.total) {
         items.push(it);
         used.add(it.id);
