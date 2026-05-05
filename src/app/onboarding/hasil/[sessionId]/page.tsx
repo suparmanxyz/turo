@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { DiagnosticSessionDoc } from "@/lib/firestore-schema";
 import { JALUR_LABEL } from "@/lib/diagnostic-routing";
 
+const CONFIDENCE_KEY = (sid: string) => `turo-confidence-${sid}`;
+
 const AREA_LABEL: Record<string, string> = {
   bilangan: "Bilangan",
   aljabar: "Aljabar",
@@ -63,6 +65,11 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
   const deep = session.hasilDeep;
   const drilling = session.hasilDrilling;
   const maturity = session.hasilMaturity;
+
+  // Confidence rating: 1 question, 5 emoji, 3 detik
+  // Disubmit ke /api/onboarding/confidence yang re-compute maturity dengan rating itu
+  const showConfidenceModal = !!maturity && !maturity.userConfidenceRating &&
+    typeof window !== "undefined" && !sessionStorage.getItem(CONFIDENCE_KEY(sessionId));
 
   return (
     <main className="mx-auto max-w-3xl p-4 sm:p-6">
@@ -296,6 +303,30 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         return null;
       })()}
 
+      {showConfidenceModal && (
+        <ConfidenceModal
+          onSubmit={async (rating) => {
+            sessionStorage.setItem(CONFIDENCE_KEY(sessionId), String(rating));
+            try {
+              const idToken = await user!.getIdToken();
+              await fetch(`/api/onboarding/confidence`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
+                body: JSON.stringify({ sessionId, rating }),
+              });
+              // Refresh session data
+              const r = await fetch(`/api/onboarding/result/${sessionId}`, {
+                headers: { authorization: `Bearer ${idToken}` },
+              });
+              if (r.ok) setSession(await r.json());
+            } catch (e) {
+              console.warn("Confidence submit failed:", e);
+            }
+          }}
+          onSkip={() => sessionStorage.setItem(CONFIDENCE_KEY(sessionId), "skipped")}
+        />
+      )}
+
       {/* Mathematical Maturity — 5 dimensi profil kognitif */}
       {maturity && <MaturitySection m={maturity} />}
 
@@ -462,6 +493,73 @@ function Card({ title, value, sub }: { title: string; value: string; sub?: strin
       <div className="text-xs text-slate-500 uppercase tracking-wider">{title}</div>
       <div className="text-2xl font-bold mt-1">{value}</div>
       {sub && <div className="text-xs text-slate-400 mt-0.5">{sub}</div>}
+    </div>
+  );
+}
+
+// ============================================================
+// Confidence Rating Modal — single question, 5 emoji buttons (~3 detik)
+// ============================================================
+
+function ConfidenceModal({ onSubmit, onSkip }: { onSubmit: (rating: number) => void; onSkip: () => void }) {
+  const [chosen, setChosen] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const options = [
+    { rating: 1, emoji: "😟", label: "Tidak yakin" },
+    { rating: 2, emoji: "😐", label: "Kurang yakin" },
+    { rating: 3, emoji: "🙂", label: "Cukup yakin" },
+    { rating: 4, emoji: "😊", label: "Yakin" },
+    { rating: 5, emoji: "🤩", label: "Sangat yakin" },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full">
+        <h3 className="text-lg font-bold text-center mb-2">Sebelum lihat hasil...</h3>
+        <p className="text-sm text-slate-600 text-center mb-5">
+          Seberapa yakin kamu dengan jawaban-jawaban tadi?
+        </p>
+        <div className="grid grid-cols-5 gap-2 mb-4">
+          {options.map((opt) => (
+            <button
+              key={opt.rating}
+              onClick={() => setChosen(opt.rating)}
+              className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition ${
+                chosen === opt.rating
+                  ? "border-violet-500 bg-violet-50"
+                  : "border-slate-200 hover:border-violet-300"
+              }`}
+            >
+              <span className="text-3xl">{opt.emoji}</span>
+              <span className="text-[10px] text-slate-600 leading-tight text-center">{opt.label}</span>
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <button
+            disabled={!chosen || submitting}
+            onClick={async () => {
+              if (!chosen) return;
+              setSubmitting(true);
+              await onSubmit(chosen);
+              setSubmitting(false);
+            }}
+            className="flex-1 py-2.5 rounded-xl bg-violet-600 text-white font-semibold disabled:opacity-50 hover:bg-violet-700 transition"
+          >
+            {submitting ? "Memproses..." : "Lanjut"}
+          </button>
+          <button
+            onClick={onSkip}
+            className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition text-sm"
+          >
+            Lewati
+          </button>
+        </div>
+        <p className="text-[10px] text-slate-400 text-center mt-3">
+          Rating ini bantu sistem nilai akurasi penilaian-diri kamu.
+        </p>
+      </div>
     </div>
   );
 }
