@@ -463,6 +463,9 @@ export async function initDrilling(
   // tambah deep items lewat previouslyUsedIds.
   const used = new Set<string>(coverage.responses.map((r) => r.itemId));
   for (const id of previouslyUsedIds) used.add(id);
+  // Snapshot pre-drilling untuk rehydrate filter — JANGAN include items yang
+  // di-allocate ke drilling step.items (mereka harus tetap bisa di-replay).
+  const preDrillingUsed = new Set(used);
   const ctx = {
     jenjang,
     kelas,
@@ -505,7 +508,7 @@ export async function initDrilling(
     thetaGlobal: coverage.thetaGlobal,
     steps,
     currentStepIdx: firstActive >= 0 ? firstActive : 0,
-    usedIds: Array.from(used),
+    usedIds: Array.from(preDrillingUsed),
     done: allSkipped,
     stopReason: allSkipped ? "no_items_left" : undefined,
   };
