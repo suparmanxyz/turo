@@ -32,6 +32,7 @@ export default function AdminIndexPage() {
     { href: "/admin/pricing", emoji: "💰", judul: "Pengaturan Harga", desc: "Edit harga plan (Solo/Family/UTBK), free tier limits, trial config. Live di Firestore — bisa diubah kapan saja." },
     { href: "/admin/labels", emoji: "🏷️", judul: "Label Sub-Materi", desc: "Adjust label per sub: 📘 Inti / 🌉 Pendukung / 🚀 Tantangan / 🎯 UTBK. AI verdict + reasoning sebagai context. (Live di Firestore)" },
     { href: "/admin/granularity", emoji: "🎚️", judul: "Smart Granularity", desc: "Auto-derived Gateway Score + Complexity Score per sub. Klasifikasi: Mandatory Drill / Conditional / Material Level Sufficient." },
+    { href: "/admin/item-meta-audit", emoji: "📊", judul: "Item Meta Audit", desc: "Coverage metadata pedagogis per item (foundation untuk Maturity scoring). Per-field stats, per-jenjang breakdown, auto-refresh untuk monitor enrichment progress." },
     { href: "/admin/materi", emoji: "📚", judul: "Materi & Pohon Prasyarat", desc: "Lihat 472 sub-materi resmi & pohon prasyarat dari peta-prasyarat.json." },
     { href: "/admin/item-bank", emoji: "🏦", judul: "Item Bank", desc: "Seed soal MC ke item_bank per sub-materi prioritas (untuk diagnostik IRT)." },
     { href: "/admin/diagnostic-sessions", emoji: "🎯", judul: "Sesi Diagnostik IRT", desc: "Audit sesi onboarding Phase B (Locator/Coverage/Deep): soal, jawaban, kecocokan vs peta." },
