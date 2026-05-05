@@ -144,7 +144,10 @@ async function ensureDrillingSnapshot(state: OnboardingState): Promise<DrillingS
   if (state.kelas === undefined) throw new Error("Drilling butuh kelas user");
   // Pakai snapshot kalau ada (item allocation deterministic — tidak boleh re-roll)
   if (state.drillingSnapshot) return state.drillingSnapshot;
-  return await initDrilling(state.jenjang, state.kelas, state.hasilCoverage);
+  // Pre-drilling items: SEMUA itemId yang sudah ada di state.responses
+  // (locator + coverage + deep) supaya drilling step.items tidak overlap.
+  const previouslyUsedIds = state.responses.map((r) => r.itemId);
+  return await initDrilling(state.jenjang, state.kelas, state.hasilCoverage, previouslyUsedIds);
 }
 
 function rehydrateDrillingFromSnapshot(

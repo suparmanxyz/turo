@@ -452,12 +452,17 @@ export async function initDrilling(
   jenjang: JenjangResmi,
   kelas: number,
   coverage: CoverageResult,
+  /** Item IDs yang sudah dipakai di stage Locator+Coverage+Deep — anti-bocor. */
+  previouslyUsedIds: string[] = [],
 ): Promise<DrillingState> {
   const path: DrillingPathName = coverage.pathRoute?.path ?? "STANDARD";
   const blueprint = PATH_BLUEPRINTS[path];
   const foundationTarget = pickFoundationTarget(jenjang, kelas);
 
+  // Carry-over: coverage.responses sudah include locator (carried via initCoverage),
+  // tambah deep items lewat previouslyUsedIds.
   const used = new Set<string>(coverage.responses.map((r) => r.itemId));
+  for (const id of previouslyUsedIds) used.add(id);
   const ctx = {
     jenjang,
     kelas,
@@ -514,13 +519,18 @@ export function pickNextDrillingItem(
   state: DrillingState,
 ): { item: ItemBankEntry; stepIdx: number } | null {
   if (state.done) return null;
-  // Cari step pertama yang masih ada item belum di-respond
+  // Defense in depth: exclude items yang sudah ada di state.usedIds global,
+  // bukan cuma step.responses. Mencegah loop kalau item duplikat di multiple
+  // step, atau replay state desync.
+  const globalUsed = new Set(state.usedIds);
   for (let i = state.currentStepIdx; i < state.steps.length; i++) {
     const step = state.steps[i];
     if (!step) continue;
     if (step.status === "skipped" || step.status === "passed" || step.status === "weak") continue;
     const respondedIds = new Set(step.responses.map((r) => r.itemId));
-    const next = step.items.find((it) => !respondedIds.has(it.id));
+    const next = step.items.find(
+      (it) => !respondedIds.has(it.id) && !globalUsed.has(it.id),
+    );
     if (next) return { item: next, stepIdx: i };
   }
   return null;
