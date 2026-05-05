@@ -104,12 +104,12 @@ function HeroSection() {
             mainmaku.id · belajar matematika adaptif
           </div>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
-            Sistem yang ngerti<br />
-            <span className="text-teal-300">level anak Anda</span> — bukan one-size-fits-all.
+            Bukan tahu <span className="text-teal-300">apa</span><br />
+            tapi <span className="text-cyan-300">bagaimana</span> anak berpikir.
           </h1>
           <p className="text-lg sm:text-xl text-teal-50/90 mb-8 leading-relaxed max-w-2xl">
-            Diagnostik adaptif 4 tahap (15-30 menit) → langsung tahu posisi anak. Sistem otomatis
-            arahkan ke topik yang DIBUTUHKAN, bukan urutan kaku. SD sampai SNBT &amp; olimpiade.
+            <strong>Peta Spektrum Matematis</strong> Turo ungkap 5 dimensi cara berpikir anak Anda dalam 15-30 menit.
+            Diagnostik adaptif IRT + sistem otomatis arahkan ke topik yang DIBUTUHKAN — SD sampai SNBT &amp; olimpiade.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link
@@ -191,8 +191,88 @@ function JalurSection() {
   );
 }
 
+function SpektrumSection() {
+  const dimensi = [
+    { e: "🧠", t: "Penalaran Abstrak", w: "30%", d: "Pengenalan pola, manipulasi simbolik, pemahaman konsep, penalaran logis", color: "from-violet-500 to-purple-600" },
+    { e: "🎯", t: "Pemecahan Masalah", w: "25%", d: "Soal multi-langkah, konsistensi analitis, pemilihan strategi, efisiensi solusi", color: "from-blue-500 to-indigo-600" },
+    { e: "💬", t: "Komunikasi Matematis", w: "20%", d: "Kualitas penalaran, kejelasan penjelasan, pemrosesan bahasa matematis, alur logis", color: "from-emerald-500 to-teal-600" },
+    { e: "💪", t: "Ketekunan & Fokus", w: "15%", d: "Konsistensi waktu, tingkat penyelesaian, pemeliharaan usaha, perhatian detail", color: "from-amber-500 to-orange-600" },
+    { e: "🎓", t: "Kepercayaan Diri", w: "10%", d: "Konsistensi performa, manajemen risiko, akurasi penilaian diri, perilaku adaptif", color: "from-pink-500 to-rose-600" },
+  ];
+  return (
+    <section className="relative bg-gradient-to-br from-violet-50 via-indigo-50 to-purple-50 border-y border-violet-200/70">
+      <div className="bg-grid absolute inset-0 opacity-30" />
+      <div className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
+        <div className="text-center mb-10 sm:mb-12 animate-rise">
+          <div className="inline-flex items-center gap-2 rounded-full bg-violet-100 text-violet-700 px-3 py-1 text-xs font-medium mb-3">
+            <span className="h-1.5 w-1.5 rounded-full bg-violet-600 animate-pulse" />
+            ✨ keunggulan eksklusif Turo
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
+            🌌 Peta Spektrum Matematis<span className="text-violet-600">.</span>
+          </h2>
+          <p className="text-lg text-violet-900/80 mt-3 max-w-2xl mx-auto">
+            Pertama di Indonesia. Bukan cuma skor materi — tapi profil <strong>bagaimana</strong> anak Anda berpikir matematis dalam 5 dimensi.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-8">
+          {dimensi.map((d, i) => (
+            <div
+              key={d.t}
+              style={{ animationDelay: `${i * 80}ms` }}
+              className="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-md hover:shadow-xl border border-violet-200 hover:-translate-y-1 transition-all duration-300 animate-pop"
+            >
+              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${d.color}`} />
+              <div className="text-3xl mb-2">{d.e}</div>
+              <h3 className="font-bold text-base mb-1 leading-tight">{d.t}</h3>
+              <div className="text-xs text-violet-600 font-bold mb-2">Bobot {d.w}</div>
+              <p className="text-xs text-slate-600 leading-relaxed">{d.d}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-2xl bg-white border-2 border-violet-300 p-6 sm:p-8">
+          <div className="grid sm:grid-cols-3 gap-6 items-center">
+            <div className="sm:col-span-2">
+              <h3 className="text-xl sm:text-2xl font-bold mb-2">5 Level per Dimensi</h3>
+              <p className="text-sm text-slate-600 mb-3">
+                Setiap dimensi dipetakan ke 5 level dengan interpretasi spesifik &amp; rekomendasi actionable:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500 text-white font-semibold">MASTERY</span>
+                <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold">PROFICIENT</span>
+                <span className="text-xs px-2.5 py-1 rounded-full bg-sky-100 text-sky-700 font-semibold">DEVELOPING</span>
+                <span className="text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 font-semibold">EMERGING</span>
+                <span className="text-xs px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 font-semibold">BEGINNING</span>
+              </div>
+              <p className="text-xs text-slate-500 mt-3">
+                + <strong>Trend over time</strong> dari sesi ke sesi · + <strong>Comparative cohort</strong> bandingkan dengan teman se-kelas
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl mb-2">📊</div>
+              <Link
+                href="/login?mode=register"
+                className="inline-block bg-violet-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-violet-700 transition shadow-md"
+              >
+                Coba Sekarang
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FiturSection() {
   const fitur = [
+    {
+      e: "🌌",
+      t: "Peta Spektrum Matematis",
+      d: "Bukan cuma tahu APA yang anak kuasai, tapi BAGAIMANA cara dia berpikir matematis. 5 dimensi: Penalaran Abstrak, Pemecahan Masalah, Komunikasi, Ketekunan, & Kepercayaan Diri.",
+    },
     {
       e: "🎯",
       t: "Diagnostik adaptif IRT",
@@ -222,6 +302,11 @@ function FiturSection() {
       e: "👨‍👩‍👧",
       t: "Family pack",
       d: "Satu langganan untuk 3 anak. Cocok untuk keluarga dengan beberapa anak sekolah — jauh lebih hemat dari per-akun.",
+    },
+    {
+      e: "📈",
+      t: "Trend belajar over time",
+      d: "Lihat progress 5 dimensi berpikir matematis dari sesi ke sesi. Bandingkan anak Anda dengan cohort kelas yang sama.",
     },
   ];
   return (
@@ -513,6 +598,7 @@ function LandingPage() {
     <main className="flex-1 flex flex-col">
       <HeroSection />
       <JalurSection />
+      <SpektrumSection />
       <FiturSection />
       <CaraKerjaSection />
       <PricingSection />

@@ -122,10 +122,10 @@ export default function MaturityProfilePage() {
     <main className="mx-auto max-w-4xl p-4 sm:p-6">
       <Link href="/" className="text-sm text-slate-500 hover:text-brand">← Beranda</Link>
       <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-2 mb-1">
-        🧠 Trend Kematangan Matematis
+        🌌 Trend Peta Spektrum Matematis
       </h1>
       <p className="text-muted text-sm mb-6">
-        Riwayat profil Mathematical Maturity dari sesi diagnostik kamu.
+        Riwayat 5 dimensi cara berpikir matematis dari sesi diagnostik kamu.
       </p>
 
       {error && (
@@ -147,9 +147,9 @@ export default function MaturityProfilePage() {
 
       {history && history.length === 0 && (
         <div className="rounded-xl bg-blue-50 border border-blue-200 p-6 text-center">
-          <div className="text-4xl mb-2">📊</div>
-          <p className="font-semibold text-blue-900 mb-1">Belum ada history Maturity</p>
-          <p className="text-sm text-blue-700 mb-3">Selesaikan diagnostik untuk mulai tracking.</p>
+          <div className="text-4xl mb-2">🌌</div>
+          <p className="font-semibold text-blue-900 mb-1">Belum ada Peta Spektrum Matematis</p>
+          <p className="text-sm text-blue-700 mb-3">Selesaikan diagnostik untuk mulai tracking 5 dimensi cara berpikir.</p>
           <Link href="/onboarding" className="inline-block px-4 py-2 rounded-lg bg-brand text-white text-sm font-semibold">
             Mulai Diagnostik
           </Link>

@@ -327,7 +327,7 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         />
       )}
 
-      {/* Mathematical Maturity — 5 dimensi profil kognitif */}
+      {/* Peta Spektrum Matematis — 5 dimensi profil kognitif */}
       {maturity && <MaturitySection m={maturity} />}
 
       {/* Drilling result (Phase 2) — show kalau ada hasilDrilling */}
@@ -480,9 +480,9 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
           <Link
             href="/profil/maturity"
             className="rounded-xl bg-violet-100 hover:bg-violet-200 text-violet-700 font-semibold py-3 px-5 text-center transition"
-            title="Lihat trend Maturity dari riwayat sesi"
+            title="Lihat trend Peta Spektrum Matematis dari riwayat sesi"
           >
-            🧠 Trend Maturity
+            🌌 Trend Spektrum
           </Link>
         )}
         <Link
@@ -626,19 +626,19 @@ type MaturityData = NonNullable<DiagnosticSessionDoc["hasilMaturity"]>;
 function MaturitySection({ m }: { m: MaturityData }) {
   return (
     <section className="mb-6">
-      <h2 className="text-xl font-bold mb-3">🧠 Profil Kematangan Matematis</h2>
+      <h2 className="text-xl font-bold mb-3">🌌 Peta Spektrum Matematis</h2>
       <div className="rounded-2xl bg-gradient-to-br from-violet-50 to-indigo-50 border-2 border-violet-200 p-5">
         {/* Overall summary */}
         <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
           <div>
-            <div className="text-xs uppercase tracking-wider text-slate-500 mb-1">Skor Keseluruhan</div>
+            <div className="text-xs uppercase tracking-wider text-slate-500 mb-1">Skor Spektrum</div>
             <div className="text-4xl font-extrabold text-violet-900">{m.overall}</div>
             <div className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full font-semibold mt-1 ${LEVEL_COLOR[m.level] ?? ""}`}>
               {m.level}
             </div>
           </div>
           <div className="text-xs text-slate-500 max-w-xs">
-            Profil dari {m.totalItems} jawaban — bukan apa yang kamu tahu, tapi <strong>bagaimana</strong> kamu mengerjakan matematika.
+            5 dimensi dari {m.totalItems} jawaban — bukan <strong>apa</strong> yang kamu tahu, tapi <strong>bagaimana</strong> kamu berpikir matematis.
           </div>
         </div>
 
