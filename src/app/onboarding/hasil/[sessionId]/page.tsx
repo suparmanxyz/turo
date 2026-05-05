@@ -476,6 +476,31 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         >
           Mulai Belajar →
         </Link>
+        <button
+          onClick={async () => {
+            if (!user) return;
+            try {
+              const idToken = await user.getIdToken();
+              const res = await fetch(`/api/onboarding/pdf/${sessionId}`, {
+                headers: { authorization: `Bearer ${idToken}` },
+              });
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `hasil-diagnostik-turo-${sessionId.slice(0, 8)}.pdf`;
+              a.click();
+              URL.revokeObjectURL(url);
+            } catch (e) {
+              alert(`Gagal download PDF: ${e instanceof Error ? e.message : String(e)}`);
+            }
+          }}
+          className="rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-semibold py-3 px-5 text-center transition"
+          title="Download PDF hasil diagnostik untuk share ke ortu/guru"
+        >
+          📄 Download PDF
+        </button>
         {maturity && (
           <Link
             href="/profil/maturity"
