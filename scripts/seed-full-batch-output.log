@@ -1,0 +1,295 @@
+
+=== ITEM BANK SEEDING BATCH ===
+Mode: LIVE · Concurrency: 4 · Resume: true
+Filter: jenjang=all · top=all
+Queue: 263 sub-materi
+
+  ⊘ SD.5.B1.01: already 3 items, skip
+  ⊘ SMP.9.B1.04: already 3 items, skip
+  ✓ SMA.10.B1.04    | +2 | ⚪ $0.0376 | Fungsi eksponen f(x) = a^x — grafik
+  ✓ SMA.10.B7.04    | +2 | ⚪ $0.0566 | Grafik fungsi y = sin x dan y = cos x
+  ✓ SMA.11.B5.02    | +2 | ⚪ $0.0266 | Persamaan lingkaran berpusat (a,b)
+  ✓ SMA.11.B10.03   | +3 | ⚪ $0.0373 | Aturan turunan pangkat
+  ✓ SMA.11.B4.01    | +3 | ⚪ $0.0620 | Aturan sinus — a/sin A = b/sin B = c/sin C
+  ✗ SMA.11.B1.01: Unexpected non-whitespace character after JSON at position 1630 (line 47 column 1)
+  ✓ SMA.12.B3.02    | +3 | ⚪ $0.0410 | Aturan integral pangkat
+  ✓ SMA.12.B4.01    | +3 | ⚪ $0.0422 | Integral substitusi (u-substitution)
+  ✓ SMA.11.B9.03    | +3 | ⚪ $0.0390 | Limit bentuk tak tentu 0/0
+  ✓ SMA.12.B3.05    | +3 | ⚪ $0.0532 | Teorema fundamental kalkulus
+  ✓ SMA.10.B2.01    | +2 | ⚪ $0.0232 | Logaritma — invers eksponen
+  ✓ SMA.10.B2.02    | +2 | ⚪ $0.0270 | Sifat-sifat logaritma (perkalian, pembagian, pangk
+  ✓ SMA.10.B1.02    | +2 | ⚪ $0.0319 | Persamaan eksponen — basis sama
+  ✓ SMA.12.B8.04    | +3 | ⚪ $0.0417 | Kombinasi — urutan tidak penting
+  ✓ SMA.11.B10.02   | +2 | ⚪ $0.0291 | Turunan sebagai limit — f'(x) = lim (f(x+h)−f(x))/
+  ✓ SMA.10.B6.02    | +2 | ⚪ $0.0382 | Bentuk kanonik — y = a(x − h)² + k
+  ✓ SMA.10.B7.03    | +2 | ⚪ $0.0480 | Trigonometri sudut di kuadran (perluasan 0-360°)
+  ✓ SMA.10.B7.01    | +2 | ⚪ $0.0365 | Perbandingan trigonometri di segitiga siku-siku
+  ✓ SMA.10.B3.03    | +3 | ⚪ $0.0408 | Nilai mutlak — definisi dan makna geometri
+  ✓ SMA.10.B3.04    | +3 | ⚪ $0.0398 | Persamaan nilai mutlak
+  ✓ SMA.10.B3.01    | +3 | ⚪ $0.0483 | SPLTV — 3 persamaan, 3 variabel
+  ✓ SMA.10.B8.02    | +3 | ⚪ $0.0835 | Histogram dan poligon frekuensi
+  ✓ SMA.10.B4.02    | +3 | ⚪ $0.0434 | Notasi sigma (Σ)
+  ✓ SMA.10.B4.04    | +3 | ⚪ $0.0483 | Induksi matematika sederhana (pengantar)
+  ✓ SMA.10.B5.01    | +3 | ⚪ $0.0761 | Pengertian vektor — besar dan arah
+  ✓ SMA.10.B5.02    | +3 | ⚪ $0.0687 | Vektor di bidang koordinat — komponen
+  ✓ SMA.10.B5.04    | +3 | ⚪ $0.0435 | Perkalian skalar dengan vektor
+  ✓ SMA.10.B5.05    | +3 | ⚪ $0.0504 | Besar (magnitude) vektor — Pythagoras
+  ✓ SMA.10.B7.02    | +3 | ⚪ $0.0649 | Nilai trigonometri sudut istimewa (0°, 30°, 45°, 6
+  ✓ SMA.10.B5.03    | +3 | ⚪ $0.0412 | Operasi vektor — penjumlahan & pengurangan
+  ✓ SMA.10.B8.05    | +3 | ⚪ $0.0397 | Varians dan standar deviasi
+  ✓ SMA.10.B8.01    | +3 | ⚪ $0.0587 | Data kelompok — tabel frekuensi
+  ✓ SMA.10.B9.03    | +3 | ⚪ $0.0606 | Kejadian saling bebas vs tidak (dependent/independ
+  ✓ SMA.10.B9.02    | +3 | ⚪ $0.0730 | Kejadian saling lepas vs tidak saling lepas
+  ✓ SMA.11.B1.03    | +3 | ⚪ $0.0389 | Fungsi invers — membalikkan mesin
+  ✓ SMA.11.B10.01   | +3 | ⚪ $0.0568 | Laju perubahan rata-rata
+  ✓ SMA.10.B9.05    | +3 | ⚪ $0.0606 | Nilai harapan (ekspektasi)
+  ✓ SMA.11.B10.06   | +3 | ⚪ $0.0388 | Aturan rantai (chain rule)
+  ✓ SMA.11.B2.01    | +3 | ⚪ $0.0387 | Pengertian matriks — ordo, elemen
+  ✓ SMA.11.B2.03    | +3 | ⚪ $0.0445 | Perkalian matriks — baris × kolom
+  ✓ SMA.11.B11.04   | +3 | ⚪ $0.0534 | Koefisien korelasi Pearson (r)
+  ✓ SMA.11.B11.02   | +3 | ⚪ $0.0660 | Garis regresi — 'best fit line'
+
+  📊 Progress: 41/263 | items +113 | failed 1 | $1.95 | 1030s
+
+  ✓ SMA.11.B2.05    | +3 | ⚪ $0.0360 | Determinan matriks 2×2 dan 3×3
+  ✓ SMA.11.B2.06    | +3 | ⚪ $0.0407 | Invers matriks 2×2
+  ✓ SMA.11.B3.01    | +3 | ⚪ $0.0699 | Sistem pertidaksamaan linear dua variabel
+  ✓ SMA.11.B3.02    | +3 | ⚪ $0.0743 | Fungsi objektif/tujuan
+  ✓ SMA.11.B4.04    | +3 | ⚪ $0.0550 | Identitas trigonometri dasar (sin² + cos² = 1)
+  ✓ SMA.11.B5.01    | +3 | ⚪ $0.0530 | Persamaan lingkaran berpusat (0,0)
+  ✓ SMA.11.B5.04    | +3 | ⚪ $0.0647 | Garis singgung di titik lingkaran
+  ✓ SMA.11.B3.03    | +3 | ⚪ $0.0689 | Metode titik pojok (corner point)
+  ✓ SMA.11.B6.04    | +3 | ⚪ $0.0415 | Konvers, invers, kontrapositif
+  ✓ SMA.11.B6.03    | +3 | ⚪ $0.0444 | Implikasi (⇒) dan biimplikasi (⇔)
+  ✓ SMA.11.B7.01    | +3 | ⚪ $0.0527 | Prinsip induksi — base case & induction step
+  ✓ SMA.11.B6.02    | +3 | ⚪ $0.0625 | Negasi, konjungsi (∧), disjungsi (∨)
+  ✓ SMA.11.B8.05    | +3 | ⚪ $0.0351 | Bilangan kompleks — i = √(−1)
+  ✓ SMA.11.B8.03    | +3 | ⚪ $0.0451 | Teorema sisa dan teorema faktor
+  ✓ SMA.11.B9.01    | +3 | ⚪ $0.0526 | Konsep limit — mendekati tapi tidak harus sampai
+  ✓ SMA.11.B8.02    | +3 | ⚪ $0.0862 | Pembagian polinomial — long division & sintetik
+  ✓ SMA.12.B1.02    | +3 | ⚪ $0.0351 | Refleksi — terhadap sumbu x dan y
+  ✓ SMA.12.B1.03    | +3 | ⚪ $0.0385 | Dilatasi — perbesaran/pengecilan vertikal & horizo
+  ✓ SMA.12.B2.01    | +3 | ⚪ $0.0603 | Interpretasi turunan — gradien garis singgung
+  ✓ SMA.12.B1.01    | +3 | ⚪ $0.0446 | Geseran (translasi) vertikal dan horizontal
+  ✓ SMA.12.B3.01    | +3 | ⚪ $0.0476 | Antiturunan — 'balik dari turunan'
+  ✓ SMA.12.B3.04    | +3 | ⚪ $0.0580 | Integral tentu — luas di bawah kurva
+  ✓ SMA.12.B2.03    | +3 | ⚪ $0.0661 | Nilai maksimum & minimum lokal
+  ✓ SMA.12.B2.02    | +3 | ⚪ $0.0686 | Fungsi naik, turun, stasioner
+  ✓ SMA.12.B5.03    | +3 | ⚪ $0.0602 | Volume benda putar — metode cakram
+  ✓ SMA.12.B5.02    | +3 | ⚪ $0.0727 | Luas antara dua kurva
+  ✓ SMA.12.B6.01    | +3 | ⚪ $0.0969 | Titik, garis, bidang dalam ruang
+  ✓ SMA.12.B5.01    | +3 | ⚪ $0.0883 | Luas daerah di bawah kurva
+  ✓ SMA.12.B6.03    | +3 | ⚪ $0.0955 | Jarak titik ke garis
+  ✓ SMA.12.B6.02    | +3 | ⚪ $0.0463 | Jarak titik ke titik
+  ✓ SMA.12.B6.04    | +3 | ⚪ $0.0852 | Jarak titik ke bidang
+  ✓ SMA.12.B7.01    | +3 | ⚪ $0.0590 | Irisan kerucut — asal geometri
+  ✓ SMA.12.B7.03    | +3 | ⚪ $0.0510 | Elips analitik — persamaan dan fokus
+  ✓ SMA.12.B8.01    | +3 | ⚪ $0.0516 | Prinsip perkalian dan penjumlahan
+  ✓ SMA.12.B8.03    | +6 | ⚪ $0.0684 | Permutasi — urutan penting
+  ✓ SMA.12.B7.02    | +3 | ⚪ $0.0603 | Parabola analitik — persamaan dan fokus-direktris
+  ✓ SMP.7.B7.04     | +3 | ⚪ $0.0394 | Bunga tunggal
+  ✓ SMA.12.B9.03    | +3 | ⚪ $0.0475 | Variabel acak diskrit
+  ✓ SMA.12.B9.01    | +3 | ⚪ $0.0522 | Peluang bersyarat — P(A|B)
+  ✓ SMA.12.B9.05    | +3 | ⚪ $0.0583 | Distribusi normal — kurva lonceng
+
+  📊 Progress: 81/263 | items +236 | failed 1 | $4.28 | 1861s
+
+  ✓ SMA.10.B2.05    | +3 | ⚪ $0.0380 | Aplikasi logaritma (pH, skala Richter, desibel)
+  ✓ SMA.10.B3.05    | +3 | ⚪ $0.0480 | Pertidaksamaan nilai mutlak
+  ✓ SMA.10.B2.04    | +3 | ⚪ $0.0474 | Fungsi logaritma — grafik
+  ✓ SMA.10.B1.06    | +3 | ⚪ $0.0531 | Aplikasi — pertumbuhan bunga majemuk
+  ✓ SMA.10.B6.03    | +3 | ⚪ $0.0468 | Pertidaksamaan kuadrat
+  ✓ SMA.10.B4.03    | +3 | ⚪ $0.0507 | Deret geometri tak hingga konvergen
+  ✓ SMA.10.B7.06    | +2 (-1 dropped) | ⚪ $0.0763 | Aplikasi trigonometri (tinggi, jarak tidak langsun
+  ✓ SMA.10.B8.04    | +3 | ⚪ $0.0890 | Kuartil data kelompok & box plot
+  ✓ SMA.11.B1.02    | +3 | ⚪ $0.0528 | Sifat komposisi — tidak komutatif
+  ✓ SMA.11.B11.05   | +3 | ⚪ $0.0579 | Prediksi & keterbatasan regresi
+  ✓ SMA.10.B8.06    | +3 | ⚪ $0.0779 | Dot plot dan interpretasi bentuk distribusi
+  ✓ SMA.11.B1.05    | +3 | ⚪ $0.0447 | Komposisi fungsi dengan invers — f∘f⁻¹ = I
+  ✓ SMA.11.B4.03    | +3 | ⚪ $0.0494 | Luas segitiga L = (1/2)ab sin C
+  ✓ SMA.11.B4.02    | +3 | ⚪ $0.0577 | Aturan cosinus — c² = a² + b² − 2ab cos C
+  ✓ SMA.11.B7.04    | +3 | ⚪ $0.0583 | Keterbatasan induksi
+  ✓ SMA.11.B4.06    | +3 | ⚪ $0.0747 | Fungsi sinusoida y = A sin(Bx + C) + D
+  ✓ SMA.12.B4.02    | +3 | ⚪ $0.0375 | Integral parsial
+  ✓ SMA.11.B9.04    | +3 | ⚪ $0.0427 | Limit di tak hingga
+  ✓ SMA.12.B5.04    | +3 (-1 dropped) | ⚪ $0.1031 | Volume benda putar — metode kulit silinder
+  ✓ SMA.12.B6.05    | +3 | ⚪ $0.0972 | Sudut antara dua garis, garis-bidang, bidang-bidan
+  ✓ SMA.12.B9.04    | +3 | ⚪ $0.0488 | Distribusi binomial
+  ✓ SMA.12.B7.04    | +3 | ⚪ $0.0775 | Hiperbola analitik — persamaan dan asimtot
+  ✓ SMA.12.B9.02    | +3 | ⚪ $0.0561 | Teorema Bayes
+  ✓ SMA.12.B8.05    | +3 | ⚪ $0.0760 | Binomial teorema
+  ✓ SD.3.B2.01      | +3 | ⚪ $0.0406 | +/− bersusun bilangan 3-4 digit
+  ✓ SD.4.B2.03      | +3 | ⚪ $0.0586 | KPK & FPB dengan faktorisasi prima
+  ✓ SMA.10.B4.01    | +3 | ⚪ $0.0790 | Review barisan & deret aritmetika-geometri (dari K
+  ✓ SD.2.B9.01      | +3 | ⚪ $0.0488 | Tabel data dari survei sederhana
+  ✓ SD.5.B3.03      | +3 | ⚪ $0.0411 | ÷ desimal
+  ✓ SD.5.B6.03      | +3 | ⚪ $0.0573 | Modus — yang paling sering muncul
+  ✓ SD.4.B6.03      | +3 | ⚪ $0.0537 | Mengukur sudut dengan busur derajat
+  ✓ SD.5.B2.04      | +3 | ⚪ $0.0383 | Soal cerita pecahan (proporsi)
+  ✓ SMP.8.B1.05     | +3 | ⚪ $0.0397 | Deret geometri — Sn = a(r^n − 1)/(r − 1)
+  ✓ SMP.8.B3.04     | +3 | ⚪ $0.0419 | Notasi fungsi f(x) dan nilai fungsi
+  ✓ SD.6.B6.01      | +3 | ⚪ $0.0490 | Pola bilangan kompleks
+  ✓ SD.6.B3.03      | +3 | ⚪ $0.0514 | Keliling lingkaran K = π × d
+  ✓ SMA.10.B1.01    | +3 | ⚪ $0.0338 | Review pangkat (bulat positif, nol, negatif, pecah
+  ✓ SMP.8.B5.04     | +3 | ⚪ $0.0410 | Metode eliminasi
+  ✓ SMP.8.B7.01     | +3 | ⚪ $0.0532 | Review unsur lingkaran (titik pusat, jari-jari, di
+  ✓ SMP.9.B4.04     | +3 | ⚪ $0.0626 | Syarat kesebangunan segitiga (AA, SAS, SSS)
+
+  📊 Progress: 121/263 | items +355 | failed 1 | $6.54 | 2732s
+
+  ✓ SMA.11.B10.05   | +3 | ⚪ $0.0380 | Aturan perkalian & pembagian
+  ✓ SMA.10.B9.01    | +3 | ⚪ $0.0456 | Review peluang dasar (dari K8)
+  ✓ SMA.10.B8.03    | +3 | ⚪ $0.0803 | Mean, median, modus data kelompok
+  ✓ SD.1.B1.03      | +3 | ⚪ $0.0554 | Membaca dan menulis lambang 1-10
+  ✓ SD.2.B2.05      | +3 | ⚪ $0.0537 | Soal cerita +/- dengan konteks nyata
+  ✓ SD.1.B4.02      | +3 | ⚪ $0.0587 | Mengelompokkan benda berdasarkan bentuk
+  ✓ SD.2.B2.02      | +3 | ⚪ $0.0710 | +/- bersusun tanpa menyimpan/meminjam
+  ✓ SD.2.B1.05      | +3 | ⚪ $0.0498 | Komposisi-dekomposisi bilangan 3-digit
+  ✓ SD.2.B6.02      | +3 | ⚪ $0.0445 | Hubungan cm dan m (100 cm = 1 m)
+  ✓ SD.2.B3.04      | +3 | ⚪ $0.0483 | Tabel perkalian 1-5 dengan pola
+  ✓ SD.2.B6.03      | +3 | ⚪ $0.0569 | Timbangan dan gram
+  ✓ SD.2.B6.04      | +3 | ⚪ $0.0567 | Hubungan g dan kg (1000 g = 1 kg)
+  ✓ SD.3.B5.01      | +3 | ⚪ $0.0541 | Mengenal nominal uang (Rp500, Rp1.000, Rp5.000, Rp
+  ✓ SD.3.B7.03      | +3 | ⚪ $0.0570 | Pola bilangan tingkat lanjut
+  ✓ SD.3.B3.04      | +3 | ⚪ $0.0617 | Membandingkan pecahan dengan penyebut sama
+  ✓ SD.3.B5.03      | +3 | ⚪ $0.0749 | Belanja dan menghitung total
+  ✓ SD.4.B1.01      | +3 | ⚪ $0.0405 | Bilangan cacah sampai 1.000.000
+  ✓ SD.3.B8.01      | +3 | ⚪ $0.0650 | Tabel frekuensi dari data
+  ✓ SD.4.B5.03      | +3 | ⚪ $0.0346 | Mencari persen dari suatu bilangan
+  ✓ SD.4.B7.02      | +3 | ⚪ $0.0556 | Jenis segitiga berdasarkan sudut (lancip, siku-sik
+  ✓ SMP.7.B10.01    | +3 | ⚪ $0.0400 | Review mean, median, modus (dari K5)
+  ✓ SD.5.B2.02      | +3 | ⚪ $0.0467 | × pecahan campuran
+  ✓ SMP.7.B1.04     | +3 | ⚪ $0.0345 | Pembagian bilangan bulat
+  ✓ SD.5.B8.01      | +3 | ⚪ $0.0596 | Membaca diagram lingkaran
+  ✓ SMP.7.B4.03     | +3 | ⚪ $0.0379 | +/− bentuk aljabar
+  ✓ SMP.7.B7.02     | +3 | ⚪ $0.0392 | Persentase untung-rugi
+  ✓ SMP.7.B3.02     | +3 | ⚪ $0.0446 | Himpunan bagian, semesta, kosong
+  ✓ SMP.7.B10.02    | +3 | ⚪ $0.0467 | Jangkauan (range) data
+  ✓ SMP.7.B7.03     | +3 | ⚪ $0.0347 | Diskon, rabat, pajak, bruto-netto-tara
+  ✓ SMP.7.B8.01     | +3 | ⚪ $0.0502 | Kedudukan dua garis (sejajar, berpotongan, berimpi
+  ✓ SMP.8.B10.02    | +3 | ⚪ $0.0558 | Jangkauan interkuartil (IQR)
+  ✓ SMP.7.B9.01     | +3 | ⚪ $0.0770 | Review jenis segitiga & jumlah sudut (dari K4)
+  ✓ SMP.8.B10.04    | +3 | ⚪ $0.0418 | Peluang — review & frekuensi harapan
+  ✓ SMP.8.B5.03     | +3 | ⚪ $0.0486 | Metode substitusi
+  ✓ SMP.8.B4.03     | +3 | ⚪ $0.0575 | Persamaan garis melalui 1 titik & 2 titik
+  ✓ SMP.8.B6.03     | +3 | ⚪ $0.0587 | Aplikasi Pythagoras dalam geometri
+  ✓ SMP.8.B7.02     | +2 (-1 dropped) | ⚪ $0.0576 | Keliling dan luas lingkaran (perluasan K6)
+  ✓ SMP.8.B8.01     | +3 | ⚪ $0.0700 | Prisma (review & perluasan ke prisma segi-n)
+  ✓ SMP.8.B8.04     | +3 | ⚪ $0.0953 | Bangun gabungan (prisma + limas)
+  ✓ SMP.9.B2.05     | +3 | ⚪ $0.0404 | Jumlah & hasil kali akar-akar
+
+  📊 Progress: 161/263 | items +474 | failed 1 | $8.67 | 3430s
+
+  ✓ SMP.9.B3.05     | +3 | ⚪ $0.0557 | Nilai maksimum/minimum fungsi kuadrat
+  ✓ SMP.9.B6.02     | +3 | ⚪ $0.0655 | Panjang garis singgung dari titik luar
+  ✓ SMP.9.B5.01     | +3 | ⚪ $0.0685 | Tabung (review K6 + perluasan)
+  ✓ SMP.9.B5.04     | +3 | ⚪ $0.0716 | Luas permukaan kerucut — πr² + πrs
+  ✓ SMA.10.B9.04    | +3 | ⚪ $0.0549 | Frekuensi harapan
+  ✓ SMA.10.B6.01    | +3 | ⚪ $0.0625 | Review fungsi kuadrat (dari K9)
+  ✓ SMA.10.B4.05    | +3 | ⚪ $0.0444 | Bunga majemuk (perluasan K7)
+  ✓ SMA.10.B5.06    | +3 | ⚪ $0.0491 | Vektor di ruang R³ (pengantar)
+  ✓ SMA.11.B10.04   | +3 | ⚪ $0.0404 | Aturan penjumlahan, perkalian konstanta
+  ✓ SMA.11.B11.01   | +3 | ⚪ $0.0909 | Review scatter plot (dari K9) dan korelasi visual
+  ✓ SMA.11.B11.03   | +3 | ⚪ $0.0632 | Rumus regresi linear — y = a + bx
+  ✓ SMA.11.B1.04    | +3 | ⚪ $0.0432 | Menentukan rumus fungsi invers
+  ✓ SMA.11.B7.02    | +3 | ⚪ $0.0424 | Pembuktian identitas aritmetika — 1+2+...+n = n(n+
+  ✓ SMA.11.B2.02    | +3 | ⚪ $0.0436 | Operasi matriks — +/−/× skalar
+  ✓ SMA.11.B2.04    | +3 | ⚪ $0.0455 | Matriks identitas dan transpose
+  ✓ SMA.11.B7.03    | +3 | ⚪ $0.0506 | Pembuktian keterbagian — contoh: 2^n > n
+  ✓ SMA.12.B8.02    | +3 | ⚪ $0.0350 | Faktorial n!
+  ✓ SMA.11.B8.01    | +3 | ⚪ $0.0393 | Polinomial — definisi, derajat, operasi
+  ✓ SD.1.B2.05      | +3 | ⚪ $0.0504 | Soal cerita penjumlahan
+  ✓ SMA.11.B9.02    | +3 | ⚪ $0.0441 | Sifat dasar limit
+  ✓ SD.1.B6.01      | +3 | ⚪ $0.0583 | Penjumlahan 11-20 tanpa 'menyeberangi' 10
+  ✓ SD.1.B5.02      | +3 | ⚪ $0.0471 | Membaca, menulis, mengurutkan 11-20
+  ✓ SD.1.B3.04      | +3 | ⚪ $0.0629 | Soal cerita pengurangan
+  ✓ SD.1.B6.04      | +4 | ⚪ $0.0628 | Soal cerita campuran +/− s.d. 20
+  ✓ SD.2.B1.03      | +3 | ⚪ $0.0432 | Membaca dan menulis bilangan 100-999
+  ✓ SD.2.B4.04      | +3 | ⚪ $0.0603 | Pembagian dengan sisa (pengantar)
+  ✓ SD.1.B8.02      | +3 | ⚪ $0.0581 | Turus (tally marks) — menghitung sambil mencatat
+  ✓ SD.2.B7.02      | +3 | ⚪ $0.0864 | Membaca jam analog (per-15-menit)
+  ✓ SD.3.B1.03      | +3 | ⚪ $0.0467 | Membaca dan menulis bilangan 4-digit
+  ✓ SD.2.B7.04      | +3 | ⚪ $0.0554 | Durasi sederhana dalam jam & hari
+  ✓ SD.2.B7.03      | +3 | ⚪ $0.0684 | Hari, minggu, bulan, tahun
+  ✓ SD.2.B9.03      | +3 | ⚪ $0.0785 | Membaca & menginterpretasi diagram batang
+  ✓ SD.3.B2.05      | +3 | ⚪ $0.0599 | Operasi campuran dengan urutan
+  ✓ SD.3.B4.03      | +3 | ⚪ $0.0663 | Membandingkan desimal 1-angka
+  ✓ SD.3.B1.05      | +3 | ⚪ $0.0579 | Komposisi-dekomposisi bilangan 4-digit
+  ✓ SD.3.B1.04      | +3 | ⚪ $0.0654 | Membandingkan dan mengurutkan bilangan 4-digit
+  ✓ SD.3.B6.04      | +3 | ⚪ $0.0459 | Konversi waktu (jam-menit-detik)
+  ✓ SD.3.B6.02      | +3 | ⚪ $0.0502 | Konversi panjang — km, m, cm
+  ✓ SD.3.B8.03      | +3 | ⚪ $0.0610 | Memilih jenis diagram (batang vs garis vs piktogra
+  ✓ SD.3.B6.03      | +3 | ⚪ $0.0684 | Tangga satuan berat (ton, kuintal, kg, hg, dag, g,
+
+  📊 Progress: 201/263 | items +595 | failed 1 | $10.94 | 4495s
+
+  ✓ SD.4.B7.01      | +3 | ⚪ $0.0445 | Jenis segitiga berdasarkan sisi (samasisi, samakak
+  ✓ SD.4.B4.03      | +3 | ⚪ $0.0474 | Membandingkan & mengurutkan desimal
+  ✓ SD.5.B1.02      | +3 | ⚪ $0.0479 | Bilangan sampai 1.000.000 — juta-an
+  ✓ SD.4.B2.04      | +3 | ⚪ $0.0548 | Aplikasi KPK & FPB (jadwal, pembagian)
+  ✓ SD.5.B4.01      | +3 | ⚪ $0.0446 | Keliling bangun datar (segitiga, segi empat)
+  ✓ SD.5.B3.04      | +3 | ⚪ $0.0437 | Estimasi dengan desimal
+  ✓ SD.5.B1.03      | +3 | ⚪ $0.0491 | Operasi +/− bilangan besar
+  ✓ SD.5.B1.05      | +6 (-1 dropped) | ⚪ $0.0940 | Pembagian 3-digit ÷ 2-digit
+  ✓ SD.5.B9.02      | +3 | ⚪ $0.0392 | Mencari jarak dan waktu
+  ✓ SD.5.B7.01      | +3 | ⚪ $0.0446 | Mengukur sudut bangun datar
+  ✓ SD.5.B5.06      | +3 | ⚪ $0.0674 | Luas permukaan kubus dan balok
+  ✓ SD.5.B7.03      | +3 | ⚪ $0.0483 | Mencari sudut tidak diketahui
+  ✓ SD.5.B9.03      | +3 | ⚪ $0.0515 | Debit sebagai rasio volume/waktu
+  ✓ SD.6.B7.03      | +3 | ⚪ $0.0649 | Ruang sampel sederhana
+  ✓ SD.6.B4.03      | +3 | ⚪ $0.0686 | Luas permukaan prisma
+  ✗ SMP.7.B1.05: Unexpected non-whitespace character after JSON at position 1740 (line 47 column 1)
+  ✓ SMP.7.B4.06     | +3 | ⚪ $0.0436 | Pembagian bentuk aljabar
+  ✓ SMP.7.B1.06     | +3 | ⚪ $0.0662 | Faktor, kelipatan, KPK, FPB (review & perluasan)
+  ✓ SMP.7.B5.01     | +3 | ⚪ $0.0405 | Kalimat terbuka vs kalimat tertutup
+  ✓ SMP.7.B2.04     | +3 | ⚪ $0.0426 | Operasi bilangan rasional — pecahan & desimal camp
+  ✓ SMP.7.B6.04     | +3 | ⚪ $0.0372 | Aplikasi perbandingan (resep, kecepatan, kepadatan
+  ✓ SMP.7.B5.06     | +3 | ⚪ $0.0389 | Soal cerita PLSV
+  ✓ SMP.7.B8.04     | +3 | ⚪ $0.0578 | Aplikasi hubungan sudut
+  ✓ SMP.7.B6.03     | +3 | ⚪ $0.0486 | Skala pada peta dan gambar
+  ✓ SMP.7.B9.04     | +3 | ⚪ $0.0397 | Sifat & luas segi empat (persegi, PP, jajargenjang
+  ✓ SMP.7.B9.03     | +3 | ⚪ $0.0473 | Keliling & luas segitiga (perluasan K4)
+  ✓ SMP.8.B1.01     | +3 | ⚪ $0.0557 | Mengidentifikasi pola bilangan
+  ✓ SMP.7.B9.05     | +3 | ⚪ $0.0610 | Keliling dan luas bangun gabungan
+  ✓ SMP.8.B1.06     | +3 | ⚪ $0.0410 | Aplikasi barisan & deret (soal cerita)
+  ✓ SMP.8.B6.05     | +3 | ⚪ $0.0588 | Tripel Pythagoras
+  ✓ SMP.8.B10.06    | +3 | ⚪ $0.0626 | Peluang kejadian saling lepas dan tidak
+  ✗ SMP.8.B5.05: Unexpected non-whitespace character after JSON at position 5945 (line 131 column 1)
+  ✓ SMP.9.B4.06     | +3 | ⚪ $0.0642 | Teorema dasar segitiga (garis sejajar memotong pro
+  ✓ SMP.8.B9.05     | +3 | ⚪ $0.0601 | Komposisi transformasi
+  ✓ SMP.9.B1.05     | +3 | ⚪ $0.0429 | Merasionalkan pecahan dengan akar
+  ✓ SMP.9.B2.06     | +3 | ⚪ $0.0514 | Aplikasi persamaan kuadrat
+  ✓ SMA.10.B1.03    | +3 | ⚪ $0.0438 | Persamaan eksponen — faktorisasi
+  ✓ SMA.10.B1.05    | +3 | ⚪ $0.0399 | Pertidaksamaan eksponen
+  ✓ SMP.9.B6.04     | +3 | ⚪ $0.0630 | Garis singgung persekutuan dua lingkaran
+  ✓ SMP.9.B5.06     | +3 | ⚪ $0.0603 | Aplikasi BRSL (kemasan, tangki)
+
+  📊 Progress: 239/263 | items +712 | failed 3 | $12.92 | 5622s
+
+  ✓ SMA.10.B2.03    | +3 | ⚪ $0.0352 | Persamaan logaritma
+  ✓ SMA.10.B4.06    | +3 | ⚪ $0.0507 | Anuitas sederhana
+  ✓ SMA.10.B5.07    | +3 | ⚪ $0.0376 | Perkalian dot (skalar) pengantar
+  ✓ SMA.10.B3.02    | +3 | ⚪ $0.0484 | Aplikasi SPLTV (soal cerita)
+  ✓ SMA.11.B2.07    | +3 | ⚪ $0.0511 | Aplikasi matriks — SPLDV/SPLTV dengan matriks
+  ✓ SMA.10.B7.05    | +3 | ⚪ $0.0528 | Persamaan trigonometri sederhana
+  ✓ SMA.10.B6.04    | +3 | ⚪ $0.0598 | Aplikasi optimasi (luas maksimum, tinggi lemparan)
+  ✓ SMA.11.B3.04    | +3 | ⚪ $0.0751 | Aplikasi — produksi, transportasi, diet
+  ✓ SMA.11.B6.05    | +3 | ⚪ $0.0396 | Penarikan kesimpulan (modus ponens, tollens, silog
+  ✓ SMA.11.B4.05    | +3 | ⚪ $0.0433 | Identitas sudut jumlah dan selisih
+  ✓ SMA.11.B5.03    | +3 | ⚪ $0.0550 | Bentuk umum dan konversi
+  ✓ SMA.11.B5.05    | +3 | ⚪ $0.0807 | Garis singgung dari titik luar
+  ✓ SMA.12.B2.04    | +3 | ⚪ $0.0809 | Aplikasi optimasi (luas, volume, biaya)
+  ✓ SMA.11.B8.06    | +3 | ⚪ $0.0348 | Operasi bilangan kompleks
+  ✓ SMA.11.B8.04    | +3 | ⚪ $0.0663 | Akar-akar polinomial dan Vieta
+  ✓ SMA.12.B1.04    | +3 | ⚪ $0.0532 | Komposisi transformasi
+  ✓ SMA.12.B4.03    | +3 | ⚪ $0.0409 | Integral fungsi trigonometri dasar
+  ✓ SMA.12.B3.03    | +3 | ⚪ $0.0469 | Sifat integral — linearitas
+  ✓ SMA.12.B9.06    | +3 | ⚪ $0.0453 | Skor-Z dan standarisasi
+
+=== DONE ===
+Processed: 258 subs
+Items created: 769
+Failed: 3
+Total cost: $13.91
+Elapsed: 6040s (100.7 min)
+Log: D:\turo\scripts\seed-batch-log-1777990653434.json

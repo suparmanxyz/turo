@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-05-05T12:26:28.765Z",
+  "finishedAt": "2026-05-05T12:27:58.632Z",
+  "mode": "live",
+  "filter": {
+    "jenjang": null,
+    "top": 2
+  },
+  "stats": {
+    "processed": 2,
+    "itemsCreated": 6,
+    "failed": 0,
+    "costUSD": 0.089502
+  },
+  "elapsedSec": 90
+}
