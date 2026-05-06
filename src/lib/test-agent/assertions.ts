@@ -42,6 +42,15 @@ export function runAssertions(
       : undefined,
   });
 
+  // PHASE 4: Diagnostic berhenti setelah Deep — drilling jadi modul Program Belajar
+  // terpisah. Asersi `drillingItems` di-drop. `deepItems > 0` lebih relevan sekarang.
+  out.push({
+    name: "Deep stage tidak skip (kecuali no area suspect)",
+    passed: stageMilestones.deep > 0 || (session?.hasilCoverage?.areaSuspect?.length ?? 0) === 0,
+    expected: "deepItems > 0 OR no area suspect",
+    actual: `deep=${stageMilestones.deep}, suspect=${session?.hasilCoverage?.areaSuspect?.length ?? 0}`,
+  });
+
   out.push({
     name: "Coverage stage punya hasil",
     passed: !!session?.hasilCoverage,

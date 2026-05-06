@@ -288,14 +288,18 @@ async function nextStep(state: OnboardingState): Promise<OnboardingStep> {
     const deep = await rehydrateDeep(state);
     if (deep.done) {
       const result = finalizeDeep(deep);
-      const newState: OnboardingState = { ...state, stage: "drilling", hasilDeep: result ?? undefined };
-      return await nextStep(newState);
+      // PHASE 4: Diagnostik berhenti setelah Deep — drilling jadi modul Program Belajar
+      // terpisah, bukan bagian tes. Anak burnout kalau tes 60-100 soal sekaligus.
+      // Logic drilling tetap ada di codebase (akan di-repurpose untuk generator
+      // Program Belajar di iterasi berikutnya).
+      const newState: OnboardingState = { ...state, stage: "selesai", hasilDeep: result ?? undefined };
+      return { state: newState, nextItem: null, done: true, progress: { stage: "selesai", itemsAnswered: state.responses.length, estimatedTotal: 0, label: STAGE_LABEL.selesai } };
     }
     const next = pickNextDeepItem(deep);
     if (!next) {
       const result = finalizeDeep({ ...deep, done: true, stopReason: "queue_empty" });
-      const newState: OnboardingState = { ...state, stage: "drilling", hasilDeep: result ?? undefined };
-      return await nextStep(newState);
+      const newState: OnboardingState = { ...state, stage: "selesai", hasilDeep: result ?? undefined };
+      return { state: newState, nextItem: null, done: true, progress: { stage: "selesai", itemsAnswered: state.responses.length, estimatedTotal: 0, label: STAGE_LABEL.selesai } };
     }
     const itemsAtStage = state.responses.length - (state.hasilLocator?.itemsUsed ?? 0) - (state.hasilCoverage.itemsUsed - (state.hasilLocator?.itemsUsed ?? 0));
     return {
