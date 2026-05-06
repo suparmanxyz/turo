@@ -46,6 +46,12 @@ export type Persona = {
   shouldAnswerCorrect: (item: ItemBankEntry, ctx: AnswerContext) => boolean;
   /** Range response time simulasi (detik). */
   responseTimeSec?: { min: number; max: number };
+  /**
+   * Override bab terakhir yang dipelajari di kelas user. Override default
+   * "all_done" supaya bisa test scenario "anak baru bab 2".
+   * Format: "B1", "B2", ..., "all_done", "not_started".
+   */
+  lastBabExposedOverride?: string;
 };
 
 // ============================================================
@@ -287,6 +293,30 @@ export const PERSONAS: Persona[] = [
       return probCorrect(0.30); // medium
     },
     responseTimeSec: { min: 15, max: 45 },
+  },
+
+  // --- Bab exposure scenarios ---
+  {
+    key: "smp_8_baru_bab_2",
+    label: "SMP K8 Baru Bab 2",
+    description: "Anak SMP K8 awal semester — baru selesai bab 1-2. Cluster A scope kecil, fokus B+C.",
+    jenjang: "SMP",
+    kelas: 8,
+    jalur: "smp",
+    shouldAnswerCorrect: (item) => probCorrect(probByKelasGap(item.kelas, 8)),
+    responseTimeSec: { min: 15, max: 40 },
+    lastBabExposedOverride: "B2",
+  },
+  {
+    key: "sma_11_belum_mulai",
+    label: "SMA K11 Belum Mulai K11",
+    description: "Anak baru naik ke K11 belum belajar bab apapun di K11. Engine pakai K10 + foundation only.",
+    jenjang: "SMA",
+    kelas: 11,
+    jalur: "sma-reguler",
+    shouldAnswerCorrect: (item) => probCorrect(probByKelasGap(item.kelas, 11)),
+    responseTimeSec: { min: 15, max: 40 },
+    lastBabExposedOverride: "not_started",
   },
 
   // --- SD low ---

@@ -112,11 +112,11 @@ export async function executeTestRun(opts: RunOptions): Promise<string> {
     // Pakai modePersiapan="utbk" supaya pilihJalur return sma-utbk untuk persona UTBK.
     const isUtbkPersona = jalur === "sma-utbk";
 
-    // Default test agent: anggap user sudah selesai SEMUA bab di kelas user.
-    // Persona spesifik bisa override via persona.babsExposedOverride (TODO Phase 5).
-    // Untuk run sekarang, build babsExposed dengan all_done supaya engine cover full cluster A.
+    // Bab exposure: persona dapat override (e.g. "B2" untuk simulate anak baru bab 2).
+    // Default "all_done" supaya engine cover full cluster A.
     const { buildBabsExposedMap } = await import("@/lib/bab-exposure");
-    const babsExposed = buildBabsExposedMap(jenjang, kelas, "all_done");
+    const lastBab = persona.lastBabExposedOverride ?? "all_done";
+    const babsExposed = buildBabsExposedMap(jenjang, kelas, lastBab);
 
     const startRes = await fetch(apiUrl(opts.baseUrl, "/api/onboarding/start"), {
       method: "POST",
