@@ -330,19 +330,78 @@ function pickAreaSuspect(
   return out.slice(0, count);
 }
 
-/** Sub dari Universal Foundation Set sesuai jenjang user. */
+/**
+ * Map (jenjang user, k) → (jenjang aktual, kelas) untuk bridge crossing.
+ * Untuk SMA user dengan k<10, drop ke SMP. Untuk SMP user dengan k<7, drop ke SD.
+ */
+function bridgeJenjangKelas(userJenjang: JenjangResmi, k: number): { jenjang: JenjangResmi; kelas: number } | null {
+  if (k < 1) return null;
+  if (userJenjang === "SMA") {
+    if (k >= 10) return { jenjang: "SMA", kelas: k };
+    if (k >= 7) return { jenjang: "SMP", kelas: k };
+    return { jenjang: "SD", kelas: k };
+  }
+  if (userJenjang === "SMP") {
+    if (k >= 7) return { jenjang: "SMP", kelas: k };
+    return { jenjang: "SD", kelas: k };
+  }
+  return { jenjang: "SD", kelas: Math.min(6, k) };
+}
+
+/**
+ * Sub dari Universal Foundation Set, distribusi quota per jenjang.
+ *
+ * Untuk SMA user: 50% SD + 50% SMP — supaya drilling cover SMP K7-K9 sebagai
+ * jembatan antara SD foundation dan SMA target. Sebelumnya sort+slice top N
+ * by importance score → SD subs (dependents tinggi) selalu menang, SMP tidak
+ * pernah ke-pick.
+ * Untuk SMP user: 100% SD (foundation_set "smp" hanya berisi SD kodes).
+ * Untuk SD user: 100% SD.
+ */
 function pickFromFoundationSet(
   target: FoundationTarget,
   count: number,
+  userJenjang: JenjangResmi,
 ): SubMateriResmi[] {
   const kodes = getFoundationKodes(target);
   const subs = kodes
     .map((k) => cariSubMateriResmi(k))
     .filter((s): s is SubMateriResmi => !!s);
-  return sortByImportance(subs).slice(0, count);
+
+  // Group by jenjang
+  const byJenjang: Record<JenjangResmi, SubMateriResmi[]> = { SD: [], SMP: [], SMA: [] };
+  for (const s of subs) byJenjang[s.jenjang].push(s);
+  for (const j of ["SD", "SMP", "SMA"] as JenjangResmi[]) {
+    byJenjang[j] = sortByImportance(byJenjang[j]);
+  }
+
+  // Quota allocation
+  let allocSD = count, allocSMP = 0;
+  if (userJenjang === "SMA" && byJenjang.SMP.length > 0) {
+    allocSMP = Math.floor(count * 0.5);
+    allocSD = count - allocSMP;
+  }
+
+  const out: SubMateriResmi[] = [
+    ...byJenjang.SD.slice(0, allocSD),
+    ...byJenjang.SMP.slice(0, allocSMP),
+  ];
+
+  // Top-up kalau quota suatu jenjang lebih besar dari subs available
+  if (out.length < count) {
+    const seen = new Set(out.map((s) => s.kode));
+    const fallback = sortByImportance(subs).filter((s) => !seen.has(s.kode));
+    out.push(...fallback.slice(0, count - out.length));
+  }
+
+  return out.slice(0, count);
 }
 
-/** Sub kelas <= user kelas (bukan foundation set) — supporting bridge. */
+/**
+ * Bridge supporting — sub kelas < user kelas, cross jenjang kalau perlu.
+ * SMA K11 → loop k=10,9,8: K10 (SMA), K9 (SMP), K8 (SMP). Sebelumnya hanya
+ * ambil dari jenjang user (SMA), jadi K9 dan K8 returns empty → SMP under-served.
+ */
 function pickClusterBSupporting(
   jenjang: JenjangResmi,
   kelas: number,
@@ -350,10 +409,11 @@ function pickClusterBSupporting(
   count: number,
 ): SubMateriResmi[] {
   const foundationSet = new Set(getFoundationKodes(foundationTarget));
-  // Ambil dari kelas-1, kelas-2, kelas-3
   const out: SubMateriResmi[] = [];
   for (let k = kelas - 1; k >= Math.max(1, kelas - 3); k--) {
-    const subs = subMateriPerKelas(jenjang, k).filter((s) => !foundationSet.has(s.kode));
+    const target = bridgeJenjangKelas(jenjang, k);
+    if (!target) continue;
+    const subs = subMateriPerKelas(target.jenjang, target.kelas).filter((s) => !foundationSet.has(s.kode));
     out.push(...sortByImportance(subs).slice(0, Math.ceil(count / 3)));
   }
   return out.slice(0, count);
@@ -369,7 +429,7 @@ function pickCrossCluster(
 ): SubMateriResmi[] {
   const a = pickClusterATop(jenjang, kelas, Math.ceil(count / 3));
   const b = pickAreaSuspect(jenjang, kelas, areaSuspect, Math.ceil(count / 3));
-  const c = pickFromFoundationSet(foundationTarget, Math.ceil(count / 3));
+  const c = pickFromFoundationSet(foundationTarget, Math.ceil(count / 3), jenjang);
   // Dedup by kode
   const seen = new Set<string>();
   const out: SubMateriResmi[] = [];
@@ -397,7 +457,7 @@ function resolveTargetSubs(
     case "area_suspect":
       return pickAreaSuspect(ctx.jenjang, ctx.kelas, ctx.areaSuspect, count);
     case "foundation_set":
-      return pickFromFoundationSet(ctx.foundationTarget, count);
+      return pickFromFoundationSet(ctx.foundationTarget, count, ctx.jenjang);
     case "cluster_b_supporting":
       return pickClusterBSupporting(ctx.jenjang, ctx.kelas, ctx.foundationTarget, count);
     case "cross_cluster":
