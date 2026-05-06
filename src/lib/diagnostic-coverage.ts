@@ -34,6 +34,7 @@ import {
   type ClusterThresholds,
 } from "@/lib/foundation-set";
 import type { JenjangResmi } from "@/types";
+import { isSubMateriExposed, type BabsExposedMap } from "@/lib/bab-exposure";
 
 /** Distribusi target area per jalur (proportion, sum to 1). */
 const AREA_TARGETS: Record<JalurDiagnostik, Map<AreaMatematika, number>> = {
@@ -81,6 +82,8 @@ export type CoverageState = {
   areaUsed: Map<AreaMatematika, number>;
   /** Theta per area (estimasi parsial — pakai responses sub-set di area itu). */
   thetaByArea: Map<AreaMatematika, ThetaEstimate>;
+  /** Bab yang sudah dipelajari user — untuk scoping cluster A. Null = treat all exposed. */
+  babsExposed?: import("@/lib/bab-exposure").BabsExposedMap;
   done: boolean;
   stopReason?: "se_threshold" | "max_items" | "pool_empty" | "quota_full";
 };
@@ -94,6 +97,7 @@ export async function initCoverage(
   jalur: JalurDiagnostik,
   prior?: LocatorResult,
   modeKurikulum: import("@/types").ModeKurikulumLegacy = "comprehensive",
+  babsExposed?: import("@/lib/bab-exposure").BabsExposedMap,
 ): Promise<CoverageState> {
   const pool = await itemsForJalur(jalur, modeKurikulum);
   const initialEstimate: ThetaEstimate = prior
@@ -118,6 +122,7 @@ export async function initCoverage(
     estimate: initialEstimate,
     areaUsed,
     thetaByArea: new Map(),
+    babsExposed,
     done: false,
   };
 }
@@ -134,8 +139,14 @@ function quotaTerpenuhi(state: CoverageState, minPerArea: number = 2): boolean {
 /** Pick item berikut — content balanced. */
 export function pickNextCoverageItem(state: CoverageState): ItemBankEntry | null {
   const targets = AREA_TARGETS[state.jalur];
-  // Filter ke area yang ada di target jalur (skip area irrelevant)
-  const eligible = state.pool.filter((it) => targets.has(it.area) && !state.used.has(it.id));
+  // Filter ke area yang ada di target jalur (skip area irrelevant) +
+  // exclude items dari bab yang BELUM dipelajari user (no point testing material
+  // yang belum diajarkan — anak salah ≠ remediasi, tapi belum exposed).
+  const eligible = state.pool.filter((it) =>
+    targets.has(it.area)
+    && !state.used.has(it.id)
+    && (!state.babsExposed || isSubMateriExposed(state.babsExposed, it.subMateriKode))
+  );
   if (eligible.length === 0) return null;
 
   const irtCandidates = toIrtItems(eligible);
@@ -304,6 +315,7 @@ function buildClusterScores(
   userJenjang: JenjangResmi,
   userKelas: number,
   thresholds: ClusterThresholds,
+  babsExposed?: BabsExposedMap,
 ): ClusterScore[] {
   const foundationTarget = pickFoundationTarget(userJenjang, userKelas);
   const itemMap = new Map(pool.map((it) => [it.id, it]));
@@ -316,6 +328,12 @@ function buildClusterScores(
     const it = itemMap.get(r.itemId);
     if (!it) continue;
     const cluster = classifyItemCluster(it.subMateriKode, it.kelas, userJenjang, userKelas, foundationTarget);
+    // Cluster A items: skip kalau bab belum exposed — anak belum belajar materi ini,
+    // jangan dimasukkan scoring (akan jadi false negative remediasi).
+    // Cluster B & C tetap di-score (kelas-kelas bawah pasti exposed kalau anak naik kelas).
+    if (cluster === "A" && babsExposed && !isSubMateriExposed(babsExposed, it.subMateriKode)) {
+      continue;
+    }
     buckets[cluster].ans += 1;
     if (r.correct) buckets[cluster].cor += 1;
   }
@@ -335,7 +353,7 @@ function buildClusterScores(
 
 export async function finalizeCoverage(
   state: CoverageState,
-  userProfile?: { jenjang: JenjangResmi; kelas: number },
+  userProfile?: { jenjang: JenjangResmi; kelas: number; isUtbkTarget?: boolean },
 ): Promise<CoverageResult | null> {
   if (!state.done || !state.stopReason) return null;
   const cfg = await getClassificationConfig();
@@ -382,8 +400,16 @@ export async function finalizeCoverage(
   let clusterScores: ClusterScore[] | undefined;
   let pathRoute: PathRoute | undefined;
   if (userProfile) {
-    const adaptiveThresholds = buildAdaptiveThresholds(userProfile.jenjang, userProfile.kelas);
-    clusterScores = buildClusterScores(state.responses, state.pool, userProfile.jenjang, userProfile.kelas, adaptiveThresholds);
+    const adaptiveThresholds = buildAdaptiveThresholds(
+      userProfile.jenjang,
+      userProfile.kelas,
+      undefined,
+      userProfile.isUtbkTarget ?? false,
+    );
+    clusterScores = buildClusterScores(
+      state.responses, state.pool, userProfile.jenjang, userProfile.kelas,
+      adaptiveThresholds, state.babsExposed,
+    );
     const accA = clusterScores.find((s) => s.cluster === "A")?.accuracy ?? 0;
     const accB = clusterScores.find((s) => s.cluster === "B")?.accuracy ?? 0;
     const accC = clusterScores.find((s) => s.cluster === "C")?.accuracy ?? 0;

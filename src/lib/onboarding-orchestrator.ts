@@ -54,6 +54,11 @@ export type OnboardingState = {
   kelas?: number;
   /** Mode kurikulum untuk filter item pool. Default "full". */
   modeKurikulum: ModeKurikulum;
+  /**
+   * Bab yang sudah dipelajari user — untuk scoping cluster A.
+   * Diset di startOnboarding dari user input. Tidak ada (undefined) = treat all bab exposed.
+   */
+  babsExposed?: import("@/lib/bab-exposure").BabsExposedMap;
   stage: OnboardingStage;
   /** Semua response sejauh ini (cumulative). */
   responses: IrtRespEngine[];
@@ -114,7 +119,7 @@ async function rehydrateLocator(state: OnboardingState): Promise<LocatorState> {
 }
 
 async function rehydrateCoverage(state: OnboardingState): Promise<CoverageState> {
-  let s = await initCoverage(state.jalur, state.hasilLocator, state.modeKurikulum);
+  let s = await initCoverage(state.jalur, state.hasilLocator, state.modeKurikulum, state.babsExposed);
   // Filter responses yang BUKAN bagian dari Locator (carry-over sudah di-init)
   const carriedIds = new Set(state.hasilLocator?.responses.map((r) => r.itemId) ?? []);
   const newResponses = state.responses.filter((r) => !carriedIds.has(r.itemId));
@@ -126,7 +131,7 @@ async function rehydrateCoverage(state: OnboardingState): Promise<CoverageState>
 
 async function rehydrateDeep(state: OnboardingState): Promise<DeepState> {
   if (!state.hasilCoverage) throw new Error("Deep stage butuh coverage result");
-  let s = await initDeep(state.jenjang, state.hasilCoverage);
+  let s = await initDeep(state.jenjang, state.hasilCoverage, state.babsExposed);
   // Replay deep responses (those after coverage finished)
   const previousIds = new Set(state.hasilCoverage.responses.map((r) => r.itemId));
   const deepResponses = state.responses.filter((r) => !previousIds.has(r.itemId));
@@ -182,12 +187,14 @@ export async function startOnboarding(
   jenjang: JenjangResmi,
   modeKurikulum: ModeKurikulum = "comprehensive",
   kelas?: number,
+  babsExposed?: import("@/lib/bab-exposure").BabsExposedMap,
 ): Promise<OnboardingStep> {
   const state: OnboardingState = {
     jalur,
     jenjang,
     kelas,
     modeKurikulum,
+    babsExposed,
     stage: "locator",
     responses: [],
   };
@@ -242,7 +249,11 @@ async function nextStep(state: OnboardingState): Promise<OnboardingStep> {
     const cov = await rehydrateCoverage(state);
     if (cov.done) {
       const userProfile = state.kelas !== undefined
-        ? { jenjang: state.jenjang, kelas: state.kelas }
+        ? {
+            jenjang: state.jenjang,
+            kelas: state.kelas,
+            isUtbkTarget: state.jalur === "sma-utbk",
+          }
         : undefined;
       const result = await finalizeCoverage(cov, userProfile);
       const newState: OnboardingState = { ...state, stage: "deep", hasilCoverage: result ?? undefined };

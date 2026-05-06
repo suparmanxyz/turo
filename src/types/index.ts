@@ -257,8 +257,17 @@ export interface PetaPrasyaratIndex {
   >;
 }
 
-/** Mastery status user terhadap sub-materi (Phase B+ data model). */
-export type MasteryStatus = "siap" | "review" | "remediasi" | "unknown";
+/**
+ * Mastery status user terhadap sub-materi (Phase B+ data model).
+ *
+ * - siap: kuasai, lanjut ke level berikutnya
+ * - review: hampir kuasai, perlu latihan ringan
+ * - remediasi: perlu repair sistematis
+ * - unknown: belum cukup data assessment
+ * - belum_dipelajari: bab user belum exposed di kelas user, akan di-test on-demand
+ *   via tes kesiapan bab ketika user mau mempelajari bab tersebut
+ */
+export type MasteryStatus = "siap" | "review" | "remediasi" | "unknown" | "belum_dipelajari";
 
 export interface SubMateriMastery {
   kode: string;

@@ -163,6 +163,26 @@ export function buildBabsExposedMap(
 }
 
 /**
+ * Daftar bab di kelas user yang BELUM exposed — untuk display ke ortu/UI
+ * sebagai "akan di-test saat anak mau belajar bab ini" + sub-materi nya.
+ */
+export function notYetExposedBabs(
+  jenjang: JenjangResmi,
+  userKelas: number,
+  babsExposed: BabsExposedMap | undefined,
+): { babKode: string; babNama: string; subKodes: string[] }[] {
+  const all = babsPerKelas(jenjang, userKelas);
+  const exposed = babsExposed?.[`K${userKelas}`] ?? [];
+  return all
+    .filter((b) => !exposed.includes(normalizeBabKode(b.kode)))
+    .map((b) => ({
+      babKode: normalizeBabKode(b.kode),
+      babNama: b.nama,
+      subKodes: b.subMateri.map((s) => s.kode),
+    }));
+}
+
+/**
  * Cek apakah sub-materi (kode like "SMP.8.B5.02") "exposed" oleh user.
  * Parse kode → cek di map.
  */

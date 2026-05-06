@@ -204,8 +204,8 @@ function sanitize(item: { id: string; subMateriKode: string; konten: { pertanyaa
   };
 }
 
-function countByStatus(mastery: { status: "siap" | "review" | "remediasi" | "unknown" }[]) {
-  const out = { siap: 0, review: 0, remediasi: 0, unknown: 0 };
+function countByStatus(mastery: { status: "siap" | "review" | "remediasi" | "unknown" | "belum_dipelajari" }[]) {
+  const out = { siap: 0, review: 0, remediasi: 0, unknown: 0, belum_dipelajari: 0 };
   for (const m of mastery) out[m.status]++;
   return out;
 }

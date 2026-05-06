@@ -22,6 +22,7 @@ import type { CoverageResult } from "@/lib/diagnostic-coverage";
 import type { AreaMatematika, JenjangResmi, MasteryStatus, SubMateriMastery, SubMateriResmi } from "@/types";
 import { classifyMasteryWithConfig, getClassificationConfig, type ClassificationConfig } from "@/lib/classification-config";
 import { buildKelasWindowSet } from "@/lib/jenjang-utils";
+import { isSubMateriExposed, type BabsExposedMap } from "@/lib/bab-exposure";
 
 /** Per-sub-materi state selama deep test. */
 type SubState = {
@@ -83,6 +84,7 @@ function pilihSubTarget(
   kelasEstimasi: number,
   areas: AreaMatematika[],
   perArea: number = 4,
+  babsExposed?: BabsExposedMap,
 ): SubMateriResmi[] {
   const target: SubMateriResmi[] = [];
   const kelasInt = Math.round(kelasEstimasi);
@@ -93,7 +95,12 @@ function pilihSubTarget(
 
   for (const area of areas) {
     const areaSubs = subMateriPerArea(area).filter(
-      (s) => targetSet.has(`${s.jenjang}:${s.kelas}`),
+      (s) =>
+        targetSet.has(`${s.jenjang}:${s.kelas}`)
+        // Skip sub yang BELUM dipelajari user — Deep hanya drill yang sudah
+        // exposed, supaya status remediasi vs belum_dipelajari tidak ambigu.
+        // Sub belum dipelajari akan di-handle terpisah di hasil (status belum_dipelajari).
+        && (!babsExposed || isSubMateriExposed(babsExposed, s.kode))
     );
     // Sort: milestone & high-dependents dulu
     areaSubs.sort((a, b) => {
@@ -113,9 +120,10 @@ function pilihSubTarget(
 export async function initDeep(
   jenjang: JenjangResmi,
   coverage: CoverageResult,
+  babsExposed?: BabsExposedMap,
 ): Promise<DeepState> {
   const kelasEst = coverage.thetaGlobal * 1.83 + 6.5; // inverse kelasToTheta
-  const targetSubs = pilihSubTarget(jenjang, kelasEst, coverage.areaSuspect);
+  const targetSubs = pilihSubTarget(jenjang, kelasEst, coverage.areaSuspect, 4, babsExposed);
 
   // Load item pool per sub-materi
   const queue: SubState[] = [];
