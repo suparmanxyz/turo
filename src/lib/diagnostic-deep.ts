@@ -21,6 +21,7 @@ import { cariSubMateriResmi, subMateriPerArea, subMateriPerKelas } from "@/data/
 import type { CoverageResult } from "@/lib/diagnostic-coverage";
 import type { AreaMatematika, JenjangResmi, MasteryStatus, SubMateriMastery, SubMateriResmi } from "@/types";
 import { classifyMasteryWithConfig, getClassificationConfig, type ClassificationConfig } from "@/lib/classification-config";
+import { buildKelasWindowSet } from "@/lib/jenjang-utils";
 
 /** Per-sub-materi state selama deep test. */
 type SubState = {
@@ -66,11 +67,19 @@ const SETTLE_BAD_AFTER = 2; // 2 salah → remediasi
 
 /**
  * Pilih sub-materi yang akan di-drill dari area suspect.
- * Strategi: pilih milestone & high-dependents sub-materi di kelas siswa,
- * batasi ~3-5 sub per area suspect.
+ *
+ * Strategi: target sub di window kelas seputar kelasEstimasi (level kemampuan
+ * actual siswa), pakai bridge cross-jenjang. Untuk weak student SMA K11
+ * dengan kelasEstimasi=5.82, window [5,6,7] map ke SD K5/6 + SMP K7 — sub
+ * di kelas itu drilled meski siswa "secara profile" K11 SMA. Sebelumnya
+ * filter `s.jenjang === userJenjang` bikin queue empty (SMA tidak ada
+ * K5/6/7), Deep stage skip total.
+ *
+ * Sort milestone (is_maku) & high-dependents dulu — drill konsep paling
+ * critical di tiap area suspect.
  */
 function pilihSubTarget(
-  jenjang: JenjangResmi,
+  userJenjang: JenjangResmi,
   kelasEstimasi: number,
   areas: AreaMatematika[],
   perArea: number = 4,
@@ -80,10 +89,11 @@ function pilihSubTarget(
   const kelasWindow = [kelasInt, kelasInt - 1, kelasInt + 1].filter(
     (k) => k >= 1 && k <= 12,
   );
+  const targetSet = buildKelasWindowSet(userJenjang, kelasWindow);
 
   for (const area of areas) {
     const areaSubs = subMateriPerArea(area).filter(
-      (s) => s.jenjang === jenjang && kelasWindow.includes(s.kelas),
+      (s) => targetSet.has(`${s.jenjang}:${s.kelas}`),
     );
     // Sort: milestone & high-dependents dulu
     areaSubs.sort((a, b) => {

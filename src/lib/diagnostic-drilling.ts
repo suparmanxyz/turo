@@ -35,6 +35,7 @@ import {
   type FoundationTarget,
 } from "@/lib/foundation-set";
 import { getSmartGranularity, type GranularityClassification } from "@/lib/smart-granularity";
+import { bridgeJenjangKelas } from "@/lib/jenjang-utils";
 import type { CoverageResult } from "@/lib/diagnostic-coverage";
 import type { AreaMatematika, JenjangResmi, SubMateriResmi } from "@/types";
 
@@ -328,24 +329,6 @@ function pickAreaSuspect(
     out.push(...sortByImportance(areaSubs).slice(0, Math.ceil(count / areaSuspect.length)));
   }
   return out.slice(0, count);
-}
-
-/**
- * Map (jenjang user, k) → (jenjang aktual, kelas) untuk bridge crossing.
- * Untuk SMA user dengan k<10, drop ke SMP. Untuk SMP user dengan k<7, drop ke SD.
- */
-function bridgeJenjangKelas(userJenjang: JenjangResmi, k: number): { jenjang: JenjangResmi; kelas: number } | null {
-  if (k < 1) return null;
-  if (userJenjang === "SMA") {
-    if (k >= 10) return { jenjang: "SMA", kelas: k };
-    if (k >= 7) return { jenjang: "SMP", kelas: k };
-    return { jenjang: "SD", kelas: k };
-  }
-  if (userJenjang === "SMP") {
-    if (k >= 7) return { jenjang: "SMP", kelas: k };
-    return { jenjang: "SD", kelas: k };
-  }
-  return { jenjang: "SD", kelas: Math.min(6, k) };
 }
 
 /**
