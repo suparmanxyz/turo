@@ -31,6 +31,17 @@ export function runAssertions(
     reason: session?.stage !== "selesai" ? "Diagnostic tidak mencapai status selesai" : undefined,
   });
 
+  // --- BASELINE: jalur sesuai persona (catch bug runner mis-route jalur) ---
+  out.push({
+    name: "Jalur match persona",
+    passed: session?.jalur === persona.jalur,
+    expected: persona.jalur,
+    actual: session?.jalur ?? "null",
+    reason: session?.jalur !== persona.jalur
+      ? `API derived jalur ${session?.jalur} dari profile, padahal persona expect ${persona.jalur}`
+      : undefined,
+  });
+
   out.push({
     name: "Coverage stage punya hasil",
     passed: !!session?.hasilCoverage,

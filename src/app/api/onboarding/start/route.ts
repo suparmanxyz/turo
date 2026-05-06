@@ -22,7 +22,17 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const jenjang = body.jenjang as Jenjang | undefined;
+  const rawJenjang = body.jenjang as string | undefined;
+  // Validate jenjang format — frontend convention is lowercase. Reject invalid
+  // value supaya tidak silent-fallback ke jalur="smp" (bug yang ke-detect pakai
+  // test agent di kasus weak_foundation_sma_11 → jalur jadi smp default).
+  if (rawJenjang && !["sd", "smp", "sma"].includes(rawJenjang)) {
+    return NextResponse.json(
+      { error: `jenjang invalid: "${rawJenjang}" — harus "sd"|"smp"|"sma" (lowercase)` },
+      { status: 400 },
+    );
+  }
+  const jenjang = rawJenjang as Jenjang | undefined;
   const kelas = body.kelas as Kelas | undefined;
   const kategoriUtama = (body.kategoriUtama ?? "reguler") as KategoriUtama;
   const modePersiapan = body.modePersiapan as "sekolah" | "utbk" | "olimpiade" | undefined;

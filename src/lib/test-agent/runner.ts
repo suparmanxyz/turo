@@ -105,11 +105,22 @@ export async function executeTestRun(opts: RunOptions): Promise<string> {
   try {
     const idToken = await getIdToken(TEST_AGENT_UID);
 
-    // 1. START
+    // 1. START — convert jenjang ke lowercase (frontend convention) supaya
+    // /api/onboarding/start.pilihJalur() bisa derive jalur dengan benar.
+    // Kalau dikirim uppercase ("SMA"), pilihJalur fallback ke "smp" silently.
+    const jenjangLower = jenjang.toLowerCase() as "sd" | "smp" | "sma";
+    // Pakai modePersiapan="utbk" supaya pilihJalur return sma-utbk untuk persona UTBK.
+    const isUtbkPersona = jalur === "sma-utbk";
     const startRes = await fetch(apiUrl(opts.baseUrl, "/api/onboarding/start"), {
       method: "POST",
       headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
-      body: JSON.stringify({ jalur, jenjang, kelas, modeKurikulum: "comprehensive" }),
+      body: JSON.stringify({
+        jenjang: jenjangLower,
+        kelas,
+        kategoriUtama: "reguler",
+        modeKurikulum: "comprehensive",
+        ...(isUtbkPersona ? { modePersiapan: "utbk" } : {}),
+      }),
     });
     if (!startRes.ok) {
       const txt = await startRes.text();
