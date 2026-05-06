@@ -45,6 +45,11 @@ export async function POST(req: NextRequest) {
   const jalur = pilihJalur({ jenjang, kelas, kategoriUtama, modePersiapan });
   const jenjangResmi: JenjangResmi = jenjang ? JENJANG_MAP[jenjang] : (jalur.startsWith("sd") ? "SD" : jalur.startsWith("smp") ? "SMP" : "SMA");
 
+  // Bab exposure user — scoping cluster A supaya engine tidak misclassify "belum
+  // dipelajari" sebagai "lemah". Kalau tidak dikirim (legacy client), engine treat
+  // all exposed (backward compat).
+  const babsExposed = body.babsExposed as import("@/lib/bab-exposure").BabsExposedMap | undefined;
+
   await upsertUserProfile(uid, {
     jenjang,
     kelas,
@@ -52,11 +57,12 @@ export async function POST(req: NextRequest) {
     modePersiapan,
     jalurAktif: jalur,
     modeKurikulum,
+    babsExposedPerKelas: babsExposed,
     onboardingStatus: "belum",
   });
 
   const sessionId = await createDiagnosticSession(uid, jalur);
-  const step = await startOnboarding(jalur, jenjangResmi, modeKurikulum, kelas);
+  const step = await startOnboarding(jalur, jenjangResmi, modeKurikulum, kelas, babsExposed);
 
   return NextResponse.json({
     sessionId,

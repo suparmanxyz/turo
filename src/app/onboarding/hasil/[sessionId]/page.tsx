@@ -5,8 +5,26 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import type { DiagnosticSessionDoc } from "@/lib/firestore-schema";
 import { JALUR_LABEL } from "@/lib/diagnostic-routing";
+import { getTierLabel, type PathTier } from "@/lib/jenjang-labels";
+import type { JalurDiagnostik } from "@/lib/item-bank";
 
 const CONFIDENCE_KEY = (sid: string) => `turo-confidence-${sid}`;
+
+/** Resolve label tier path adaptive per jenjang/jalur user. */
+function pathTierLabel(tier: PathTier, jalur?: string) {
+  const jenjang = jalur?.startsWith("sd") ? "SD" : jalur?.startsWith("smp") ? "SMP" : "SMA";
+  return getTierLabel(tier, jenjang as "SD" | "SMP" | "SMA", jalur as JalurDiagnostik);
+}
+
+/** Color class per tier untuk styling card. */
+function pathTierColors(tier: PathTier): { bg: string; text: string } {
+  switch (tier) {
+    case "ADVANCED":      return { bg: "bg-emerald-50 border-emerald-300", text: "text-emerald-700" };
+    case "STANDARD":      return { bg: "bg-amber-50 border-amber-300", text: "text-amber-700" };
+    case "COMPREHENSIVE": return { bg: "bg-orange-50 border-orange-300", text: "text-orange-700" };
+    case "INTENSIVE":     return { bg: "bg-rose-50 border-rose-300", text: "text-rose-700" };
+  }
+}
 
 const AREA_LABEL: Record<string, string> = {
   bilangan: "Bilangan",
@@ -97,30 +115,21 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
         <Card title="Total Soal" value={String(session.itemsAnswered)} sub="dijawab" />
       </section>
 
-      {/* Path Routing 4-tier (dari Foundation Set / Integral spec) */}
-      {cov?.pathRoute && cov?.clusterScores && (
+      {/* Path Routing 4-tier (dari Foundation Set / Integral spec) — adaptive label per jenjang */}
+      {cov?.pathRoute && cov?.clusterScores && (() => {
+        const tierLabel = pathTierLabel(cov.pathRoute.path, session.jalur);
+        const tierColors = pathTierColors(cov.pathRoute.path);
+        return (
         <section className="mb-6">
           <h2 className="text-xl font-bold mb-3">Rekomendasi Jalur</h2>
-          <div className={`rounded-2xl p-5 sm:p-6 border-2 ${
-            cov.pathRoute.path === "ADVANCED" ? "bg-emerald-50 border-emerald-300" :
-            cov.pathRoute.path === "STANDARD" ? "bg-amber-50 border-amber-300" :
-            cov.pathRoute.path === "COMPREHENSIVE" ? "bg-orange-50 border-orange-300" :
-            "bg-rose-50 border-rose-300"
-          }`}>
+          <div className={`rounded-2xl p-5 sm:p-6 border-2 ${tierColors.bg}`}>
             <div className="flex items-start justify-between gap-3 flex-wrap mb-3">
               <div>
                 <div className="text-xs uppercase tracking-wider text-slate-500 mb-1">Path</div>
-                <h3 className={`text-2xl sm:text-3xl font-extrabold ${
-                  cov.pathRoute.path === "ADVANCED" ? "text-emerald-700" :
-                  cov.pathRoute.path === "STANDARD" ? "text-amber-700" :
-                  cov.pathRoute.path === "COMPREHENSIVE" ? "text-orange-700" :
-                  "text-rose-700"
-                }`}>
-                  {cov.pathRoute.path === "ADVANCED" ? "🟢 ADVANCED" :
-                   cov.pathRoute.path === "STANDARD" ? "🟡 STANDARD" :
-                   cov.pathRoute.path === "COMPREHENSIVE" ? "🟠 COMPREHENSIVE" :
-                   "🔴 INTENSIVE"}
+                <h3 className={`text-2xl sm:text-3xl font-extrabold ${tierColors.text}`}>
+                  {tierLabel.emoji} {tierLabel.short}
                 </h3>
+                <div className="text-xs text-slate-500 mt-1">{tierLabel.full}</div>
               </div>
               <div className="text-right">
                 <div className="text-xs text-slate-500 mb-1">Estimasi tes lanjutan</div>
@@ -159,7 +168,8 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
             </div>
           </div>
         </section>
-      )}
+        );
+      })()}
 
       {/* UTBK Estimate — hanya muncul untuk jalur sma-utbk */}
       {session.jalur === "sma-utbk" && session.thetaGlobal !== undefined && (

@@ -111,6 +111,13 @@ export async function executeTestRun(opts: RunOptions): Promise<string> {
     const jenjangLower = jenjang.toLowerCase() as "sd" | "smp" | "sma";
     // Pakai modePersiapan="utbk" supaya pilihJalur return sma-utbk untuk persona UTBK.
     const isUtbkPersona = jalur === "sma-utbk";
+
+    // Default test agent: anggap user sudah selesai SEMUA bab di kelas user.
+    // Persona spesifik bisa override via persona.babsExposedOverride (TODO Phase 5).
+    // Untuk run sekarang, build babsExposed dengan all_done supaya engine cover full cluster A.
+    const { buildBabsExposedMap } = await import("@/lib/bab-exposure");
+    const babsExposed = buildBabsExposedMap(jenjang, kelas, "all_done");
+
     const startRes = await fetch(apiUrl(opts.baseUrl, "/api/onboarding/start"), {
       method: "POST",
       headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
@@ -119,6 +126,7 @@ export async function executeTestRun(opts: RunOptions): Promise<string> {
         kelas,
         kategoriUtama: "reguler",
         modeKurikulum: "comprehensive",
+        babsExposed,
         ...(isUtbkPersona ? { modePersiapan: "utbk" } : {}),
       }),
     });

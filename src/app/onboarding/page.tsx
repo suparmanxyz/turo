@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState, useMemo, type FormEvent } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   KATEGORI_UTAMA_LABEL,
@@ -16,6 +16,7 @@ import {
   type ModeKurikulum,
 } from "@/types";
 import { JALUR_LABEL, JALUR_DURASI_MENIT, pilihJalur } from "@/lib/diagnostic-routing";
+import { listBabsForKelas, smartDefaultLastBab, buildBabsExposedMap } from "@/lib/bab-exposure";
 
 export default function OnboardingPage() {
   const { user, loading } = useAuth();
@@ -24,12 +25,31 @@ export default function OnboardingPage() {
   const [jenjang, setJenjang] = useState<Jenjang | "">("");
   const [kelas, setKelas] = useState<Kelas | "">("");
   const [modeKurikulum, setModeKurikulum] = useState<ModeKurikulum>("comprehensive");
+  const [lastBab, setLastBab] = useState<string>(""); // "not_started" | "B1" | ... | "all_done"
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const jalur = jenjang
     ? pilihJalur({ jenjang, kelas: (kelas || undefined) as Kelas | undefined, kategoriUtama: kategori })
     : null;
+
+  // Bab list untuk dropdown (kelas yang dipilih)
+  const jenjangResmi = jenjang === "sd" ? "SD" : jenjang === "smp" ? "SMP" : jenjang === "sma" ? "SMA" : null;
+  const babList = useMemo(() => {
+    if (!jenjangResmi || !kelas) return [];
+    return listBabsForKelas(jenjangResmi, Number(kelas));
+  }, [jenjangResmi, kelas]);
+
+  // Smart default — bab terakhir yang biasanya sudah dipelajari per bulan ajaran
+  const smartDefault = useMemo(() => {
+    if (!jenjangResmi || !kelas) return null;
+    return smartDefaultLastBab(jenjangResmi, Number(kelas));
+  }, [jenjangResmi, kelas]);
+
+  // Auto-set default kalau belum di-set & smartDefault tersedia
+  useMemo(() => {
+    if (!lastBab && smartDefault) setLastBab(smartDefault.babKode);
+  }, [smartDefault, lastBab]);
 
   if (loading) return <main className="p-8 text-slate-500">Memuat...</main>;
   if (!user) {
@@ -51,10 +71,14 @@ export default function OnboardingPage() {
     setError(null);
     try {
       const idToken = await user!.getIdToken();
+      // Build babsExposed dari pilihan user. "" = treat all exposed (skip filter, backward compat)
+      const babsExposed = lastBab && jenjangResmi
+        ? buildBabsExposedMap(jenjangResmi, Number(kelas), lastBab as "not_started" | "all_done" | string)
+        : undefined;
       const res = await fetch("/api/onboarding/start", {
         method: "POST",
         headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
-        body: JSON.stringify({ jenjang, kelas, kategoriUtama: kategori, modeKurikulum }),
+        body: JSON.stringify({ jenjang, kelas, kategoriUtama: kategori, modeKurikulum, babsExposed }),
       });
       if (!res.ok) {
         const txt = await res.text();
@@ -151,6 +175,33 @@ export default function OnboardingPage() {
           Materi tampil semua dengan label badge per sub: 📘 Inti / 🌉 Pendukung / 🚀 Tantangan.
           Filter optional ada di UI /materi/[slug] untuk power users.
         */}
+
+        {/* Bab terakhir dipelajari */}
+        {jenjang && kelas && babList.length > 0 && (
+          <div>
+            <label className="block text-sm font-semibold mb-2">
+              4. Bab terakhir yang sudah kamu pelajari di Kelas {kelas}?
+            </label>
+            <select
+              value={lastBab}
+              onChange={(e) => setLastBab(e.target.value)}
+              className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-brand outline-none transition"
+            >
+              <option value="not_started">Belum mulai pelajari Kelas {kelas}</option>
+              {babList.map((b) => (
+                <option key={b.kode} value={b.kode}>
+                  {b.kode}: {b.nama}
+                  {smartDefault?.babKode === b.kode ? "  · biasa di bulan ini" : ""}
+                </option>
+              ))}
+              <option value="all_done">Sudah selesai semua bab Kelas {kelas}</option>
+            </select>
+            <p className="text-xs text-slate-500 mt-2">
+              💡 Tes hanya akan menanyakan bab yang sudah kamu pelajari + materi kelas sebelumnya.
+              Bab Kelas {kelas} yang belum dipelajari akan di-tes nanti saat kamu mau mulai mempelajarinya.
+            </p>
+          </div>
+        )}
 
         {/* Preview jalur */}
         {jalur && (
