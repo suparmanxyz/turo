@@ -76,6 +76,16 @@ export type UserProfileDoc = {
   onboardingStatus: "belum" | "fast-done" | "deep-done";
   /** History Mathematical Maturity — last 20 snapshots (oldest first). */
   maturityHistory?: MaturitySnapshot[];
+  /**
+   * Bab yang sudah dipelajari user per kelas. Format key:
+   *   - "K8" = bab di kelas user (kelas yang dia pilih saat onboarding)
+   *   - "SD.K3", "SMP.K7" = bab di kelas/jenjang lebih rendah (auto-marked all
+   *     exposed kalau anak sudah naik kelas)
+   * Value: array bab kode normalized e.g. ["B1", "B2", "B3"].
+   * Engine pakai field ini untuk scoping cluster A — sub di bab yang belum
+   * exposed di-skip dari diagnostic, akan di-test on-demand via tes kesiapan bab.
+   */
+  babsExposedPerKelas?: import("@/lib/bab-exposure").BabsExposedMap;
   createdAt: number;
   updatedAt: number;
 };

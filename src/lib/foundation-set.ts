@@ -195,14 +195,47 @@ export const DEFAULT_CLUSTER_THRESHOLDS: ClusterThresholds = {
   C: 0.95, // Foundation — ≥95% pass (default; di-override adaptive per jenjang user)
 };
 
-/** Build threshold cluster yang adaptive C per jenjang user. */
+/**
+ * Threshold cluster A & B per jenjang (selain SMA UTBK yang pakai SNBT default).
+ *
+ * Rasional: SNBT-level threshold (A=80, B=85, C=95) terlalu strict untuk
+ * SD/SMP/SMA reguler yang tujuannya bukan UTBK. Adaptive per goal:
+ * - SD: target naik kelas / lulus → threshold longgar
+ * - SMP: target masuk SMA → moderate
+ * - SMA reguler: target lulus + persiapan UTBK ringan → moderate-strict
+ * - SMA UTBK (jalur sma-utbk): target SNBT → strict (Integral spec)
+ */
+const CLUSTER_AB_THRESHOLDS: Record<FoundationTarget, { A: number; B: number }> = {
+  "sd-low":  { A: 0.65, B: 0.70 },
+  "sd-mid":  { A: 0.70, B: 0.75 },
+  "sd-high": { A: 0.70, B: 0.75 },
+  "smp":     { A: 0.75, B: 0.80 },
+  "sma":     { A: 0.75, B: 0.80 }, // SMA reguler — UTBK pakai SNBT default
+};
+
+/**
+ * Build threshold cluster adaptive per jenjang user (semua cluster A/B/C).
+ *
+ * @param isUtbkTarget true → pakai SNBT-level (A=80, B=85, C=95). Untuk siswa di
+ *   jalur sma-utbk. Default false (SD/SMP/SMA reguler pakai threshold longgar).
+ */
 export function buildAdaptiveThresholds(
   targetJenjang: "SD" | "SMP" | "SMA",
   targetKelas?: number,
   base: ClusterThresholds = DEFAULT_CLUSTER_THRESHOLDS,
+  isUtbkTarget = false,
 ): ClusterThresholds {
   const target = pickFoundationTarget(targetJenjang, targetKelas);
-  return { ...base, C: FOUNDATION_THRESHOLD_BY_TARGET[target] };
+  if (isUtbkTarget) {
+    // SNBT level — keep DEFAULT cluster A/B, tetap pakai foundation threshold sma=0.95
+    return { ...base, C: FOUNDATION_THRESHOLD_BY_TARGET[target] };
+  }
+  const ab = CLUSTER_AB_THRESHOLDS[target];
+  return {
+    A: ab.A,
+    B: ab.B,
+    C: FOUNDATION_THRESHOLD_BY_TARGET[target],
+  };
 }
 
 /**
