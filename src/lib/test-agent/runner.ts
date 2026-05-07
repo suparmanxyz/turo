@@ -15,7 +15,7 @@
 
 import { getAdminAuth } from "@/lib/firebase-admin";
 import { loadItem } from "@/lib/item-bank";
-import { getPersona, sampleResponseTimeMs, type Persona } from "@/lib/test-agent/personas";
+import { getPersona, sampleResponseTimeMs, defaultShouldAnswer, type Persona } from "@/lib/test-agent/personas";
 import { appendEvent, createTestRun, failTestRun, finalizeTestRun, updateTestRun, type Assertion } from "@/lib/test-agent/storage";
 import { runAssertions } from "@/lib/test-agent/assertions";
 
@@ -166,16 +166,25 @@ export async function executeTestRun(opts: RunOptions): Promise<string> {
         throw new Error(`Item ${nextItem.id} tidak ditemukan di Firestore`);
       }
 
-      // Decide jawaban via persona
-      const wantCorrect = persona.shouldAnswerCorrect(fullItem, { itemIdx: iter, stage: currentStage });
+      // Decide jawaban via persona — pakai override kalau ada (stress tests),
+      // else default impl (subMastery × difficulty × variance).
+      const wantCorrect = persona.shouldAnswerCorrect
+        ? persona.shouldAnswerCorrect(fullItem, { itemIdx: iter, stage: currentStage })
+        : defaultShouldAnswer(persona, fullItem);
       const kunci = fullItem.konten.kunci;
       let pickedIdx: number;
       if (wantCorrect) {
         pickedIdx = kunci;
       } else {
-        // Pilih opsi salah random
-        const wrongIdxs = fullItem.konten.opsi.map((_, i) => i).filter((i) => i !== kunci);
-        pickedIdx = wrongIdxs[Math.floor(Math.random() * wrongIdxs.length)] ?? 0;
+        // Smart distractor pick: prefer opsi yang strongDistractor=true atau
+        // punya alasan miskonsepsi (simulate anak salah karena terkecoh, bukan
+        // random). Kalau opsi tidak punya field tersebut, fallback random.
+        const wrongOpts = fullItem.konten.opsi
+          .map((o, i) => ({ idx: i, opt: o }))
+          .filter((x) => x.idx !== kunci);
+        const strongWrongs = wrongOpts.filter((x) => x.opt.alasan && x.opt.alasan.length > 5);
+        const pool = strongWrongs.length > 0 ? strongWrongs : wrongOpts;
+        pickedIdx = pool[Math.floor(Math.random() * pool.length)]?.idx ?? 0;
       }
       const responseTimeMs = sampleResponseTimeMs(persona);
 
