@@ -273,14 +273,24 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
 
   async function regenerateAll() {
     const count = data?.items.length ?? 3;
-    if (!confirm(`♻ Regenerate semua ${count} items untuk sub ini?\n\nIni akan HAPUS items lama dulu, lalu generate ${count} soal baru dengan metadata pedagogis lengkap. Tidak bisa dibatalkan.`)) return;
+    const modelChoice = prompt(
+      `♻ Regenerate semua ${count} items untuk sub ini?\n\n` +
+      `Pilih model:\n` +
+      `  sonnet (default) — cepat & murah (~$0.025/item)\n` +
+      `  opus — presisi visual + math kompleks (~$0.12/item, 5× mahal)\n\n` +
+      `Ketik 'sonnet' atau 'opus' (default: sonnet):`,
+      "sonnet",
+    );
+    if (modelChoice === null) return; // cancelled
+    const model = modelChoice.toLowerCase().trim() === "opus" ? "opus" : "sonnet";
+    if (!confirm(`Konfirmasi regenerate ${count} items dengan model ${model.toUpperCase()}? Items lama akan DIHAPUS dulu. Tidak bisa dibatalkan.`)) return;
     setBusy("regen");
     try {
       const idToken = await user!.getIdToken();
       const res = await fetch(`/api/admin/item-bank/${encodeURIComponent(decodedKode)}/regenerate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
-        body: JSON.stringify({ count }),
+        body: JSON.stringify({ count, model }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
       const result = await res.json();
