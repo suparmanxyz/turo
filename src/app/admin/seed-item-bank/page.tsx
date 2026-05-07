@@ -28,7 +28,7 @@ type SeedResult = {
   totals: { added: number; dropped: number; failed: number; cost: number };
 };
 
-const MAX_PER_BATCH = 5;
+const BATCH_SIZE = 5; // server max per call (Vercel timeout)
 
 export default function SeedItemBankPage() {
   const { user, loading } = useAuth();
@@ -40,6 +40,7 @@ export default function SeedItemBankPage() {
   const [lastResult, setLastResult] = useState<SeedResult | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [showCount, setShowCount] = useState(20);
+  const [progress, setProgress] = useState<{ current: number; total: number; subName?: string } | null>(null);
 
   async function loadAudit() {
     if (!user) return;
@@ -72,14 +73,19 @@ export default function SeedItemBankPage() {
   function toggleSelect(kode: string) {
     const next = new Set(selected);
     if (next.has(kode)) next.delete(kode);
-    else if (next.size < MAX_PER_BATCH) next.add(kode);
+    else next.add(kode);
     setSelected(next);
   }
 
-  function autoSelectTop() {
-    const next = new Set<string>();
-    for (const p of filteredPriority.slice(0, MAX_PER_BATCH)) next.add(p.kode);
+  /** Centang semua sub yang lagi visible (atau yang ke-filter saat ini). */
+  function selectAllVisible() {
+    const next = new Set(selected);
+    for (const p of visiblePriority) next.add(p.kode);
     setSelected(next);
+  }
+
+  function clearSelection() {
+    setSelected(new Set());
   }
 
   async function runSeed() {
@@ -87,26 +93,49 @@ export default function SeedItemBankPage() {
     setRunning(true);
     setError(null);
     setLastResult(null);
+
+    // Pecah selection jadi batches BATCH_SIZE supaya tidak timeout per call
+    const allKodes = Array.from(selected);
+    const batches: string[][] = [];
+    for (let i = 0; i < allKodes.length; i += BATCH_SIZE) {
+      batches.push(allKodes.slice(i, i + BATCH_SIZE));
+    }
+
+    const accumulated: SeedResult = {
+      results: [],
+      totals: { added: 0, dropped: 0, failed: 0, cost: 0 },
+    };
+
     try {
       const idToken = await user.getIdToken();
-      const res = await fetch("/api/admin/seed-balance/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
-        body: JSON.stringify({ kodes: Array.from(selected) }),
-      });
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`HTTP ${res.status}: ${txt.slice(0, 300)}`);
+      for (let bi = 0; bi < batches.length; bi++) {
+        const batch = batches[bi];
+        setProgress({ current: bi + 1, total: batches.length, subName: batch[0] });
+        const res = await fetch("/api/admin/seed-balance/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
+          body: JSON.stringify({ kodes: batch }),
+        });
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`Batch ${bi + 1}/${batches.length} fail: HTTP ${res.status} ${txt.slice(0, 200)}`);
+        }
+        const data: SeedResult = await res.json();
+        accumulated.results.push(...data.results);
+        accumulated.totals.added += data.totals.added;
+        accumulated.totals.dropped += data.totals.dropped;
+        accumulated.totals.failed += data.totals.failed;
+        accumulated.totals.cost += data.totals.cost;
+        // Update intermediate result supaya pak ustadz lihat progress
+        setLastResult({ ...accumulated });
       }
-      const data: SeedResult = await res.json();
-      setLastResult(data);
       setSelected(new Set());
-      // Reload audit setelah seed
       await loadAudit();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setRunning(false);
+      setProgress(null);
     }
   }
 
@@ -116,8 +145,9 @@ export default function SeedItemBankPage() {
       <h1 className="text-2xl font-bold mt-2 mb-1">🌱 Seed Item Bank — Balance</h1>
       <p className="text-sm text-slate-500 mb-6">
         Generate soal otomatis (Sonnet 4.6) untuk balance distribusi difficulty per sub-materi.
-        Target: 1 Easy + 2 Medium + 2 Hard = 5 items per sub. Max {MAX_PER_BATCH} sub per batch
-        supaya tidak timeout (~30-90 detik per sub).
+        Target: 1 Easy + 2 Medium + 2 Hard = 5 items per sub. Pak ustadz centang berapapun
+        sub yang mau di-seed; client otomatis pecah jadi batch {BATCH_SIZE} sub per call (~3-5
+        menit per batch).
       </p>
 
       {/* Summary */}
@@ -188,23 +218,41 @@ export default function SeedItemBankPage() {
             </select>
           </div>
           <button
-            onClick={autoSelectTop}
-            disabled={running || filteredPriority.length === 0}
+            onClick={selectAllVisible}
+            disabled={running || visiblePriority.length === 0}
             className="rounded-lg bg-violet-100 hover:bg-violet-200 text-violet-700 text-sm px-4 py-2 disabled:opacity-50"
           >
-            ⚡ Auto-pick top {MAX_PER_BATCH}
+            ☑ Centang semua tampilan ({visiblePriority.length})
+          </button>
+          <button
+            onClick={clearSelection}
+            disabled={running || selected.size === 0}
+            className="rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm px-3 py-2 disabled:opacity-50"
+          >
+            ✗ Hapus centang
           </button>
           <button
             onClick={runSeed}
             disabled={running || selected.size === 0}
             className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-5 py-2 disabled:opacity-50"
           >
-            {running ? "⏳ Sedang seed (~30-90s/sub)..." : `🌱 Seed ${selected.size} sub`}
+            {running
+              ? progress
+                ? `⏳ Batch ${progress.current}/${progress.total}...`
+                : "⏳ Sedang seed..."
+              : `🌱 Seed ${selected.size} sub`}
           </button>
         </div>
         <p className="text-xs text-slate-500">
-          Pilih max {MAX_PER_BATCH} sub-materi (centang). Per sub akan di-generate items sesuai gap difficulty.
+          Centang sub yang mau di-seed (berapapun). Client otomatis pecah jadi {BATCH_SIZE} sub per
+          batch. Estimasi cost: ~$0.10-0.15 per sub × {selected.size > 0 ? selected.size : 0} = <strong>~${(selected.size * 0.12).toFixed(2)}</strong>.
         </p>
+        {selected.size > BATCH_SIZE && (
+          <p className="text-xs text-amber-600 mt-2">
+            ⚠ Total {selected.size} sub akan di-seed dalam {Math.ceil(selected.size / BATCH_SIZE)} batch.
+            Estimasi total waktu: ~{Math.ceil(selected.size / BATCH_SIZE * 4)} menit. Jangan tutup tab.
+          </p>
+        )}
         {error && <div className="mt-3 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 p-3 text-sm">{error}</div>}
       </div>
 
@@ -233,13 +281,29 @@ export default function SeedItemBankPage() {
         <div className="rounded-2xl bg-white border border-slate-200 p-5">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold">🎯 Priority list ({filteredPriority.length} sub)</h2>
-            <span className="text-xs text-slate-500">{selected.size} / {MAX_PER_BATCH} dipilih</span>
+            <span className="text-xs text-slate-500">{selected.size} dipilih</span>
           </div>
           <div className="overflow-x-auto -mx-2">
             <table className="w-full text-sm min-w-[700px]">
               <thead className="text-xs text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="p-2"></th>
+                  <th className="p-2 text-center">
+                    <input
+                      type="checkbox"
+                      checked={visiblePriority.length > 0 && visiblePriority.every((p) => selected.has(p.kode))}
+                      onChange={(e) => {
+                        if (e.target.checked) selectAllVisible();
+                        else {
+                          const next = new Set(selected);
+                          for (const p of visiblePriority) next.delete(p.kode);
+                          setSelected(next);
+                        }
+                      }}
+                      disabled={running}
+                      className="h-4 w-4 cursor-pointer accent-emerald-600"
+                      title="Centang semua tampilan"
+                    />
+                  </th>
                   <th className="text-left p-2">Kode</th>
                   <th className="text-left p-2">Nama</th>
                   <th className="text-center p-2">Saat ini</th>
@@ -250,7 +314,6 @@ export default function SeedItemBankPage() {
               <tbody>
                 {visiblePriority.map((p) => {
                   const isSel = selected.has(p.kode);
-                  const canSelect = isSel || selected.size < MAX_PER_BATCH;
                   return (
                     <tr key={p.kode} className={`border-b border-slate-100 ${isSel ? "bg-emerald-50/50" : "hover:bg-slate-50"}`}>
                       <td className="p-2 text-center">
@@ -258,7 +321,7 @@ export default function SeedItemBankPage() {
                           type="checkbox"
                           checked={isSel}
                           onChange={() => toggleSelect(p.kode)}
-                          disabled={!canSelect || running}
+                          disabled={running}
                           className="h-4 w-4 cursor-pointer accent-emerald-600 disabled:opacity-30"
                         />
                       </td>
