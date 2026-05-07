@@ -38,7 +38,8 @@ export default function AdminIndexPage() {
     { href: "/admin/diagnostic-sessions", emoji: "🎯", judul: "Sesi Diagnostik IRT", desc: "Audit sesi onboarding Phase B (Locator/Coverage/Deep): soal, jawaban, kecocokan vs peta." },
     { href: "/admin/klasifikasi-config", emoji: "⚙", judul: "Threshold Klasifikasi", desc: "Tune batas accuracy lemah/cukup/kuat & remediasi/review/siap untuk diagnostik." },
     { href: "/admin/diagnostik", emoji: "📋", judul: "Soal Diagnostik (legacy)", desc: "Validasi soal hasil generate AI dari diagnostik per-bab (pre-IRT)." },
-    { href: "/admin/import", emoji: "📥", judul: "Impor Soal PDF", desc: "Upload PDF, ekstrak & klasifikasi otomatis ke materi." },
+    { href: "/admin/import", emoji: "📥", judul: "Impor Soal PDF (legacy)", desc: "Upload PDF, ekstrak & klasifikasi ke koleksi soalManual lama (untuk pool latihan biasa)." },
+    { href: "/admin/import-item-bank", emoji: "📤", judul: "Import PDF → Item Bank Diagnostic", desc: "Upload PDF + AI auto-tag ke peta-prasyarat sub-materi + difficulty + meta pedagogis. Save langsung ke item_bank yang dipakai engine diagnostic." },
     { href: "/admin/test-agent", emoji: "🤖", judul: "Test Agent Diagnostik", desc: "Jalankan agent fake (17+ persona) yang melakukan tes diagnostik end-to-end via API real, lalu review trace lengkap (soal + jawaban) + asersi otomatis." },
   ];
 
