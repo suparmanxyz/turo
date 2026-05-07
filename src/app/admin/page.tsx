@@ -40,6 +40,7 @@ export default function AdminIndexPage() {
     { href: "/admin/diagnostik", emoji: "📋", judul: "Soal Diagnostik (legacy)", desc: "Validasi soal hasil generate AI dari diagnostik per-bab (pre-IRT)." },
     { href: "/admin/import", emoji: "📥", judul: "Impor Soal PDF (legacy)", desc: "Upload PDF, ekstrak & klasifikasi ke koleksi soalManual lama (untuk pool latihan biasa)." },
     { href: "/admin/import-item-bank", emoji: "📤", judul: "Import PDF → Item Bank Diagnostic", desc: "Upload PDF + AI auto-tag ke peta-prasyarat sub-materi + difficulty + meta pedagogis. Save langsung ke item_bank yang dipakai engine diagnostic." },
+    { href: "/admin/seed-item-bank", emoji: "🌱", judul: "Seed Item Bank Balance", desc: "Generate soal otomatis (Sonnet 4.6) untuk balance distribusi difficulty per sub. Target 1E + 2M + 2H per sub. Pak ustadz pilih sub mana yang mau di-seed (max 5 per batch)." },
     { href: "/admin/test-agent", emoji: "🤖", judul: "Test Agent Diagnostik", desc: "Jalankan agent fake (17+ persona) yang melakukan tes diagnostik end-to-end via API real, lalu review trace lengkap (soal + jawaban) + asersi otomatis." },
   ];
 
