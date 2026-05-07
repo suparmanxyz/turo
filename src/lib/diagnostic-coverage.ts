@@ -145,8 +145,70 @@ function quotaTerpenuhi(state: CoverageState, minPerArea: number = 2): boolean {
   return true;
 }
 
-/** Min items per cluster supaya scoring reliable. */
+/**
+ * Cek quota cluster: setiap cluster (A/B/C) yang punya items eligible di pool
+ * harus punya minimum N items answered. Cluster yang pool empty (no items
+ * eligible) di-skip (akan di-mark data_kurang di scoring).
+ *
+ * @param responses semua responses sejauh ini (termasuk hypothetical baru)
+ * @param used itemIds yang sudah dipakai
+ */
+function quotaClusterTerpenuhi(
+  state: CoverageState,
+  responses: Response[],
+  used: Set<string>,
+  minPerCluster: number = MIN_PER_CLUSTER_RELIABLE,
+): boolean {
+  if (!state.userJenjang || state.userKelas === undefined) return true;
+  const targets = AREA_TARGETS[state.jalur];
+  const foundationTarget = pickFoundationTarget(state.userJenjang, state.userKelas);
+  const itemMap = new Map(state.pool.map((it) => [it.id, it]));
+
+  // Hitung cluster usage dari responses
+  const counts: Record<Cluster, number> = { A: 0, B: 0, C: 0 };
+  for (const r of responses) {
+    const it = itemMap.get(r.itemId);
+    if (!it) continue;
+    const cluster = classifyItemCluster(
+      it.subMateriKode, it.kelas, state.userJenjang, state.userKelas, foundationTarget,
+    );
+    if (cluster === "A" && state.babsExposed && !isSubMateriExposed(state.babsExposed, it.subMateriKode)) continue;
+    counts[cluster]++;
+  }
+
+  // Hitung items eligible (belum dipakai) per cluster
+  const eligibleByCluster: Record<Cluster, number> = { A: 0, B: 0, C: 0 };
+  for (const it of state.pool) {
+    if (used.has(it.id)) continue;
+    if (!targets.has(it.area)) continue;
+    if (state.babsExposed && !isSubMateriExposed(state.babsExposed, it.subMateriKode)) continue;
+    const cluster = classifyItemCluster(
+      it.subMateriKode, it.kelas, state.userJenjang, state.userKelas, foundationTarget,
+    );
+    if (cluster === "A" && state.babsExposed && !isSubMateriExposed(state.babsExposed, it.subMateriKode)) continue;
+    eligibleByCluster[cluster]++;
+  }
+
+  // Cek per cluster
+  for (const c of ["A", "B", "C"] as Cluster[]) {
+    if (counts[c] >= minPerCluster) continue; // sudah cukup
+    if (eligibleByCluster[c] === 0) continue; // pool exhausted/empty — terima yang ada
+    return false; // masih bisa nambah, jangan stop dulu
+  }
+  return true;
+}
+
+/** Min items per cluster — used as PICKER bias (mulai prioritize cluster ini). */
 const MIN_PER_CLUSTER = 2;
+
+/**
+ * Min items per cluster — used as STOP condition guard. Coverage tidak boleh
+ * stop sebelum tiap cluster (yang punya items eligible di pool) punya >= 4 items.
+ * Mencegah cluster A=5 noise → false-positive remediasi (kasus high_performer_smp_8
+ * di run F0kyIpJrxVuWQb4VTc1J: 5 items di K8, 2 benar = 40% accuracy salah klasifikasi
+ * COMPREHENSIVE padahal anak high performer).
+ */
+const MIN_PER_CLUSTER_RELIABLE = 4;
 
 /**
  * Hitung cluster usage dari state.responses + state.pool (resolve item → cluster).
@@ -286,15 +348,17 @@ export function submitCoverageResponse(
     done = true;
     stopReason = "pool_empty";
   } else if (n >= COVERAGE_MIN_ITEMS && newEstimate.se < COVERAGE_SE_THRESHOLD) {
-    // SE threshold — hanya berlaku kalau quota juga terpenuhi
+    // SE threshold — hanya berlaku kalau quota AREA + CLUSTER juga terpenuhi.
+    // Cluster quota guard mencegah stop saat cluster A masih sample kecil
+    // (false-positive remediasi karena noise).
     const tempState = { ...state, areaUsed: newAreaUsed };
-    if (quotaTerpenuhi(tempState)) {
+    if (quotaTerpenuhi(tempState) && quotaClusterTerpenuhi(tempState, newResponses, newUsed)) {
       done = true;
       stopReason = "se_threshold";
     }
   } else if (n >= COVERAGE_MIN_ITEMS) {
     const tempState = { ...state, areaUsed: newAreaUsed };
-    if (quotaTerpenuhi(tempState, 3)) {
+    if (quotaTerpenuhi(tempState, 3) && quotaClusterTerpenuhi(tempState, newResponses, newUsed)) {
       done = true;
       stopReason = "quota_full";
     }
