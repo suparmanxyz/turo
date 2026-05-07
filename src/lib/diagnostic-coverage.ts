@@ -84,6 +84,12 @@ export type CoverageState = {
   thetaByArea: Map<AreaMatematika, ThetaEstimate>;
   /** Bab yang sudah dipelajari user — untuk scoping cluster A. Null = treat all exposed. */
   babsExposed?: import("@/lib/bab-exposure").BabsExposedMap;
+  /**
+   * User profile (jenjang + kelas). Diset di init untuk enable cluster-aware
+   * picking (force min items per cluster A/B/C).
+   */
+  userJenjang?: JenjangResmi;
+  userKelas?: number;
   done: boolean;
   stopReason?: "se_threshold" | "max_items" | "pool_empty" | "quota_full";
 };
@@ -98,6 +104,7 @@ export async function initCoverage(
   prior?: LocatorResult,
   modeKurikulum: import("@/types").ModeKurikulumLegacy = "comprehensive",
   babsExposed?: import("@/lib/bab-exposure").BabsExposedMap,
+  userProfile?: { jenjang: JenjangResmi; kelas: number },
 ): Promise<CoverageState> {
   const pool = await itemsForJalur(jalur, modeKurikulum);
   const initialEstimate: ThetaEstimate = prior
@@ -123,6 +130,8 @@ export async function initCoverage(
     areaUsed,
     thetaByArea: new Map(),
     babsExposed,
+    userJenjang: userProfile?.jenjang,
+    userKelas: userProfile?.kelas,
     done: false,
   };
 }
@@ -136,18 +145,80 @@ function quotaTerpenuhi(state: CoverageState, minPerArea: number = 2): boolean {
   return true;
 }
 
-/** Pick item berikut — content balanced. */
+/** Min items per cluster supaya scoring reliable. */
+const MIN_PER_CLUSTER = 2;
+
+/**
+ * Hitung cluster usage dari state.responses + state.pool (resolve item → cluster).
+ * Return Map<Cluster, count>.
+ */
+function countClusterUsage(state: CoverageState): Record<Cluster, number> {
+  const counts: Record<Cluster, number> = { A: 0, B: 0, C: 0 };
+  if (!state.userJenjang || state.userKelas === undefined) return counts;
+  const foundationTarget = pickFoundationTarget(state.userJenjang, state.userKelas);
+  const itemMap = new Map(state.pool.map((it) => [it.id, it]));
+  for (const r of state.responses) {
+    const it = itemMap.get(r.itemId);
+    if (!it) continue;
+    const cluster = classifyItemCluster(
+      it.subMateriKode, it.kelas, state.userJenjang, state.userKelas, foundationTarget,
+    );
+    // Skip cluster A items yang belum exposed (konsisten dengan scoring di finalizeCoverage)
+    if (cluster === "A" && state.babsExposed && !isSubMateriExposed(state.babsExposed, it.subMateriKode)) {
+      continue;
+    }
+    counts[cluster]++;
+  }
+  return counts;
+}
+
+/** Resolve cluster untuk single item (helper untuk picker). */
+function resolveItemCluster(state: CoverageState, item: ItemBankEntry): Cluster | null {
+  if (!state.userJenjang || state.userKelas === undefined) return null;
+  const foundationTarget = pickFoundationTarget(state.userJenjang, state.userKelas);
+  const cluster = classifyItemCluster(
+    item.subMateriKode, item.kelas, state.userJenjang, state.userKelas, foundationTarget,
+  );
+  // Cluster A items belum exposed di-treat null (skip dari scoping)
+  if (cluster === "A" && state.babsExposed && !isSubMateriExposed(state.babsExposed, item.subMateriKode)) {
+    return null;
+  }
+  return cluster;
+}
+
+/** Pick item berikut — content balanced + cluster quota bias. */
 export function pickNextCoverageItem(state: CoverageState): ItemBankEntry | null {
   const targets = AREA_TARGETS[state.jalur];
   // Filter ke area yang ada di target jalur (skip area irrelevant) +
   // exclude items dari bab yang BELUM dipelajari user (no point testing material
   // yang belum diajarkan — anak salah ≠ remediasi, tapi belum exposed).
-  const eligible = state.pool.filter((it) =>
+  const allEligible = state.pool.filter((it) =>
     targets.has(it.area)
     && !state.used.has(it.id)
     && (!state.babsExposed || isSubMateriExposed(state.babsExposed, it.subMateriKode))
   );
-  if (eligible.length === 0) return null;
+  if (allEligible.length === 0) return null;
+
+  // CLUSTER QUOTA BIAS: kalau user profile tersedia, prioritize cluster yang
+  // belum mencapai MIN_PER_CLUSTER. Mencegah cluster A=0 / C=0 issue (yang
+  // bikin path routing salah klasifikasi sebagai INTENSIVE false-positive).
+  let eligible = allEligible;
+  if (state.userJenjang && state.userKelas !== undefined) {
+    const clusterUsage = countClusterUsage(state);
+    const underQuotaClusters: Cluster[] = (["A", "B", "C"] as Cluster[])
+      .filter((c) => clusterUsage[c] < MIN_PER_CLUSTER);
+
+    if (underQuotaClusters.length > 0) {
+      // Filter ke items yang masuk cluster under-quota (kalau ada).
+      const quotaItems = allEligible.filter((it) => {
+        const c = resolveItemCluster(state, it);
+        return c !== null && underQuotaClusters.includes(c);
+      });
+      // Hanya bias kalau ada items eligible di cluster under-quota.
+      // Kalau tidak ada (mis. cluster C empty pool), fallback ke all eligible.
+      if (quotaItems.length > 0) eligible = quotaItems;
+    }
+  }
 
   const irtCandidates = toIrtItems(eligible);
   const picked = selectBalancedItem(
@@ -263,7 +334,16 @@ export type ClusterScore = {
   itemsAnswered: number;
   itemsCorrect: number;
   accuracy: number;
-  status: "siap" | "review" | "remediasi";
+  /**
+   * Status cluster:
+   * - siap: accuracy ≥ threshold
+   * - review: accuracy mendekati threshold (80-99% dari target)
+   * - remediasi: accuracy jauh di bawah threshold
+   * - data_kurang: items answered = 0 (cluster tidak di-test di Coverage,
+   *   misal cluster A untuk anak yang belum exposed bab kelas user, atau
+   *   cluster C untuk jalur yang pool tidak include foundation items)
+   */
+  status: "siap" | "review" | "remediasi" | "data_kurang";
   threshold: number;
 };
 
@@ -340,12 +420,18 @@ function buildClusterScores(
   return (["A", "B", "C"] as Cluster[]).map((cluster) => {
     const b = buckets[cluster];
     const accuracy = b.ans > 0 ? b.cor / b.ans : 0;
+    // Distinguish "no data" dari "lemah". Kalau itemsAnswered = 0, status =
+    // data_kurang — engine tidak tahu cluster ini lemah/kuat. Path routing
+    // akan skip cluster ini dari kalkulasi.
+    const status: ClusterScore["status"] = b.ans === 0
+      ? "data_kurang"
+      : classifyClusterStatus(accuracy, cluster, thresholds);
     return {
       cluster,
       itemsAnswered: b.ans,
       itemsCorrect: b.cor,
       accuracy,
-      status: classifyClusterStatus(accuracy, cluster, thresholds),
+      status,
       threshold: thresholds[cluster],
     };
   });
@@ -410,9 +496,19 @@ export async function finalizeCoverage(
       state.responses, state.pool, userProfile.jenjang, userProfile.kelas,
       adaptiveThresholds, state.babsExposed,
     );
-    const accA = clusterScores.find((s) => s.cluster === "A")?.accuracy ?? 0;
-    const accB = clusterScores.find((s) => s.cluster === "B")?.accuracy ?? 0;
-    const accC = clusterScores.find((s) => s.cluster === "C")?.accuracy ?? 0;
+    // Untuk routing: kalau cluster status data_kurang, pakai threshold sebagai
+    // proxy "neutral" (anggap pass) supaya tidak mis-classify ke INTENSIVE.
+    // Reasoning: tidak ada data berarti tidak bisa simpulkan "lemah". Routing
+    // pakai data dari cluster yang ada saja.
+    const getAcc = (c: Cluster): number => {
+      const cs = clusterScores!.find((s) => s.cluster === c);
+      if (!cs) return 0;
+      if (cs.status === "data_kurang") return adaptiveThresholds[c]; // neutral = threshold
+      return cs.accuracy;
+    };
+    const accA = getAcc("A");
+    const accB = getAcc("B");
+    const accC = getAcc("C");
     pathRoute = routePath(accA, accB, accC, adaptiveThresholds);
   }
 

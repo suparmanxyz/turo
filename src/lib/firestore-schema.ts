@@ -176,7 +176,7 @@ export type DiagnosticSessionDoc = {
     seGlobal: number;
     itemsUsed: number;
     perArea: { area: AreaMatematika; theta: number; se: number; status: string; itemsAnswered?: number; itemsCorrect?: number; accuracy?: number }[];
-    clusterScores?: { cluster: "A" | "B" | "C"; itemsAnswered: number; itemsCorrect: number; accuracy: number; status: "siap" | "review" | "remediasi"; threshold: number }[];
+    clusterScores?: { cluster: "A" | "B" | "C"; itemsAnswered: number; itemsCorrect: number; accuracy: number; status: "siap" | "review" | "remediasi" | "data_kurang"; threshold: number }[];
     pathRoute?: { path: "ADVANCED" | "STANDARD" | "COMPREHENSIVE" | "INTENSIVE"; duration: string; fokus: string };
     areaSuspect: AreaMatematika[];
   };

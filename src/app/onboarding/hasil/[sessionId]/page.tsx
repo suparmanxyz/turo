@@ -149,8 +149,9 @@ export default function OnboardingHasilPage(props: { params: Promise<{ sessionId
                     <span className={`text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase ${
                       cs.status === "siap" ? "bg-emerald-100 text-emerald-700" :
                       cs.status === "review" ? "bg-amber-100 text-amber-700" :
+                      cs.status === "data_kurang" ? "bg-slate-100 text-slate-600" :
                       "bg-rose-100 text-rose-700"
-                    }`}>{cs.status}</span>
+                    }`}>{cs.status === "data_kurang" ? "data —" : cs.status}</span>
                   </div>
                   <div className="text-2xl font-bold">
                     {cs.itemsAnswered > 0 ? `${Math.round(cs.accuracy * 100)}%` : "—"}

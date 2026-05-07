@@ -385,16 +385,62 @@ export async function itemsForSubMateri(kode: string): Promise<ItemBankEntry[]> 
   return snap.docs.map((d) => d.data() as ItemBankEntry);
 }
 
-/** Items per jalur (e.g. "smp"). Optional filter mode kurikulum 3-mode + legacy "full". */
+/**
+ * Items per jalur (e.g. "smp"). Optional filter mode kurikulum 3-mode + legacy "full".
+ *
+ * OPSI B (2026-05-07): pool sekarang TIDAK hanya items dengan tag jalur =
+ * userJalur, tapi JUGA items dari sub yang ada di foundation_set untuk
+ * jenjang user. Tujuan: Coverage cluster C bisa di-test di Coverage stage,
+ * bukan cuma Deep. Sebelumnya pool jalur=smp = SMP K7-K9 only, foundation
+ * SD never tested → cluster C selalu 0 items (false-negative remediasi).
+ *
+ * Pool composition sekarang:
+ *   - Items dengan tag jalur = userJalur (existing)
+ *   - + Items dari sub-sub di foundation_set untuk jenjang user (BARU)
+ *
+ * Foundation set per jalur:
+ *   - smp → smp_target (SD K4-K6 essentials)
+ *   - sma-reguler → sma_target (SD + SMP K7-K9 essentials)
+ *   - sma-utbk → sma_target (sama, plus mungkin extra UTBK kodes)
+ *   - sd-* → tidak load extra (foundation = kelas anak sendiri sudah di pool)
+ */
 export async function itemsForJalur(
   jalur: JalurDiagnostik,
   modeKurikulum: import("@/types").ModeKurikulumLegacy = "comprehensive",
 ): Promise<ItemBankEntry[]> {
-  const snap = await getAdminDb()
+  const db = getAdminDb();
+
+  // 1. Pool utama — items dengan tag jalur = userJalur
+  const mainSnap = await db
     .collection(COLLECTION)
     .where("jalur", "array-contains", jalur)
     .get();
-  const items = snap.docs.map((d) => d.data() as ItemBankEntry);
+  const items = mainSnap.docs.map((d) => d.data() as ItemBankEntry);
+  const seen = new Set(items.map((it) => it.id));
+
+  // 2. Pool foundation tambahan — items dari sub yang ada di foundation_set
+  //    untuk jenjang user. SD jalur tidak load extra (foundation di kelas
+  //    anak sendiri sudah di pool utama).
+  const foundationTarget = jalur === "smp" ? "smp"
+    : jalur === "sma-reguler" || jalur === "sma-utbk" ? "sma"
+    : null;
+
+  if (foundationTarget) {
+    const { getFoundationKodes } = await import("@/lib/foundation-set");
+    const foundationKodes = getFoundationKodes(foundationTarget);
+    // Fetch items dari sub foundation. Skip kalau sub kode-nya sudah in jalur user
+    // (e.g. SD high foundation untuk SMP user — items SD.K6.x mungkin sudah ada
+    // kalau pernah di-tag dual jalur).
+    const fetchPromises = foundationKodes.map((k) => itemsForSubMateri(k));
+    const foundationItems = (await Promise.all(fetchPromises)).flat();
+    for (const it of foundationItems) {
+      if (!seen.has(it.id)) {
+        items.push(it);
+        seen.add(it.id);
+      }
+    }
+  }
+
   // Normalize legacy "full" → "comprehensive"
   const mode = modeKurikulum === "full" ? "comprehensive" : modeKurikulum;
   if (mode === "comprehensive") return items;

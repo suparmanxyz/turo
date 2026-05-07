@@ -119,7 +119,10 @@ async function rehydrateLocator(state: OnboardingState): Promise<LocatorState> {
 }
 
 async function rehydrateCoverage(state: OnboardingState): Promise<CoverageState> {
-  let s = await initCoverage(state.jalur, state.hasilLocator, state.modeKurikulum, state.babsExposed);
+  const userProfile = state.kelas !== undefined
+    ? { jenjang: state.jenjang, kelas: state.kelas }
+    : undefined;
+  let s = await initCoverage(state.jalur, state.hasilLocator, state.modeKurikulum, state.babsExposed, userProfile);
   // Filter responses yang BUKAN bagian dari Locator (carry-over sudah di-init)
   const carriedIds = new Set(state.hasilLocator?.responses.map((r) => r.itemId) ?? []);
   const newResponses = state.responses.filter((r) => !carriedIds.has(r.itemId));
