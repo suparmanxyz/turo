@@ -201,8 +201,8 @@ function LandingPage() {
                 </a>
               </div>
               <div className="lv-hero-trust">
-                <div className="lv-stars">★★★★★</div>
-                <div>500+ keluarga sudah memulai dengan turo</div>
+                <span style={{ fontSize: "1.1em" }}>🎓</span>
+                <div>SD · SMP · SMA · UTBK · Olimpiade — sesuai Kurikulum Merdeka</div>
               </div>
             </div>
             <div className="lv-hero-visual">
@@ -211,10 +211,10 @@ function LandingPage() {
                 <span style={{ color: "var(--lv-emerald)" }}>✓</span> Kelas estimasi: 7
               </div>
               <div className="lv-floating-chip lv-chip-2">
-                <span style={{ color: "var(--lv-violet)" }}>🌌</span> Spektrum: 78%
+                <span style={{ color: "var(--lv-violet)" }}>🌌</span> Kuat: Penalaran Abstrak
               </div>
               <div className="lv-floating-chip lv-chip-3">
-                <span style={{ color: "var(--lv-amber)" }}>⚡</span> 3 sub remediasi
+                <span style={{ color: "var(--lv-amber)" }}>⚡</span> Perlu: Pemecahan Masalah
               </div>
             </div>
           </div>
@@ -226,24 +226,24 @@ function LandingPage() {
         <div className="lv-container">
           <div className="lv-trust-row">
             <div className="lv-trust-stat">
-              <div className="lv-trust-stat-num">500+</div>
-              <div className="lv-trust-stat-label">Keluarga Aktif</div>
+              <div className="lv-trust-stat-num">3</div>
+              <div className="lv-trust-stat-label">Jenjang (SD–SMA)</div>
             </div>
             <div className="lv-trust-stat">
-              <div className="lv-trust-stat-num">2.400+</div>
-              <div className="lv-trust-stat-label">Soal Terkurasi</div>
+              <div className="lv-trust-stat-num">12</div>
+              <div className="lv-trust-stat-label">Kelas (K1–K12)</div>
+            </div>
+            <div className="lv-trust-stat">
+              <div className="lv-trust-stat-num">3</div>
+              <div className="lv-trust-stat-label">Jalur Belajar</div>
+            </div>
+            <div className="lv-trust-stat">
+              <div className="lv-trust-stat-num">106</div>
+              <div className="lv-trust-stat-label">Bab</div>
             </div>
             <div className="lv-trust-stat">
               <div className="lv-trust-stat-num">472</div>
-              <div className="lv-trust-stat-label">Sub-Materi SD–SMA</div>
-            </div>
-            <div className="lv-trust-stat">
-              <div className="lv-trust-stat-num">5</div>
-              <div className="lv-trust-stat-label">Dimensi Spektrum</div>
-            </div>
-            <div className="lv-trust-stat">
-              <div className="lv-trust-stat-num">7 hari</div>
-              <div className="lv-trust-stat-label">Trial Gratis</div>
+              <div className="lv-trust-stat-label">Sub-Bab</div>
             </div>
           </div>
         </div>
