@@ -319,9 +319,34 @@ export async function metadataCoverage(subMateriKode: string): Promise<{
 
 const COLLECTION = "item_bank";
 
+// In-memory cache untuk pool jalur — paling sering di-call (rehydrate setiap
+// /api/onboarding/answer panggil itemsForJalur). TTL 5 menit cukup karena item
+// bank jarang berubah; kalau seeding/edit, invalidate eksplisit.
+// Vercel serverless function instance lifetime ~5-15 menit, jadi cache effective.
+const POOL_CACHE = new Map<string, { items: ItemBankEntry[]; ts: number }>();
+const POOL_CACHE_TTL_MS = 5 * 60 * 1000;
+
+// In-memory cache untuk loadItem(id) — per-item lookup juga sering (validate
+// answer + replay rehydrate). TTL 1 menit (lebih pendek karena calibration
+// counter sering bump).
+const ITEM_CACHE = new Map<string, { item: ItemBankEntry | null; ts: number }>();
+const ITEM_CACHE_TTL_MS = 60 * 1000;
+
+/** Invalidate pool cache — call setelah seeding/edit yang ubah set items. */
+export function invalidatePoolCache(): void {
+  POOL_CACHE.clear();
+}
+
+/** Invalidate single item cache. */
+export function invalidateItemCache(id: string): void {
+  ITEM_CACHE.delete(id);
+}
+
 /** Simpan item ke Firestore. Overwrite by id. */
 export async function saveItem(item: ItemBankEntry): Promise<void> {
   await getAdminDb().collection(COLLECTION).doc(item.id).set(item);
+  invalidatePoolCache();
+  invalidateItemCache(item.id);
 }
 
 /** Bulk save — pakai writeBatch (max 500 per batch). */
@@ -334,12 +359,18 @@ export async function saveItemsBatch(items: ItemBankEntry[]): Promise<void> {
     }
     await batch.commit();
   }
+  invalidatePoolCache();
+  for (const it of items) invalidateItemCache(it.id);
 }
 
-/** Load item by id. */
+/** Load item by id (cached 60s). */
 export async function loadItem(id: string): Promise<ItemBankEntry | null> {
+  const cached = ITEM_CACHE.get(id);
+  if (cached && Date.now() - cached.ts < ITEM_CACHE_TTL_MS) return cached.item;
   const snap = await getAdminDb().collection(COLLECTION).doc(id).get();
-  return snap.exists ? (snap.data() as ItemBankEntry) : null;
+  const item = snap.exists ? (snap.data() as ItemBankEntry) : null;
+  ITEM_CACHE.set(id, { item, ts: Date.now() });
+  return item;
 }
 
 /** Increment calibration counter setelah response masuk (best-effort, non-blocking). */
@@ -370,6 +401,9 @@ export async function updateIrtParams(
   if (params.c !== undefined) patch.c = params.c;
   if (params.calibrationN !== undefined) patch.calibrationN = params.calibrationN;
   await getAdminDb().collection(COLLECTION).doc(id).update(patch);
+  // IRT params (b, a) ikut ter-cache di pool — invalidate supaya engine pakai value baru.
+  invalidatePoolCache();
+  invalidateItemCache(id);
 }
 
 // ============================================================
@@ -408,6 +442,12 @@ export async function itemsForJalur(
   jalur: JalurDiagnostik,
   modeKurikulum: import("@/types").ModeKurikulumLegacy = "comprehensive",
 ): Promise<ItemBankEntry[]> {
+  // Cache check: pool jarang berubah, di-call setiap rehydrate (per answer).
+  // Sebelum cache: ~3000+ item reads per session. Setelah cache: ~200 sekali.
+  const cacheKey = `${jalur}:${modeKurikulum}`;
+  const cached = POOL_CACHE.get(cacheKey);
+  if (cached && Date.now() - cached.ts < POOL_CACHE_TTL_MS) return cached.items;
+
   const db = getAdminDb();
 
   // 1. Pool utama — items dengan tag jalur = userJalur
@@ -443,14 +483,20 @@ export async function itemsForJalur(
 
   // Normalize legacy "full" → "comprehensive"
   const mode = modeKurikulum === "full" ? "comprehensive" : modeKurikulum;
-  if (mode === "comprehensive") return items;
-  if (mode === "strict") {
+  let result: ItemBankEntry[];
+  if (mode === "comprehensive") {
+    result = items;
+  } else if (mode === "strict") {
     const { isStrict } = await import("@/data/peta-resmi");
-    return items.filter((it) => isStrict(it.subMateriKode));
+    result = items.filter((it) => isStrict(it.subMateriKode));
+  } else {
+    // accelerated
+    const { isAccelerated } = await import("@/data/peta-resmi");
+    result = items.filter((it) => isAccelerated(it.subMateriKode));
   }
-  // accelerated
-  const { isAccelerated } = await import("@/data/peta-resmi");
-  return items.filter((it) => isAccelerated(it.subMateriKode));
+
+  POOL_CACHE.set(cacheKey, { items: result, ts: Date.now() });
+  return result;
 }
 
 /** Items per (jenjang, kelas) — untuk locator stage. */
