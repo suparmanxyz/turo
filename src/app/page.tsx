@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import "./landing-v3.css";
 import {
   DAFTAR_MATERI,
   materiOlimpiadePerJenjang,
@@ -29,362 +30,8 @@ import {
 } from "@/lib/kategori-tema";
 
 // ============================================================
-// Landing — pure marketing, CTA → /login
+// Pricing types (preserved)
 // ============================================================
-
-function FloatingMath() {
-  const items = [
-    { t: "x²+y²=r²", c: "top-[12%] left-[6%]", a: "animate-float-slow", s: "text-3xl" },
-    { t: "∑", c: "top-[20%] right-[10%]", a: "animate-float-mid", s: "text-6xl" },
-    { t: "∫", c: "top-[55%] left-[12%]", a: "animate-float-fast", s: "text-5xl" },
-    { t: "π", c: "bottom-[18%] right-[14%]", a: "animate-float-slow", s: "text-7xl" },
-    { t: "√n", c: "top-[40%] right-[28%]", a: "animate-float-mid", s: "text-3xl" },
-    { t: "∞", c: "bottom-[30%] left-[28%]", a: "animate-float-fast", s: "text-4xl" },
-    { t: "θ", c: "top-[70%] right-[6%]", a: "animate-float-slow", s: "text-4xl" },
-  ];
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {items.map((it, i) => (
-        <span
-          key={i}
-          className={`absolute font-serif italic text-white/15 ${it.c} ${it.a} ${it.s}`}
-          style={{ animationDelay: `${i * 0.7}s` }}
-        >
-          {it.t}
-        </span>
-      ))}
-      <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-cyan-400/30 blur-3xl animate-blob" />
-      <div className="absolute bottom-[-6rem] right-[-6rem] h-96 w-96 rounded-full bg-emerald-400/20 blur-3xl animate-blob" style={{ animationDelay: "4s" }} />
-    </div>
-  );
-}
-
-function LandingHeader() {
-  return (
-    <header className="absolute top-0 inset-x-0 z-20">
-      <div className="mx-auto max-w-6xl flex items-center justify-between px-6 sm:px-10 py-5">
-        <div className="flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/15 backdrop-blur ring-1 ring-white/30 text-white font-bold shadow-lg">
-            t
-          </span>
-          <span className="font-extrabold text-lg tracking-tight text-white">
-            turo<span className="text-teal-300">.</span>
-          </span>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link
-            href="/login"
-            className="text-sm text-white/85 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition font-medium"
-          >
-            Masuk
-          </Link>
-          <Link
-            href="/login?mode=register"
-            className="text-sm bg-white text-teal-700 hover:bg-teal-50 px-4 py-1.5 rounded-lg font-semibold shadow-md hover:shadow-lg transition"
-          >
-            Daftar gratis
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-}
-
-function HeroSection() {
-  return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-cyan-900 text-white">
-      <div className="bg-grid-dark absolute inset-0 opacity-40" />
-      <FloatingMath />
-      <LandingHeader />
-
-      <div className="relative mx-auto max-w-6xl px-6 sm:px-10 pt-28 sm:pt-36 pb-20 sm:pb-28">
-        <div className="max-w-3xl animate-rise">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-3 py-1 text-xs font-medium text-teal-50 ring-1 ring-white/20 mb-6">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 animate-pulse" />
-            mainmaku.id · belajar matematika adaptif
-          </div>
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
-            Bukan tahu <span className="text-teal-300">apa</span><br />
-            tapi <span className="text-cyan-300">bagaimana</span> anak berpikir.
-          </h1>
-          <p className="text-lg sm:text-xl text-teal-50/90 mb-8 leading-relaxed max-w-2xl">
-            <strong>Peta Spektrum Matematis</strong> Turo ungkap 5 dimensi cara berpikir anak Anda dalam 15-30 menit.
-            Diagnostik adaptif IRT + sistem otomatis arahkan ke topik yang DIBUTUHKAN — SD sampai SNBT &amp; olimpiade.
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/login?mode=register"
-              className="inline-flex items-center gap-2 bg-white text-teal-700 hover:bg-teal-50 px-6 py-3.5 rounded-xl font-semibold shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all"
-            >
-              Coba 7 hari gratis →
-            </Link>
-            <Link
-              href="#harga"
-              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur ring-1 ring-white/30 hover:bg-white/20 text-white px-6 py-3.5 rounded-xl font-semibold transition"
-            >
-              Lihat harga
-            </Link>
-          </div>
-
-          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-teal-50/80">
-            <span className="flex items-center gap-1.5">✓ Trial 7 hari tanpa CC</span>
-            <span className="flex items-center gap-1.5">✓ Diagnostik adaptif IRT</span>
-            <span className="flex items-center gap-1.5">✓ Family pack (3 anak)</span>
-            <span className="flex items-center gap-1.5">✓ SD · SMP · SMA · SNBT · Olimpiade</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="relative h-12 sm:h-16 bg-gradient-to-b from-transparent to-background" />
-    </section>
-  );
-}
-
-function JalurSection() {
-  const jalur: { ku: KategoriUtama; emoji: string }[] = [
-    { ku: "reguler", emoji: "🏫" },
-    { ku: "snbt", emoji: "🎓" },
-    { ku: "olimpiade", emoji: "🏆" },
-  ];
-  return (
-    <section className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
-      <div className="text-center mb-10 sm:mb-12 animate-rise">
-        <div className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong mb-3">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-          tiga jalur belajar
-        </div>
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-          Pilih sesuai targetmu<span className="text-brand">.</span>
-        </h2>
-        <p className="text-muted mt-2 max-w-xl mx-auto">
-          Kurikulum sekolah, persiapan SNBT, atau latihan olimpiade — masing-masing punya peta dan soal yang berbeda.
-        </p>
-      </div>
-
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {jalur.map(({ ku, emoji }, idx) => {
-          const t = TEMA_KATEGORI_UTAMA[ku];
-          const Icon = t.Icon;
-          const Orn = t.Ornament;
-          return (
-            <div
-              key={ku}
-              style={{ animationDelay: `${idx * 80}ms` }}
-              className={`group relative overflow-hidden rounded-2xl p-6 text-white ${t.gradient} ${t.shadow} shadow-lg animate-pop`}
-            >
-              <div className="absolute inset-0 text-white"><Orn /></div>
-              <div className="relative flex items-start justify-between">
-                <div className="h-14 w-14 rounded-xl bg-white/20 backdrop-blur p-3 text-white ring-1 ring-white/30">
-                  <Icon />
-                </div>
-                <span className="text-2xl">{emoji}</span>
-              </div>
-              <h3 className="relative font-bold text-2xl mt-4">{KATEGORI_UTAMA_LABEL[ku]}</h3>
-              <p className="relative text-sm text-white/85 mt-1.5 leading-relaxed">
-                {KATEGORI_UTAMA_DESKRIPSI[ku]}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function SpektrumSection() {
-  const dimensi = [
-    { e: "🧠", t: "Penalaran Abstrak", w: "30%", d: "Pengenalan pola, manipulasi simbolik, pemahaman konsep, penalaran logis", color: "from-violet-500 to-purple-600" },
-    { e: "🎯", t: "Pemecahan Masalah", w: "25%", d: "Soal multi-langkah, konsistensi analitis, pemilihan strategi, efisiensi solusi", color: "from-blue-500 to-indigo-600" },
-    { e: "💬", t: "Komunikasi Matematis", w: "20%", d: "Kualitas penalaran, kejelasan penjelasan, pemrosesan bahasa matematis, alur logis", color: "from-emerald-500 to-teal-600" },
-    { e: "💪", t: "Ketekunan & Fokus", w: "15%", d: "Konsistensi waktu, tingkat penyelesaian, pemeliharaan usaha, perhatian detail", color: "from-amber-500 to-orange-600" },
-    { e: "🎓", t: "Kepercayaan Diri", w: "10%", d: "Konsistensi performa, manajemen risiko, akurasi penilaian diri, perilaku adaptif", color: "from-pink-500 to-rose-600" },
-  ];
-  return (
-    <section className="relative bg-gradient-to-br from-violet-50 via-indigo-50 to-purple-50 border-y border-violet-200/70">
-      <div className="bg-grid absolute inset-0 opacity-30" />
-      <div className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
-        <div className="text-center mb-10 sm:mb-12 animate-rise">
-          <div className="inline-flex items-center gap-2 rounded-full bg-violet-100 text-violet-700 px-3 py-1 text-xs font-medium mb-3">
-            <span className="h-1.5 w-1.5 rounded-full bg-violet-600 animate-pulse" />
-            ✨ keunggulan eksklusif Turo
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
-            🌌 Peta Spektrum Matematis<span className="text-violet-600">.</span>
-          </h2>
-          <p className="text-lg text-violet-900/80 mt-3 max-w-2xl mx-auto">
-            Pertama di Indonesia. Bukan cuma skor materi — tapi profil <strong>bagaimana</strong> anak Anda berpikir matematis dalam 5 dimensi.
-          </p>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-8">
-          {dimensi.map((d, i) => (
-            <div
-              key={d.t}
-              style={{ animationDelay: `${i * 80}ms` }}
-              className="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-md hover:shadow-xl border border-violet-200 hover:-translate-y-1 transition-all duration-300 animate-pop"
-            >
-              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${d.color}`} />
-              <div className="text-3xl mb-2">{d.e}</div>
-              <h3 className="font-bold text-base mb-1 leading-tight">{d.t}</h3>
-              <div className="text-xs text-violet-600 font-bold mb-2">Bobot {d.w}</div>
-              <p className="text-xs text-slate-600 leading-relaxed">{d.d}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="rounded-2xl bg-white border-2 border-violet-300 p-6 sm:p-8">
-          <div className="grid sm:grid-cols-3 gap-6 items-center">
-            <div className="sm:col-span-2">
-              <h3 className="text-xl sm:text-2xl font-bold mb-2">5 Level per Dimensi</h3>
-              <p className="text-sm text-slate-600 mb-3">
-                Setiap dimensi dipetakan ke 5 level dengan interpretasi spesifik &amp; rekomendasi actionable:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500 text-white font-semibold">MASTERY</span>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold">PROFICIENT</span>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-sky-100 text-sky-700 font-semibold">DEVELOPING</span>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 font-semibold">EMERGING</span>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 font-semibold">BEGINNING</span>
-              </div>
-              <p className="text-xs text-slate-500 mt-3">
-                + <strong>Trend over time</strong> dari sesi ke sesi · + <strong>Comparative cohort</strong> bandingkan dengan teman se-kelas
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl mb-2">📊</div>
-              <Link
-                href="/login?mode=register"
-                className="inline-block bg-violet-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-violet-700 transition shadow-md"
-              >
-                Coba Sekarang
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FiturSection() {
-  const fitur = [
-    {
-      e: "🌌",
-      t: "Peta Spektrum Matematis",
-      d: "Bukan cuma tahu APA yang anak kuasai, tapi BAGAIMANA cara dia berpikir matematis. 5 dimensi: Penalaran Abstrak, Pemecahan Masalah, Komunikasi, Ketekunan, & Kepercayaan Diri.",
-    },
-    {
-      e: "🎯",
-      t: "Diagnostik adaptif IRT",
-      d: "4 tahap (Locator → Coverage → Deep → Drilling) tentukan level kelas, area lemah, dan path belajar yang tepat dalam 15-30 menit.",
-    },
-    {
-      e: "🛣️",
-      t: "Path Routing 4-tier",
-      d: "Sistem kasih jalur drilling sesuai hasil: Advanced (verifikasi), Standard (gap repair), Comprehensive (foundation rebuild), atau Intensive (foundation emergency).",
-    },
-    {
-      e: "🗺️",
-      t: "Peta prasyarat 472 sub",
-      d: "Tahu pasti sub-materi mana yang perlu diperbaiki sebelum lanjut. Pohon prasyarat dari SD K1 sampai SMA K12 dengan relasi prerequisite.",
-    },
-    {
-      e: "🤖",
-      t: "Bantuan visual AI",
-      d: "Penjelasan bertahap, plot fungsi, hint progresif. AI bantu sampai paham, bukan sekedar kasih jawaban.",
-    },
-    {
-      e: "🏷️",
-      t: "Label kurikulum cerdas",
-      d: "Tiap topik ditandai 📘 Inti (CP 046), 🌉 Pendukung, 🚀 Tantangan, atau 🎯 UTBK — anak tahu mana yang prioritas.",
-    },
-    {
-      e: "👨‍👩‍👧",
-      t: "Family pack",
-      d: "Satu langganan untuk 3 anak. Cocok untuk keluarga dengan beberapa anak sekolah — jauh lebih hemat dari per-akun.",
-    },
-    {
-      e: "📈",
-      t: "Trend belajar over time",
-      d: "Lihat progress 5 dimensi berpikir matematis dari sesi ke sesi. Bandingkan anak Anda dengan cohort kelas yang sama.",
-    },
-  ];
-  return (
-    <section className="relative bg-white border-y border-slate-200/70">
-      <div className="bg-grid absolute inset-0 opacity-50" />
-      <div className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
-        <div className="text-center mb-10 sm:mb-12 animate-rise">
-          <div className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong mb-3">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            kenapa turo
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Bukan sekadar bank soal<span className="text-brand">.</span>
-          </h2>
-          <p className="text-muted mt-2 max-w-xl mx-auto">
-            Sistem yang tahu kamu di mana, mau ke mana, dan jalur tercepatnya seperti apa.
-          </p>
-        </div>
-
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {fitur.map((f, i) => (
-            <div
-              key={f.t}
-              style={{ animationDelay: `${i * 60}ms` }}
-              className="rounded-2xl bg-white p-6 border border-slate-200 hover:border-brand hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 animate-pop"
-            >
-              <div className="text-3xl mb-3">{f.e}</div>
-              <h3 className="font-semibold text-lg text-foreground">{f.t}</h3>
-              <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">{f.d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function CaraKerjaSection() {
-  const langkah = [
-    { n: "1", t: "Daftar & coba 7 hari gratis", d: "Sign up dengan email — tidak perlu kartu kredit. Akses penuh semua fitur Premium selama trial." },
-    { n: "2", t: "Diagnostik 4 tahap", d: "Locator → Coverage → Deep → Drilling adaptif (~15-30 menit). Sistem tahu posisi anak Anda dengan presisi." },
-    { n: "3", t: "Ikuti path tailored", d: "Drilling Engine kasih path Advanced/Standard/Comprehensive/Intensive sesuai hasil. Latihan fokus, naik level cepat." },
-  ];
-  return (
-    <section className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
-      <div className="text-center mb-10 sm:mb-12 animate-rise">
-        <div className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong mb-3">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-          cara kerja
-        </div>
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-          Tiga langkah, kamu mulai.
-        </h2>
-      </div>
-
-      <div className="grid gap-5 sm:grid-cols-3">
-        {langkah.map((l, i) => (
-          <div
-            key={l.n}
-            style={{ animationDelay: `${i * 80}ms` }}
-            className="relative rounded-2xl bg-white p-6 border border-slate-200 animate-pop"
-          >
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white font-bold shadow-md shadow-teal-300/40 mb-4">
-              {l.n}
-            </div>
-            <h3 className="font-semibold text-lg">{l.t}</h3>
-            <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">{l.d}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-// ============================================================
-// Pricing — fetch live dari Firestore via /api/pricing/public
-// ============================================================
-
 type PublicPlan = {
   key: string;
   label: string;
@@ -406,205 +53,431 @@ function formatRupiah(n: number): string {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
 }
 
-function PricingSection() {
+// ============================================================
+// LANDING V3 — color block per section, AI-generated illustrations
+// ============================================================
+
+function PricingV3({ pricing }: { pricing: PublicPricing }) {
+  const trialDays = pricing.trial.durationDays;
+  const recurring = pricing.plans.filter((p) => p.recurring);
+  const oneTime = pricing.plans.filter((p) => !p.recurring);
+
+  // Featured = first family (maxUsers > 1) plan, or first plan
+  const featuredKey = recurring.find((p) => p.maxUsers > 1)?.key ?? recurring[0]?.key;
+
+  return (
+    <section className="lv-section lv-pricing-section" id="harga">
+      <div className="lv-container">
+        <div className="lv-section-header">
+          <span className="lv-section-label">Harga</span>
+          <h2 className="lv-section-title">
+            Trial {trialDays} hari gratis.<br />Tanpa kartu kredit.
+          </h2>
+          <p className="lv-section-sub">
+            Mulai diagnosa dulu. Kalau cocok, lanjut. Kalau tidak, tinggalkan tanpa biaya apapun.
+          </p>
+        </div>
+
+        <div className="lv-pricing-grid">
+          {recurring.map((plan) => {
+            const isFamily = plan.maxUsers > 1;
+            const isFeatured = plan.key === featuredKey;
+            const periodLabel =
+              plan.periodDays === 30 ? "/bulan" : plan.periodDays === 365 ? "/tahun" : `/${plan.periodDays} hari`;
+            return (
+              <div key={plan.key} className={`lv-price-card ${isFeatured ? "lv-featured" : ""}`}>
+                {isFeatured && <span className="lv-price-badge">PALING POPULER</span>}
+                <div className="lv-price-name">{plan.label}</div>
+                <div className="lv-price-tagline">{plan.description ?? (isFamily ? `Untuk ${plan.maxUsers} anak` : "Untuk 1 anak")}</div>
+                <div className="lv-price-amount">
+                  <span className="lv-num">{formatRupiah(plan.price)}</span>
+                  <span className="lv-period"> {periodLabel}</span>
+                </div>
+                <ul className="lv-price-features">
+                  <li>Diagnosa lengkap + Peta Spektrum</li>
+                  <li>Program Belajar Personal</li>
+                  <li>Soal & latihan unlimited</li>
+                  <li>Tes Kesiapan Bab on-demand</li>
+                  <li>{plan.maxUsers === 1 ? "1 akun siswa" : `${plan.maxUsers} akun anak + dashboard ortu`}</li>
+                </ul>
+                <Link
+                  href="/login?mode=register"
+                  className={`lv-btn ${isFeatured ? "lv-btn-primary" : "lv-btn-outline"} lv-price-cta`}
+                >
+                  Pilih {plan.label}
+                </Link>
+              </div>
+            );
+          })}
+
+          {oneTime.map((plan) => (
+            <div key={plan.key} className="lv-price-card">
+              <div className="lv-price-name">{plan.label}</div>
+              <div className="lv-price-tagline">{plan.description ?? `${Math.round(plan.periodDays / 30)} bulan akses`}</div>
+              <div className="lv-price-amount">
+                <span className="lv-num">{formatRupiah(plan.price)}</span>
+                <span className="lv-period"> one-time</span>
+              </div>
+              <ul className="lv-price-features">
+                <li>Akses {Math.round(plan.periodDays / 30)} bulan penuh</li>
+                <li>Fokus Materi Kunci UTBK (MAKU)</li>
+                <li>Mode intensif drilling</li>
+                <li>Untuk siswa kelas 12 / gap year</li>
+              </ul>
+              <Link href="/login?mode=register" className="lv-btn lv-btn-outline lv-price-cta">
+                Pilih {plan.label}
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        <div className="lv-pricing-note">
+          Trial habis? Tetap bisa pakai <strong>free tier</strong> ({pricing.freeTier.subMateriPerDay} sub-materi + {pricing.freeTier.soalPerDay} soal per hari) atau upgrade.
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LandingPage() {
   const [pricing, setPricing] = useState<PublicPricing | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/pricing/public")
       .then((r) => r.json())
       .then((data) => {
-        if (data.error) throw new Error(data.error);
+        if (data.error) return; // silent fail — landing tetap usable
         setPricing(data);
       })
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)));
+      .catch(() => {});
   }, []);
 
-  if (error) return null; // silent fail — landing tetap usable
-  if (!pricing) {
-    return (
-      <section id="harga" className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
-        <div className="text-center text-slate-400">Memuat harga...</div>
-      </section>
-    );
-  }
-
-  const trialDays = pricing.trial.durationDays;
-
   return (
-    <section id="harga" className="relative bg-slate-50 border-y border-slate-200/70">
-      <div className="bg-grid absolute inset-0 opacity-30" />
-      <div className="relative mx-auto max-w-6xl px-6 sm:px-10 py-16 sm:py-20">
-        <div className="text-center mb-10 sm:mb-12 animate-rise">
-          <div className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong mb-3">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            harga
+    <div className="landing-v3">
+      {/* ========== HEADER ========== */}
+      <header className="lv-nav">
+        <div className="lv-nav-inner">
+          <div className="lv-logo">
+            <span className="lv-logo-mark">t</span>
+            turo<span className="lv-logo-dot">.</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Pilih yang sesuai keluarga<span className="text-brand">.</span>
-          </h2>
-          <p className="text-muted mt-2 max-w-xl mx-auto">
-            Trial {trialDays} hari gratis tanpa kartu kredit. Bisa cancel kapan saja.
-          </p>
+          <nav className="lv-nav-links">
+            <a href="#beda">Prinsip Turo</a>
+            <a href="#cara">Cara Kerja</a>
+            <a href="#spektrum">Spektrum</a>
+            <a href="#harga">Harga</a>
+            <a href="#faq">FAQ</a>
+          </nav>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link href="/login" className="lv-btn lv-btn-outline">Masuk</Link>
+            <Link href="/login?mode=register" className="lv-btn lv-btn-primary">Coba 7 Hari Gratis</Link>
+          </div>
         </div>
+      </header>
 
-        {/* Solo & Family side-by-side */}
-        <div className="grid gap-5 sm:grid-cols-2 mb-5">
-          {pricing.plans.filter((p) => p.recurring).map((plan, i) => {
-            const isFamily = plan.maxUsers > 1;
-            const monthly = plan.periodDays > 30 ? Math.round((plan.price / plan.periodDays) * 30) : plan.price;
-            const isYearly = plan.periodDays > 30;
-            return (
-              <div
-                key={plan.key}
-                style={{ animationDelay: `${i * 60}ms` }}
-                className={`relative rounded-2xl bg-white p-6 border-2 transition-all animate-pop ${
-                  isFamily ? "border-brand shadow-lg shadow-brand/10" : "border-slate-200 hover:border-slate-300"
-                }`}
-              >
-                {isFamily && (
-                  <div className="absolute -top-3 left-6 inline-flex items-center text-xs font-bold uppercase tracking-wider rounded-full bg-brand text-white px-3 py-1">
-                    Hemat untuk keluarga
-                  </div>
-                )}
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="text-2xl">{isFamily ? "👨‍👩‍👧" : "👤"}</div>
-                    <h3 className="font-bold text-xl mt-2">{plan.label}</h3>
-                    {plan.description && (
-                      <p className="text-sm text-slate-600 mt-1">{plan.description}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="mt-4 mb-2">
-                  <span className="text-3xl font-extrabold">{formatRupiah(plan.price)}</span>
-                  <span className="text-slate-500 text-sm ml-1">
-                    / {plan.periodDays === 30 ? "bulan" : plan.periodDays === 365 ? "tahun" : `${plan.periodDays} hari`}
-                  </span>
-                  {isYearly && (
-                    <div className="text-xs text-emerald-700 font-semibold mt-1">
-                      ~{formatRupiah(monthly)}/bulan · hemat dibanding bulanan
-                    </div>
-                  )}
-                </div>
-                <ul className="text-sm text-slate-700 space-y-1.5 mt-4 mb-5">
-                  <li>✓ Akses penuh semua materi (SD-SMA)</li>
-                  <li>✓ Diagnostik adaptif 4 tahap unlimited</li>
-                  <li>✓ Drilling Engine (Path Routing 4-tier)</li>
-                  <li>✓ AI tutor + bantuan visual + plot fungsi</li>
-                  <li>✓ {plan.maxUsers === 1 ? "1 akun siswa" : `${plan.maxUsers} akun anak`}</li>
-                </ul>
-                <Link
-                  href="/login?mode=register"
-                  className={`block w-full text-center px-4 py-2.5 rounded-xl font-semibold transition ${
-                    isFamily
-                      ? "bg-brand text-white hover:bg-brand-strong shadow-md"
-                      : "bg-slate-100 hover:bg-slate-200 text-slate-700"
-                  }`}
-                >
-                  Coba {trialDays} hari gratis
+      {/* ========== HERO ========== */}
+      <section className="lv-hero">
+        <div className="lv-container">
+          <div className="lv-hero-grid">
+            <div>
+              <span className="lv-hero-pill">🎯 Diagnostik Matematika Adaptif</span>
+              <h1>
+                Setiap anak<br />punya<br />
+                <span className="lv-gradient">jalur belajar</span>
+                <br />matematikanya sendiri.
+              </h1>
+              <p className="lv-hero-sub">
+                Turo kenali cara berpikirmu dulu. Lalu susun{" "}
+                <strong>program belajar khusus</strong> untukmu —{" "}
+                <strong>bab apa</strong>, <strong>urut bagaimana</strong>, dan{" "}
+                <strong>cara belajar yang cocok</strong> dengan levelmu.
+              </p>
+              <div className="lv-hero-cta">
+                <Link href="/onboarding" className="lv-btn lv-btn-primary lv-btn-lg">
+                  Mulai Diagnosa →
                 </Link>
+                <a href="#cara" className="lv-btn lv-btn-outline lv-btn-lg">
+                  Lihat Cara Kerja
+                </a>
               </div>
-            );
-          })}
-        </div>
-
-        {/* UTBK Pack one-time */}
-        {pricing.plans.filter((p) => !p.recurring).map((plan) => (
-          <div key={plan.key} className="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 p-6 flex items-center gap-4 flex-wrap">
-            <div className="text-3xl">🎯</div>
-            <div className="flex-1 min-w-[200px]">
-              <h3 className="font-bold text-lg">{plan.label}</h3>
-              {plan.description && <p className="text-sm text-amber-800 mt-0.5">{plan.description}</p>}
+              <div className="lv-hero-trust">
+                <div className="lv-stars">★★★★★</div>
+                <div>500+ keluarga sudah memulai dengan turo</div>
+              </div>
             </div>
-            <div className="text-right">
-              <div className="text-2xl font-extrabold text-amber-900">{formatRupiah(plan.price)}</div>
-              <div className="text-xs text-amber-700">one-time · {Math.round(plan.periodDays/30)} bulan akses</div>
+            <div className="lv-hero-visual">
+              <img src="/illustrations/hero-doctor-math.png" alt="Diagnostik Matematika Turo" className="lv-hero-illust" />
+              <div className="lv-floating-chip lv-chip-1">
+                <span style={{ color: "var(--lv-emerald)" }}>✓</span> Kelas estimasi: 7
+              </div>
+              <div className="lv-floating-chip lv-chip-2">
+                <span style={{ color: "var(--lv-violet)" }}>🌌</span> Spektrum: 78%
+              </div>
+              <div className="lv-floating-chip lv-chip-3">
+                <span style={{ color: "var(--lv-amber)" }}>⚡</span> 3 sub remediasi
+              </div>
             </div>
-            <Link
-              href="/login?mode=register"
-              className="inline-flex items-center gap-1 bg-amber-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-amber-700 transition"
-            >
-              Beli →
-            </Link>
           </div>
-        ))}
+        </div>
+      </section>
 
-        {/* Free tier note */}
-        <div className="mt-6 text-center text-sm text-slate-500">
-          Trial habis? Tetap bisa pakai <strong>free tier</strong> ({pricing.freeTier.subMateriPerDay} sub-materi + {pricing.freeTier.soalPerDay} soal per hari) atau upgrade ke paid.
+      {/* ========== TRUST STRIP ========== */}
+      <div className="lv-trust-strip">
+        <div className="lv-container">
+          <div className="lv-trust-row">
+            <div className="lv-trust-stat">
+              <div className="lv-trust-stat-num">500+</div>
+              <div className="lv-trust-stat-label">Keluarga Aktif</div>
+            </div>
+            <div className="lv-trust-stat">
+              <div className="lv-trust-stat-num">2.400+</div>
+              <div className="lv-trust-stat-label">Soal Terkurasi</div>
+            </div>
+            <div className="lv-trust-stat">
+              <div className="lv-trust-stat-num">472</div>
+              <div className="lv-trust-stat-label">Sub-Materi SD–SMA</div>
+            </div>
+            <div className="lv-trust-stat">
+              <div className="lv-trust-stat-num">5</div>
+              <div className="lv-trust-stat-label">Dimensi Spektrum</div>
+            </div>
+            <div className="lv-trust-stat">
+              <div className="lv-trust-stat-num">7 hari</div>
+              <div className="lv-trust-stat-label">Trial Gratis</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
-  );
-}
 
-function CtaSection() {
-  return (
-    <section className="relative mx-auto max-w-6xl px-6 sm:px-10 pb-16 sm:pb-24">
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-600 via-teal-700 to-cyan-900 p-10 sm:p-14 text-center text-white">
-        <div className="bg-grid-dark absolute inset-0 opacity-40" />
-        <FloatingMath />
-        <div className="relative animate-rise">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-            Mulai dari titik yang tepat. Hari ini.
+      {/* ========== 3 SELLING POINTS ========== */}
+      <section className="lv-section lv-selling-section" id="beda">
+        <div className="lv-container">
+          <div className="lv-section-header">
+            <span className="lv-section-label">Prinsip Inti</span>
+            <h2 className="lv-section-title">
+              Tiga prinsip yang membuat turo<br />bekerja{" "}
+              <span style={{ color: "var(--lv-amber)" }}>personal</span> untukmu.
+            </h2>
+            <p className="lv-section-sub">
+              Mengerti cara berpikir, mendiagnosa kondisi, lalu menuntaskan bab demi bab — sesuai jalur masing-masing anak.
+            </p>
+          </div>
+
+          <div className="lv-selling-grid">
+            <div className="lv-selling-card lv-card-1">
+              <img src="/illustrations/selling-1-understanding.png" alt="Mengerti cara berpikir" className="lv-selling-illust" />
+              <span className="lv-selling-num">1</span>
+              <h3>Mengerti cara berpikirmu, bukan cuma jawabanmu.</h3>
+              <p>
+                Turo mengukur <strong>5 dimensi cara berpikir matematis</strong> kamu:
+                penalaran abstrak, pemecahan masalah, komunikasi, ketekunan, dan
+                percaya diri. Hasilnya: pemahaman utuh tentang <em>bagaimana</em> otakmu memproses soal.
+              </p>
+              <div className="lv-selling-quote">
+                "Anak saya tahu rumus, tapi gugup di soal HOTS. Turo bilang dia lemah di 'pemecahan masalah'. Bener banget!" — Bu Lina, ortu SMP
+              </div>
+            </div>
+
+            <div className="lv-selling-card lv-card-2">
+              <img src="/illustrations/selling-2-diagnosis.png" alt="Diagnosa personal" className="lv-selling-illust" />
+              <span className="lv-selling-num">2</span>
+              <h3>Diagnosa seperti dokter — obat mujarab, bukan generik.</h3>
+              <p>
+                Setiap user punya <strong>program belajar berbeda</strong>. Hasil diagnostik
+                bukan template. Sub-materi yang harus dikuasai, urutan, level kesulitan —
+                semua disesuaikan dengan <em>kondisi spesifik</em> kamu, hasil tes 30 menit.
+              </p>
+              <div className="lv-selling-quote">
+                "Kayak ke dokter yang ngasih resep. Bukan 'minum vitamin general' tapi 'kamu butuh ini, ini, dan ini.'" — Pak Joko, ortu SMA
+              </div>
+            </div>
+
+            <div className="lv-selling-card lv-card-3">
+              <img src="/illustrations/selling-3-complete.png" alt="Tuntas sampai bab terkuasai" className="lv-selling-illust" />
+              <span className="lv-selling-num">3</span>
+              <h3>Tuntas sampai bab terkuasai. Adaptif sama level kamu.</h3>
+              <p>
+                Bukan kerjain soal asal banyak. Turo tunjukkan <strong>bab demi bab yang
+                wajib dikuasai</strong>, urut dari pondasi paling lemah. Cara belajarnya
+                juga <em>menyesuaikan level kemampuan</em> — anak kuat dapat tantangan,
+                anak lemah dapat penjelasan dasar dulu.
+              </p>
+              <div className="lv-selling-quote">
+                "Akhirnya jelas urutannya. Bukan loncat-loncat. Anak saya naik dari bingung ke percaya diri." — Bu Sari, ortu SD
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========== CARA KERJA ========== */}
+      <section className="lv-section lv-how-section" id="cara">
+        <div className="lv-container">
+          <div className="lv-section-header">
+            <span className="lv-section-label">Cara Kerja</span>
+            <h2 className="lv-section-title">
+              3 langkah, dari diagnosa<br />sampai program belajar.
+            </h2>
+            <p className="lv-section-sub">
+              Semua dalam satu sesi 30 menit. Tidak ada drama, tidak ada tebak-tebakan.
+            </p>
+          </div>
+          <div className="lv-how-grid">
+            <div className="lv-how-step">
+              <div className="lv-how-step-number">1</div>
+              <img src="/illustrations/how-1-diagnostik.png" alt="Diagnostik" className="lv-how-illust" />
+              <h3>Diagnostik 30 Menit</h3>
+              <p>Anak kerjakan ~30-40 soal adaptif. Engine identifikasi level kelas, area lemah, dan cara berpikir.</p>
+            </div>
+            <div className="lv-how-step">
+              <div className="lv-how-step-number">2</div>
+              <img src="/illustrations/how-2-spektrum.png" alt="Peta Spektrum" className="lv-how-illust" />
+              <h3>Peta Spektrum + Bab Wajib</h3>
+              <p>Hasil: 5 dimensi cara berpikir + daftar bab yang harus dikuasai, urut dari pondasi terlemah.</p>
+            </div>
+            <div className="lv-how-step">
+              <div className="lv-how-step-number">3</div>
+              <img src="/illustrations/how-3-program.png" alt="Program Belajar" className="lv-how-illust" />
+              <h3>Program Belajar Adaptif</h3>
+              <p>Anak kerjakan sesi belajar harian. Cara penyajian soal & bantuan menyesuaikan level kemampuan.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========== SPEKTRUM ========== */}
+      <section className="lv-section lv-spektrum-section" id="spektrum">
+        <div className="lv-container">
+          <div className="lv-section-header">
+            <span className="lv-section-label">🌌 Signature Feature</span>
+            <h2 className="lv-section-title">Peta Spektrum Matematis</h2>
+            <p className="lv-section-sub">
+              5 dimensi cara berpikir matematis. Bukan tahu APA, tapi <strong>BAGAIMANA</strong> anak berpikir.
+            </p>
+          </div>
+          <div className="lv-spektrum-grid">
+            <div className="lv-spek-card">
+              <div className="lv-spek-icon">🧠</div>
+              <h4>Penalaran Abstrak</h4>
+              <div className="lv-spek-weight">30%</div>
+            </div>
+            <div className="lv-spek-card">
+              <div className="lv-spek-icon">🧩</div>
+              <h4>Pemecahan Masalah</h4>
+              <div className="lv-spek-weight">25%</div>
+            </div>
+            <div className="lv-spek-card">
+              <div className="lv-spek-icon">💬</div>
+              <h4>Komunikasi Matematis</h4>
+              <div className="lv-spek-weight">20%</div>
+            </div>
+            <div className="lv-spek-card">
+              <div className="lv-spek-icon">🎯</div>
+              <h4>Ketekunan & Fokus</h4>
+              <div className="lv-spek-weight">15%</div>
+            </div>
+            <div className="lv-spek-card">
+              <div className="lv-spek-icon">💪</div>
+              <h4>Percaya Diri</h4>
+              <div className="lv-spek-weight">10%</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========== PRICING ========== */}
+      {pricing && <PricingV3 pricing={pricing} />}
+
+      {/* ========== FAQ ========== */}
+      <section className="lv-section lv-faq-section" id="faq">
+        <div className="lv-container">
+          <div className="lv-section-header">
+            <span className="lv-section-label">FAQ</span>
+            <h2 className="lv-section-title">Pertanyaan yang sering ditanyakan</h2>
+          </div>
+          <div className="lv-faq-list">
+            <details className="lv-faq-item">
+              <summary>Berapa lama diagnostik awalnya?</summary>
+              <div className="lv-faq-body">
+                30-40 menit. Anak kerjakan ~30-40 soal adaptif yang menyesuaikan kemampuan secara real-time. Tidak perlu sekali duduk — bisa dipause dan dilanjut.
+              </div>
+            </details>
+            <details className="lv-faq-item">
+              <summary>Bagaimana cara turo mendiagnosa kemampuan matematika anak?</summary>
+              <div className="lv-faq-body">
+                Turo pakai <strong>tes adaptif</strong> yang menyesuaikan kesulitan soal real-time. Engine identifikasi 3 hal: (1) level kelas estimasi, (2) area lemah per bab, dan (3) 5 dimensi cara berpikir matematis. Hasilnya peta lengkap kondisi anak — siap dijadikan dasar program belajar personal.
+              </div>
+            </details>
+            <details className="lv-faq-item">
+              <summary>Untuk jenjang apa saja?</summary>
+              <div className="lv-faq-body">
+                SD kelas 1-6, SMP kelas 7-9, SMA kelas 10-12 (termasuk persiapan UTBK). Total 472 sub-materi terkurasi sesuai Kurikulum Merdeka.
+              </div>
+            </details>
+            <details className="lv-faq-item">
+              <summary>Apakah ada trial gratis?</summary>
+              <div className="lv-faq-body">
+                Ya, 7 hari gratis tanpa kartu kredit. Setelah trial, kalau tidak cocok, tinggal stop — tidak ada biaya. Trial mencakup semua fitur.
+              </div>
+            </details>
+            <details className="lv-faq-item">
+              <summary>Pembayaran via apa?</summary>
+              <div className="lv-faq-body">
+                Transfer bank (semua bank Indonesia), e-wallet (OVO, GoPay, DANA, ShopeePay), QRIS, dan kartu kredit. Aman lewat Xendit.
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      {/* ========== CTA ========== */}
+      <section className="lv-cta-section">
+        <div className="lv-container">
+          <h2>
+            Mulai dengan diagnosa.<br />Lanjutkan dengan program yang cocok.
           </h2>
-          <p className="text-teal-50/90 max-w-xl mx-auto mb-7">
-            Coba 7 hari gratis tanpa kartu kredit. Diagnostik singkat, lihat path belajar yang sesuai untuk anak Anda.
-          </p>
-          <Link
-            href="/login?mode=register"
-            className="inline-flex items-center gap-2 bg-white text-teal-700 hover:bg-teal-50 px-7 py-4 rounded-xl font-semibold shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all"
-          >
-            Coba 7 hari gratis →
+          <p>Trial 7 hari gratis. Tanpa kartu kredit. Tinggalkan kapan saja.</p>
+          <Link href="/onboarding" className="lv-btn lv-btn-primary lv-btn-lg">
+            Mulai Diagnosa Gratis →
           </Link>
-          <p className="text-sm text-teal-100/70 mt-5">
-            Sudah punya akun?{" "}
-            <Link href="/login" className="underline underline-offset-2 hover:text-white font-medium">
-              Masuk di sini
-            </Link>
-          </p>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-function LandingFooter() {
-  return (
-    <footer className="border-t border-slate-200/70 bg-white">
-      <div className="mx-auto max-w-6xl px-6 sm:px-10 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
-        <div className="flex items-center gap-2">
-          <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 text-white font-bold text-xs">
-            t
-          </span>
-          <span className="font-semibold text-slate-700">
-            turo<span className="text-brand">.</span>
-          </span>
-          <span className="text-slate-400">·</span>
-          <span>bagian dari mainmaku.id</span>
+      {/* ========== FOOTER ========== */}
+      <footer className="lv-footer">
+        <div className="lv-container">
+          <div className="lv-footer-grid">
+            <div className="lv-footer-brand">
+              <div className="lv-logo">
+                <span className="lv-logo-mark">t</span>
+                turo<span className="lv-logo-dot">.</span>
+              </div>
+              <p>Diagnostik Matematika Adaptif. Mengerti cara berpikir setiap anak, lalu menyusun jalur belajar yang sesuai.</p>
+            </div>
+            <div className="lv-footer-col">
+              <h4>Produk</h4>
+              <a href="#cara">Cara Kerja</a>
+              <a href="#spektrum">Peta Spektrum</a>
+              <a href="#harga">Harga</a>
+              <Link href="/onboarding">Mulai Diagnosa</Link>
+            </div>
+            <div className="lv-footer-col">
+              <h4>Akun</h4>
+              <Link href="/login">Masuk</Link>
+              <Link href="/login?mode=register">Daftar</Link>
+            </div>
+            <div className="lv-footer-col">
+              <h4>Bantuan</h4>
+              <a href="#faq">FAQ</a>
+              <a href="mailto:hello@mainmaku.id">Kontak</a>
+            </div>
+          </div>
+          <div className="lv-footer-bottom">
+            © 2026 Turo · bagian dari mainmaku.id · Made in Indonesia
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <Link href="/login" className="hover:text-brand transition">Masuk</Link>
-          <Link href="/login?mode=register" className="hover:text-brand transition">Daftar</Link>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-function LandingPage() {
-  return (
-    <main className="flex-1 flex flex-col">
-      <HeroSection />
-      <JalurSection />
-      <SpektrumSection />
-      <FiturSection />
-      <CaraKerjaSection />
-      <PricingSection />
-      <CtaSection />
-      <LandingFooter />
-    </main>
+      </footer>
+    </div>
   );
 }
 
