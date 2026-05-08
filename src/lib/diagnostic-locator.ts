@@ -18,15 +18,28 @@ import { itemsForJalur } from "@/lib/item-bank";
 import type { ItemBankEntry, JalurDiagnostik } from "@/lib/item-bank";
 import { toIrtItems } from "@/lib/item-bank";
 
-/** Range kelas per jalur — initial midpoint untuk locator. */
-const JALUR_KELAS_RANGE: Record<JalurDiagnostik, { min: number; max: number; mid: number }> = {
-  "sd-k1-3": { min: 1, max: 3, mid: 2 },
-  "sd-k4-6": { min: 4, max: 6, mid: 5 },
-  "smp": { min: 7, max: 9, mid: 8 },
-  "sma-reguler": { min: 10, max: 12, mid: 11 },
-  // UTBK target = K12 — Locator mulai dari K11 supaya cepat probe range atas.
-  // Range tetap [7,12] karena UTBK butuh basis SMP juga.
-  "sma-utbk": { min: 7, max: 12, mid: 11 },
+/**
+ * Range kelas per jalur. Pisahkan jadi 3 concept:
+ *   - `mid`         : initial probe midpoint Locator
+ *   - `max`         : upper cap kelas estimasi (mastery curriculum bound)
+ *   - `probingMin`  : Locator boleh probe sampai kelas berapa rendah (untuk
+ *                     deteksi weak outlier — e.g. anak SMA K12 weak pecahan
+ *                     yang real-nya level K5). Asymmetric: lebih rendah dari
+ *                     placement lower bound — mencegah engine "memaksa" kelas
+ *                     est ke jalur range padahal anak jauh di bawah.
+ *
+ * Filosofi: cap upper (mencegah strong outlier over-extrapolasi karena IRT
+ * theta naik), TIDAK cap lower (anak weak harus visible — diagnosa jujur).
+ */
+const JALUR_KELAS_RANGE: Record<
+  JalurDiagnostik,
+  { min: number; max: number; mid: number; probingMin: number }
+> = {
+  "sd-k1-3": { min: 1, max: 3, mid: 2, probingMin: 1 },
+  "sd-k4-6": { min: 4, max: 6, mid: 5, probingMin: 1 },
+  "smp": { min: 7, max: 9, mid: 8, probingMin: 4 },
+  "sma-reguler": { min: 10, max: 12, mid: 11, probingMin: 4 },
+  "sma-utbk": { min: 7, max: 12, mid: 11, probingMin: 4 },
 };
 
 /** State Locator selama berjalan. */
@@ -85,7 +98,9 @@ export async function initLocator(
 export function pickNextLocatorItem(state: LocatorState): ItemBankEntry | null {
   if (state.pool.length === 0) return null;
   const range = JALUR_KELAS_RANGE[state.jalur];
-  const targetKelas = Math.max(range.min, Math.min(range.max, Math.round(state.kelasNow)));
+  // Probe sampai probingMin (lebih lebar dari placement min) — supaya bisa
+  // deteksi anak K12 yang real-nya K5 di pecahan.
+  const targetKelas = Math.max(range.probingMin, Math.min(range.max, Math.round(state.kelasNow)));
 
   // Candidate filter: belum dipakai, kelas == targetKelas
   let candidates = state.pool.filter((it) => !state.used.has(it.id) && it.kelas === targetKelas);
@@ -130,7 +145,7 @@ export function submitLocatorResponse(
 
   // Geser kelasNow ke target baru — binary step ke arah theta
   const range = JALUR_KELAS_RANGE[state.jalur];
-  const targetKelas = Math.max(range.min, Math.min(range.max, thetaToKelas(newEstimate.theta)));
+  const targetKelas = Math.max(range.probingMin, Math.min(range.max, thetaToKelas(newEstimate.theta)));
   // Half-step toward target (smoothing — hindari overshoot)
   const newKelasNow = (state.kelasNow + targetKelas) / 2;
 
@@ -181,16 +196,19 @@ export type LocatorResult = {
 
 export function finalizeLocator(state: LocatorState): LocatorResult | null {
   if (!state.done || !state.stopReason) return null;
-  // Cap kelas estimasi ke range jalur — anak di jalur SMP tidak boleh estimasi K3 atau K12.
-  // Mencegah IRT theta over-extrapolasi (e.g. anak SD K3 mastery → est K6 tanpa cap).
+  // Asymmetric cap:
+  //   UPPER  → cap di range.max (mastery curriculum bound — anak SD K3 mastery
+  //            tidak boleh dapat estimasi K6+ via IRT over-extrapolasi)
+  //   LOWER  → TIDAK di-cap (anak K12 weak yang real-nya K5 di pecahan harus
+  //            VISIBLE — itu info diagnosa berharga, "obat mujarab" personal)
   const range = JALUR_KELAS_RANGE[state.jalur];
-  const clamp = (k: number) => Math.max(range.min, Math.min(range.max, k));
+  const capUpper = (k: number) => Math.min(range.max, k);
   return {
     jalur: state.jalur,
     theta: state.estimate.theta,
     se: state.estimate.se,
-    kelasEstimasi: clamp(thetaToKelas(state.estimate.theta)),
-    kelasRange: [clamp(thetaToKelas(state.estimate.ci95[0])), clamp(thetaToKelas(state.estimate.ci95[1]))],
+    kelasEstimasi: capUpper(thetaToKelas(state.estimate.theta)),
+    kelasRange: [capUpper(thetaToKelas(state.estimate.ci95[0])), capUpper(thetaToKelas(state.estimate.ci95[1]))],
     itemsUsed: state.responses.length,
     stopReason: state.stopReason,
     responses: state.responses,
