@@ -24,7 +24,9 @@ const JALUR_KELAS_RANGE: Record<JalurDiagnostik, { min: number; max: number; mid
   "sd-k4-6": { min: 4, max: 6, mid: 5 },
   "smp": { min: 7, max: 9, mid: 8 },
   "sma-reguler": { min: 10, max: 12, mid: 11 },
-  "sma-utbk": { min: 7, max: 12, mid: 9 }, // UTBK butuh basis SMP+SMA
+  // UTBK target = K12 — Locator mulai dari K11 supaya cepat probe range atas.
+  // Range tetap [7,12] karena UTBK butuh basis SMP juga.
+  "sma-utbk": { min: 7, max: 12, mid: 11 },
 };
 
 /** State Locator selama berjalan. */
@@ -179,12 +181,16 @@ export type LocatorResult = {
 
 export function finalizeLocator(state: LocatorState): LocatorResult | null {
   if (!state.done || !state.stopReason) return null;
+  // Cap kelas estimasi ke range jalur — anak di jalur SMP tidak boleh estimasi K3 atau K12.
+  // Mencegah IRT theta over-extrapolasi (e.g. anak SD K3 mastery → est K6 tanpa cap).
+  const range = JALUR_KELAS_RANGE[state.jalur];
+  const clamp = (k: number) => Math.max(range.min, Math.min(range.max, k));
   return {
     jalur: state.jalur,
     theta: state.estimate.theta,
     se: state.estimate.se,
-    kelasEstimasi: thetaToKelas(state.estimate.theta),
-    kelasRange: [thetaToKelas(state.estimate.ci95[0]), thetaToKelas(state.estimate.ci95[1])],
+    kelasEstimasi: clamp(thetaToKelas(state.estimate.theta)),
+    kelasRange: [clamp(thetaToKelas(state.estimate.ci95[0])), clamp(thetaToKelas(state.estimate.ci95[1]))],
     itemsUsed: state.responses.length,
     stopReason: state.stopReason,
     responses: state.responses,
