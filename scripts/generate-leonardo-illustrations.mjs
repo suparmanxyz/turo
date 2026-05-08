@@ -66,15 +66,15 @@ const NEGATIVE_PROMPT = `text, letters, words, numbers, alphabets, typography, c
 const ILLUSTRATIONS = [
   {
     id: "hero-doctor-math",
-    name: "Hero — Dokter laki-laki + remaja perempuan berhijab",
+    name: "Hero — Dokter perempuan berhijab + anak SD laki-laki",
     aspectRatio: "1:1",
     prompt: `${STYLE_BASE}
 
-Subject: A friendly young Indonesian male doctor (Asian features, dark hair, warm tan skin) with kind smile, wearing a clean white coat over a teal shirt. He holds a magical stethoscope where the chestpiece is shaped like a mathematical sigma or integral symbol. He is examining a teenage girl student patient who wears a modest white or soft teal hijab headscarf (traditional Indonesian Muslim style, covering hair and neck), sitting on a chair holding a closed math textbook, looking hopeful and engaged.
+Subject: A friendly young Indonesian female doctor (Asian features, warm tan skin, kind warm smile) wearing a modest soft teal hijab headscarf (traditional Indonesian Muslim style, covering hair and neck) and a clean white doctor's coat over a violet blouse. She holds a magical stethoscope where the chestpiece is shaped like a mathematical sigma or integral symbol. She is gently examining a small Indonesian elementary-age boy patient (about 9 years old, dark hair, wearing a casual yellow t-shirt and shorts), who sits on a chair holding a closed math textbook, looking hopeful and engaged.
 
 Background: Soft white with subtle floating geometric shapes (circles, triangles, squares) and faint abstract mathematical symbol shapes (no readable text or letters). Warm gradient glow in corners — teal on one side, violet on the other.
 
-Composition: Centered, balanced, doctor and patient as focal point. Clean lines, warm friendly atmosphere. Aspect ratio 1:1 square.`,
+Composition: Centered, balanced, doctor and child patient as focal point. Maternal, warm, friendly atmosphere. Aspect ratio 1:1 square.`,
   },
   {
     id: "selling-1-understanding",
