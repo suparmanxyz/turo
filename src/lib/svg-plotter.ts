@@ -9,6 +9,37 @@
 
 import "server-only";
 
+export type PlotCurve = {
+  expression: string;
+  color?: string;
+  label?: string;
+  /** Width stroke (default 2.5) */
+  strokeWidth?: number;
+  /** Dash pattern (e.g. "5,3" untuk dashed) */
+  dasharray?: string;
+};
+
+export type CustomLabel = {
+  text: string;
+  /** Posisi dalam koordinat matematika (akan di-transform ke pixel). */
+  x: number;
+  y: number;
+  color?: string;
+  fontSize?: number;
+  /** anchor: start | middle | end (default middle) */
+  anchor?: "start" | "middle" | "end";
+};
+
+export type ShadedArea = {
+  /** Expression untuk batas atas/bawah area. */
+  fromExpression: string;
+  toExpression?: string; // Kalau tidak di-set, default ke y=0 (area sumpah ke sumbu x)
+  xFrom: number;
+  xTo: number;
+  color?: string;
+  opacity?: number;
+};
+
 export type PlotOptions = {
   /** Rumus JS expression dengan variabel "x". Contoh: "Math.sin(x)", "x*x", "Math.exp(-x)" */
   expression: string;
@@ -38,6 +69,15 @@ export type PlotOptions = {
    * "numerik" — angka biasa (1, 2, 3, dst)
    */
   xTickMode?: "auto" | "radian" | "derajat" | "numerik";
+  /**
+   * Tambahan curves (multi-line). Curve PERTAMA tetap dari `expression` (utama).
+   * Extra curves di-render dengan warna berbeda (auto rotate kalau tidak set).
+   */
+  extraCurves?: PlotCurve[];
+  /** Custom labels (text di posisi koordinat matematika tertentu). */
+  customLabels?: CustomLabel[];
+  /** Shaded areas (e.g. area di bawah kurva, antara dua fungsi). */
+  shadedAreas?: ShadedArea[];
 };
 
 export type PlotResult = {
@@ -172,18 +212,17 @@ export function plotFunction(opts: PlotOptions): PlotResult {
   const px = (x: number) => padding + ((x - opts.xMin) / (opts.xMax - opts.xMin)) * (width - 2 * padding);
   const py = (y: number) => height - padding - ((y - yMin) / (yMax - yMin)) * (height - 2 * padding);
 
-  // Build path — handle discontinuity (skip NaN segments)
+  // Build path — handle discontinuity (skip NaN segments) + skip out-of-range
+  // (mencegah garis horizontal artifact di yMin/yMax kalau kurva keluar range)
   const pathSegments: string[] = [];
   let inSegment = false;
   for (const p of points) {
-    if (Number.isNaN(p.y)) {
+    if (Number.isNaN(p.y) || !Number.isFinite(p.y) || p.y < yMin || p.y > yMax) {
       inSegment = false;
       continue;
     }
-    // Clamp y ke viewBox biar kurva tidak overflow
-    const yClamped = Math.max(yMin, Math.min(yMax, p.y));
     const cmd = inSegment ? "L" : "M";
-    pathSegments.push(`${cmd} ${px(p.x).toFixed(2)} ${py(yClamped).toFixed(2)}`);
+    pathSegments.push(`${cmd} ${px(p.x).toFixed(2)} ${py(p.y).toFixed(2)}`);
     inSegment = true;
   }
   const pathStr = pathSegments.join(" ");
@@ -238,8 +277,77 @@ export function plotFunction(opts: PlotOptions): PlotResult {
     parts.push(`<text x="${(yAxisX - 4).toFixed(2)}" y="${(py(t) + 3).toFixed(2)}" font-size="10" fill="#64748b" text-anchor="end">${formatTick(t, "numerik")}</text>`);
   }
 
-  // Curve
+  // ====== SHADED AREAS (di bawah curves, supaya tidak menutup kurva) ======
+  if (opts.shadedAreas && opts.shadedAreas.length > 0) {
+    for (const area of opts.shadedAreas) {
+      try {
+        const fnFrom = compileExpression(area.fromExpression);
+        const fnTo = area.toExpression ? compileExpression(area.toExpression) : (_x: number) => 0;
+        const xs: number[] = [];
+        const stepSamples = 60;
+        for (let i = 0; i <= stepSamples; i++) {
+          xs.push(area.xFrom + (i / stepSamples) * (area.xTo - area.xFrom));
+        }
+        const upper = xs.map((x) => ({ x, y: fnFrom(x) }));
+        const lower = xs.map((x) => ({ x, y: fnTo(x) }));
+        const path: string[] = [];
+        path.push(`M ${px(upper[0].x).toFixed(2)} ${py(Math.max(yMin, Math.min(yMax, upper[0].y))).toFixed(2)}`);
+        for (let i = 1; i < upper.length; i++) {
+          path.push(`L ${px(upper[i].x).toFixed(2)} ${py(Math.max(yMin, Math.min(yMax, upper[i].y))).toFixed(2)}`);
+        }
+        for (let i = lower.length - 1; i >= 0; i--) {
+          path.push(`L ${px(lower[i].x).toFixed(2)} ${py(Math.max(yMin, Math.min(yMax, lower[i].y))).toFixed(2)}`);
+        }
+        path.push("Z");
+        const ac = area.color ?? "#3b82f6";
+        const ao = area.opacity ?? 0.18;
+        parts.push(`<path d="${path.join(" ")}" fill="${ac}" fill-opacity="${ao}" stroke="none"/>`);
+      } catch {
+        // skip area error
+      }
+    }
+  }
+
+  // ====== EXTRA CURVES (multi-line) — render before main curve so main on top ======
+  const extraCurveColors = ["#dc2626", "#16a34a", "#9333ea", "#ea580c", "#0891b2"];
+  if (opts.extraCurves && opts.extraCurves.length > 0) {
+    opts.extraCurves.forEach((curve, idx) => {
+      try {
+        const fnExtra = compileExpression(curve.expression);
+        const segs: string[] = [];
+        let inSeg = false;
+        for (let i = 0; i <= samples; i++) {
+          const xv = opts.xMin + (i / samples) * (opts.xMax - opts.xMin);
+          const yv = fnExtra(xv);
+          // Skip out-of-range untuk hindari garis horizontal artifact
+          if (!Number.isFinite(yv) || yv < yMin || yv > yMax) { inSeg = false; continue; }
+          segs.push(`${inSeg ? "L" : "M"} ${px(xv).toFixed(2)} ${py(yv).toFixed(2)}`);
+          inSeg = true;
+        }
+        const cc = curve.color ?? extraCurveColors[idx % extraCurveColors.length];
+        const sw = curve.strokeWidth ?? 2.5;
+        const da = curve.dasharray ? ` stroke-dasharray="${curve.dasharray}"` : "";
+        parts.push(`<path d="${segs.join(" ")}" fill="none" stroke="${cc}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"${da}/>`);
+      } catch {
+        // skip extra curve error
+      }
+    });
+  }
+
+  // Curve utama (di atas extra curves)
   parts.push(`<path d="${pathStr}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`);
+
+  // ====== CUSTOM LABELS (text di koordinat matematika) ======
+  if (opts.customLabels && opts.customLabels.length > 0) {
+    for (const lbl of opts.customLabels) {
+      const lx = px(lbl.x);
+      const ly = py(lbl.y);
+      const fc = lbl.color ?? "#1e293b";
+      const fs = lbl.fontSize ?? 12;
+      const ta = lbl.anchor ?? "middle";
+      parts.push(`<text x="${lx.toFixed(2)}" y="${ly.toFixed(2)}" font-size="${fs}" fill="${fc}" text-anchor="${ta}" font-weight="500">${escapeXml(lbl.text)}</text>`);
+    }
+  }
 
   // Markers
   if (opts.markers) {
@@ -260,9 +368,9 @@ export function plotFunction(opts: PlotOptions): PlotResult {
     }
   }
 
-  // Label di atas
+  // Label di atas (auto pretty: ^2 → ², * → ·, pi → π, dll)
   if (opts.label) {
-    parts.push(`<text x="${(width / 2).toFixed(2)}" y="${(padding - 12).toFixed(2)}" font-size="14" fill="#1e293b" text-anchor="middle" font-weight="600">${escapeXml(opts.label)}</text>`);
+    parts.push(`<text x="${(width / 2).toFixed(2)}" y="${(padding - 12).toFixed(2)}" font-size="14" fill="#1e293b" text-anchor="middle" font-weight="600">${escapeXml(prettyMath(opts.label))}</text>`);
   }
 
   parts.push(`</svg>`);
@@ -277,6 +385,26 @@ export function plotFunction(opts: PlotOptions): PlotResult {
 
 function escapeXml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+/** Format expression matematika ke unicode-pretty (untuk label tampilan). */
+function prettyMath(s: string): string {
+  return s
+    .replace(/\^2\b/g, "²")
+    .replace(/\^3\b/g, "³")
+    .replace(/\^4\b/g, "⁴")
+    .replace(/\^5\b/g, "⁵")
+    .replace(/\^6\b/g, "⁶")
+    .replace(/\^7\b/g, "⁷")
+    .replace(/\^8\b/g, "⁸")
+    .replace(/\^9\b/g, "⁹")
+    .replace(/\^0\b/g, "⁰")
+    .replace(/\^\(-1\)/g, "⁻¹")
+    .replace(/\^\(-2\)/g, "⁻²")
+    .replace(/\s*\*\s*/g, "·")
+    .replace(/\bpi\b/gi, "π")
+    .replace(/\bsqrt\(([^)]+)\)/g, "√($1)")
+    .replace(/\babs\(([^)]+)\)/g, "|$1|");
 }
 
 /**

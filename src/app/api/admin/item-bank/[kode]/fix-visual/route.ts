@@ -54,6 +54,10 @@ export async function POST(req: NextRequest) {
     if (!expression || !Number.isFinite(xMin) || !Number.isFinite(xMax)) {
       return NextResponse.json({ error: "expression, xMin, xMax wajib" }, { status: 400 });
     }
+    // Optional: multi-curve, custom labels, shaded areas
+    const extraCurves = Array.isArray(body.extraCurves) ? body.extraCurves : undefined;
+    const customLabels = Array.isArray(body.customLabels) ? body.customLabels : undefined;
+    const shadedAreas = Array.isArray(body.shadedAreas) ? body.shadedAreas : undefined;
     try {
       const result = plotFunction({
         expression,
@@ -62,12 +66,18 @@ export async function POST(req: NextRequest) {
         yMax: yMaxRaw,
         label,
         xTickMode,
+        extraCurves,
+        customLabels,
+        shadedAreas,
       });
+      const extraNote = extraCurves?.length ? ` + ${extraCurves.length} extra curve` : "";
+      const labelNote = customLabels?.length ? ` + ${customLabels.length} label` : "";
+      const areaNote = shadedAreas?.length ? ` + ${shadedAreas.length} area` : "";
       return NextResponse.json({
         itemId,
         svgBefore: item.konten.svg ?? "",
         svgAfter: result.svg,
-        catatan: `Plot otomatis ${expression} di range x:[${xMin}, ${xMax}], y:[${result.yMinUsed.toFixed(2)}, ${result.yMaxUsed.toFixed(2)}] dari ${result.validPoints} titik sampling.`,
+        catatan: `Plot otomatis ${expression} di range x:[${xMin}, ${xMax}], y:[${result.yMinUsed.toFixed(2)}, ${result.yMaxUsed.toFixed(2)}]${extraNote}${labelNote}${areaNote}.`,
         modelUsed: "server-plot",
       });
     } catch (e) {
