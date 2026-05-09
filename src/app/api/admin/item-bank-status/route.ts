@@ -26,12 +26,16 @@ export async function GET(req: NextRequest) {
   const kelasFilter = url.searchParams.get("kelas");
   const onlyPriority = url.searchParams.get("priority") !== "false"; // default true
 
-  // Load semua items, count by subMateriKode
-  const snap = await getAdminDb().collection("item_bank").select("subMateriKode").get();
+  // Load semua items, count by subMateriKode + SVG count (untuk filter "items dengan gambar")
+  const snap = await getAdminDb().collection("item_bank").select("subMateriKode", "konten.svg").get();
   const counts = new Map<string, number>();
+  const svgCounts = new Map<string, number>();
   for (const d of snap.docs) {
-    const data = d.data() as Pick<ItemBankEntry, "subMateriKode">;
+    const data = d.data() as { subMateriKode: string; konten?: { svg?: string } };
     counts.set(data.subMateriKode, (counts.get(data.subMateriKode) ?? 0) + 1);
+    if (data.konten?.svg && data.konten.svg.trim().length > 0) {
+      svgCounts.set(data.subMateriKode, (svgCounts.get(data.subMateriKode) ?? 0) + 1);
+    }
   }
 
   // Filter sub-materi sesuai prioritas
@@ -66,6 +70,7 @@ export async function GET(req: NextRequest) {
       isEntryPoint: sub.is_entry_point,
       dependentsCount: sub.dependents_count,
       count,
+      svgCount: svgCounts.get(sub.kode) ?? 0,
     }));
 
   // Aggregate stats

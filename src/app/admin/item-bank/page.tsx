@@ -16,6 +16,7 @@ type Row = {
   isEntryPoint: boolean;
   dependentsCount: number;
   count: number;
+  svgCount: number;
 };
 
 type SeedResult = {
@@ -31,7 +32,7 @@ export default function AdminItemBankPage() {
   const { user, loading } = useAuth();
   const [rows, setRows] = useState<Row[]>([]);
   const [stats, setStats] = useState<{ totalItems: number; subsWithItems: number; subsTotalPriority: number } | null>(null);
-  const [filter, setFilter] = useState<{ jenjang: string; kelas: string }>({ jenjang: "", kelas: "" });
+  const [filter, setFilter] = useState<{ jenjang: string; kelas: string; onlyWithSvg: boolean }>({ jenjang: "", kelas: "", onlyWithSvg: false });
   const [memuat, setMemuat] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -239,6 +240,15 @@ export default function AdminItemBankPage() {
         >
           {memuat ? "Memuat..." : "🔄 Refresh"}
         </button>
+        <label className="flex items-center gap-2 text-sm rounded-lg border border-slate-200 px-3 py-2 cursor-pointer hover:bg-slate-50">
+          <input
+            type="checkbox"
+            checked={filter.onlyWithSvg}
+            onChange={(e) => setFilter((f) => ({ ...f, onlyWithSvg: e.target.checked }))}
+            className="rounded"
+          />
+          🖼️ Hanya yang punya gambar
+        </label>
       </div>
 
       {error && <div className="mb-4 p-3 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-sm">{error}</div>}
@@ -360,11 +370,12 @@ export default function AdminItemBankPage() {
               <th className="p-3">Area</th>
               <th className="p-3 text-center">Tags</th>
               <th className="p-3 text-center">Items</th>
+              <th className="p-3 text-center">🖼️ Gambar</th>
               <th className="p-3"></th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
+            {rows.filter((r) => !filter.onlyWithSvg || (r.svgCount ?? 0) > 0).map((r) => (
               <tr key={r.kode} className="border-t border-slate-100">
                 <td className="p-3 font-mono text-xs">{r.kode}</td>
                 <td className="p-3">{r.nama}</td>
@@ -381,6 +392,15 @@ export default function AdminItemBankPage() {
                   }`}>
                     {r.count}
                   </span>
+                </td>
+                <td className="p-3 text-center text-xs">
+                  {(r.svgCount ?? 0) > 0 ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 font-medium">
+                      🖼️ {r.svgCount}
+                    </span>
+                  ) : (
+                    <span className="text-slate-300">—</span>
+                  )}
                 </td>
                 <td className="p-3 space-x-1 whitespace-nowrap">
                   <Link
