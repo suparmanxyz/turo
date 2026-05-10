@@ -96,9 +96,11 @@ const SAFE_GLOBALS = {
   asin: Math.asin, acos: Math.acos, atan: Math.atan,
   sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
   exp: Math.exp, log: Math.log, log2: Math.log2, log10: Math.log10,
+  ln: Math.log, // ln(x) = natural log = Math.log
   sqrt: Math.sqrt, cbrt: Math.cbrt, abs: Math.abs,
   pow: Math.pow, floor: Math.floor, ceil: Math.ceil, round: Math.round,
   PI: Math.PI, E: Math.E,
+  pi: Math.PI, e: Math.E, // lowercase aliases
 };
 
 /** Compile expression jadi function (x) => y. Throw kalau invalid. */

@@ -63,18 +63,23 @@ export async function identifyBlindSpots(uid: string, targetKode: string): Promi
 // ============================================================
 
 /**
- * Konfigurasi warmup. ADAPTIF (revisi 2026-05-09):
- *   - 2 items per blind spot (1 medium + 1 hard) untuk reduce variance
- *   - Threshold pass: ≥ 50% per blind spot (1/2 = lulus tipis, 2/2 = solid)
- *   - Cap total 8 (sebelumnya 5) — accommodate up to 4 blind spots × 2 items
+ * Konfigurasi warmup. Differential per stage (revisi 2026-05-10):
+ *   - Bab: 3 items per BS (1 easy + 1 medium + 1 hard), threshold 67% (≥2/3)
+ *     → decision Bab critical (impact program belajar), butuh akurasi tinggi
+ *   - Sub: 2 items per BS (1 medium + 1 hard), threshold 50% (≥1/2)
+ *     → decision Sub granular, akurasi sedang cukup
  *
- * Sebelum: 1 item per BS × 55-65% lucky probability → false positive tinggi
- * untuk anak weak (e.g. weak_foundation_smp_7 lulus padahal real-nya weak).
+ * Sebelum: 1 item per BS × 55-65% lucky probability → false positive tinggi.
  */
-const WARMUP_MAX_TOTAL_ITEMS = 8;
-const WARMUP_ITEMS_PER_BLINDSPOT = 2;
+const WARMUP_MAX_TOTAL_ITEMS_BAB = 12; // 4 BS × 3 items
+const WARMUP_MAX_TOTAL_ITEMS_SUB = 6;  // 3 BS × 2 items
+const WARMUP_ITEMS_PER_BLINDSPOT_BAB = 3;
+const WARMUP_ITEMS_PER_BLINDSPOT_SUB = 2;
 /** Threshold per blind spot — kalau accuracy < ini → tag remediasi. */
-export const WARMUP_PASS_THRESHOLD = 0.5;
+export const WARMUP_PASS_THRESHOLD_BAB = 0.67; // ≥2/3 untuk 3 items
+export const WARMUP_PASS_THRESHOLD_SUB = 0.5;  // ≥1/2 untuk 2 items
+/** Default threshold (untuk back-compat). */
+export const WARMUP_PASS_THRESHOLD = WARMUP_PASS_THRESHOLD_SUB;
 
 export type WarmupItem = {
   blindSpotKode: string;
@@ -83,12 +88,21 @@ export type WarmupItem = {
 
 /**
  * Bangun queue warmup items dari blind spots.
- * 2 items per blind spot dengan variasi difficulty:
- *   - 1 item medium (b ≈ 0, paling representatif)
- *   - 1 item hard (b > medium, untuk konfirmasi mastery solid)
- * Cap total 8 items (4 BS × 2 items max).
+ *
+ * @param blindSpots - list blind spot terdeteksi
+ * @param scope - "bab" (3 items/BS, max 12) atau "sub" (2 items/BS, max 6)
+ *
+ * Pick variasi difficulty per BS:
+ *   - 3 items (Bab): 1 easy (b paling kecil) + 1 medium (b ≈ 0) + 1 hard (b tertinggi)
+ *   - 2 items (Sub): 1 medium + 1 hard
  */
-export async function buildWarmupQueue(blindSpots: BlindSpot[]): Promise<WarmupItem[]> {
+export async function buildWarmupQueue(
+  blindSpots: BlindSpot[],
+  scope: "bab" | "sub" = "sub",
+): Promise<WarmupItem[]> {
+  const itemsPerBs = scope === "bab" ? WARMUP_ITEMS_PER_BLINDSPOT_BAB : WARMUP_ITEMS_PER_BLINDSPOT_SUB;
+  const maxTotal = scope === "bab" ? WARMUP_MAX_TOTAL_ITEMS_BAB : WARMUP_MAX_TOTAL_ITEMS_SUB;
+
   // Sort: weight CRITICAL dulu (sudah filter di identifyBlindSpots, tapi safe)
   const sorted = [...blindSpots].sort((a, b) => {
     const wa = a.weight === "CRITICAL" ? 0 : 1;
@@ -98,23 +112,33 @@ export async function buildWarmupQueue(blindSpots: BlindSpot[]): Promise<WarmupI
 
   const queue: WarmupItem[] = [];
   for (const bs of sorted) {
-    if (queue.length >= WARMUP_MAX_TOTAL_ITEMS) break;
+    if (queue.length >= maxTotal) break;
     const pool = await itemsForSubMateri(bs.kode);
     if (pool.length === 0) continue;
 
-    // Pick variasi difficulty:
-    //   medium = item dengan |b| paling kecil (deretkan b naik dari mendekati 0)
-    //   hard   = item dengan b tertinggi (paling sulit)
-    const byAbsB = [...pool].sort((a, b) => Math.abs(a.b) - Math.abs(b.b));
-    const byB = [...pool].sort((a, b) => b.b - a.b);
-    const medium = byAbsB[0]!;
-    const hard = byB[0]?.id !== medium.id ? byB[0] : byB[1];
+    // Sort pool by b ascending (easiest first) untuk easy/medium/hard pick
+    const sortedAsc = [...pool].sort((a, b) => a.b - b.b);
+    const picks: ItemBankEntry[] = [];
+    if (itemsPerBs >= 3 && sortedAsc.length >= 3) {
+      // 3 items: easy (b min) + medium (b di tengah) + hard (b max)
+      picks.push(sortedAsc[0]!);
+      picks.push(sortedAsc[Math.floor(sortedAsc.length / 2)]!);
+      picks.push(sortedAsc[sortedAsc.length - 1]!);
+    } else {
+      // 2 items: medium (b ≈ 0) + hard (b max)
+      const byAbsB = [...pool].sort((a, b) => Math.abs(a.b) - Math.abs(b.b));
+      const medium = byAbsB[0]!;
+      picks.push(medium);
+      const hard = sortedAsc[sortedAsc.length - 1];
+      if (hard && hard.id !== medium.id) picks.push(hard);
+      else if (sortedAsc.length >= 2) picks.push(sortedAsc[sortedAsc.length - 2]!);
+    }
+    // Dedup (kalau pool kecil bisa same item ke-pick 2×)
+    const seen = new Set<string>();
+    const unique = picks.filter((p) => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
 
-    const picks: ItemBankEntry[] = [medium];
-    if (hard && WARMUP_ITEMS_PER_BLINDSPOT >= 2) picks.push(hard);
-
-    for (const pick of picks.slice(0, WARMUP_ITEMS_PER_BLINDSPOT)) {
-      if (queue.length >= WARMUP_MAX_TOTAL_ITEMS) break;
+    for (const pick of unique.slice(0, itemsPerBs)) {
+      if (queue.length >= maxTotal) break;
       queue.push({ blindSpotKode: bs.kode, item: pick });
     }
   }
@@ -153,6 +177,7 @@ export type CekKesiapanDecision =
 export function putuskanCekKesiapan(
   targetKode: string,
   responses: WarmupResponse[],
+  threshold: number = WARMUP_PASS_THRESHOLD_SUB,
 ): CekKesiapanDecision {
   // Group by blind spot kode
   const byKode = new Map<string, { correct: number; total: number }>();
@@ -167,7 +192,7 @@ export function putuskanCekKesiapan(
   const failedKodes: string[] = [];
   for (const [kode, agg] of byKode.entries()) {
     if (agg.total === 0) continue;
-    if (agg.correct / agg.total < WARMUP_PASS_THRESHOLD) {
+    if (agg.correct / agg.total < threshold) {
       failedKodes.push(kode);
     }
   }
@@ -226,7 +251,7 @@ export async function startCekKesiapan(uid: string, targetKode: string): Promise
       },
     };
   }
-  const warmupQueue = await buildWarmupQueue(blindSpots);
+  const warmupQueue = await buildWarmupQueue(blindSpots, "sub");
   if (warmupQueue.length === 0) {
     // Item bank kosong untuk blind spots — fallback ke diagnostik
     return {
@@ -250,7 +275,7 @@ export function finishCekKesiapan(
   targetKode: string,
   responses: WarmupResponse[],
 ): CekKesiapanDecision {
-  return putuskanCekKesiapan(targetKode, responses);
+  return putuskanCekKesiapan(targetKode, responses, WARMUP_PASS_THRESHOLD_SUB);
 }
 
 // ============================================================
@@ -333,7 +358,7 @@ export async function startCekKesiapanBab(
       },
     };
   }
-  const warmupQueue = await buildWarmupQueue(blindSpots);
+  const warmupQueue = await buildWarmupQueue(blindSpots, "bab");
   if (warmupQueue.length === 0) {
     return {
       materiSlug,
@@ -350,40 +375,15 @@ export async function startCekKesiapanBab(
 }
 
 /**
- * Decision logic untuk cek kesiapan bab — sama dengan per-sub,
- * tapi threshold lebih longgar karena cek menyeluruh & banyak prereq.
- *
- * - Semua benar → "lanjut" (siap belajar bab)
- * - 1-2 salah → "remediasi" (sebagian prereq lemah, bisa lanjut tapi review dulu)
- * - 3+ salah → "diagnostik" (banyak fondasi lemah, perlu cek lebih dalam)
+ * Decision logic untuk cek kesiapan bab — pakai threshold 67% per BS
+ * (≥2 dari 3 items benar) untuk akurasi tinggi, karena decision Bab
+ * impact ke seluruh program belajar.
  */
 export function finishCekKesiapanBab(
   materiSlug: string,
   responses: WarmupResponse[],
 ): CekKesiapanDecision {
-  const wrong = responses.filter((r) => !r.correct);
-  const wrongKodes = Array.from(new Set(wrong.map((r) => r.blindSpotKode)));
-
-  if (wrong.length === 0) {
-    return {
-      action: "lanjut",
-      targetKode: materiSlug,
-      alasan: `Semua ${responses.length} prereq bab sudah dikuasai`,
-    };
-  }
-  if (wrongKodes.length <= 2) {
-    return {
-      action: "remediasi",
-      targetKode: materiSlug,
-      remediasiKodes: wrongKodes,
-      alasan: `${wrongKodes.length} prereq belum siap — sebaiknya review dulu sebelum mulai bab`,
-    };
-  }
-  return {
-    action: "diagnostik",
-    targetKode: materiSlug,
-    alasan: `${wrongKodes.length} prereq lemah — perlu diagnostik lebih dalam (mungkin balik ke bab sebelumnya)`,
-  };
+  return putuskanCekKesiapan(materiSlug, responses, WARMUP_PASS_THRESHOLD_BAB);
 }
 
 // Re-export untuk konsumer
