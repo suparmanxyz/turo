@@ -250,7 +250,8 @@ export default function AdminDiagnosticSessionDetail(props: { params: Promise<{ 
                               <div><MathText>{o.teks}</MathText></div>
                               {o.alasan && (
                                 <div className={`text-[10px] mt-0.5 ${isKunci ? "text-emerald-700" : "text-rose-600"}`}>
-                                  {isKunci ? "✓" : "miskonsepsi:"} {o.alasan}
+                                  {isKunci ? "✓ " : "miskonsepsi: "}
+                                  <MathText>{o.alasan.replace(/^\s*miskonsepsi\s*:\s*/i, "")}</MathText>
                                 </div>
                               )}
                               <div className="text-[9px] text-slate-400 mt-0.5">

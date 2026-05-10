@@ -559,7 +559,8 @@ export default function AdminItemBankDetailPage(props: { params: Promise<{ kode:
                         <div><MathText>{o.teks}</MathText></div>
                         {o.alasan && (
                           <div className={`text-xs mt-1 ${i === it.konten.kunci ? "text-emerald-700" : "text-rose-600"}`}>
-                            {i === it.konten.kunci ? "✓" : "miskonsepsi:"} {o.alasan}
+                            {i === it.konten.kunci ? "✓ " : "miskonsepsi: "}
+                            <MathText>{o.alasan.replace(/^\s*miskonsepsi\s*:\s*/i, "")}</MathText>
                           </div>
                         )}
                       </div>

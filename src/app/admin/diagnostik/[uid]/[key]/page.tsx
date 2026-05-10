@@ -193,7 +193,7 @@ export default function AdminDiagnostikDetailPage(props: { params: Promise<{ uid
                           <div><MathText>{o.teks}</MathText></div>
                           {o.alasan && (
                             <div className="text-xs italic mt-1 text-slate-600">
-                              {o.benar ? "✓ " : "⚠ "} <MathText>{o.alasan}</MathText>
+                              {o.benar ? "✓ " : "⚠ "} <MathText>{o.alasan.replace(/^\s*miskonsepsi\s*:\s*/i, "")}</MathText>
                             </div>
                           )}
                         </div>
