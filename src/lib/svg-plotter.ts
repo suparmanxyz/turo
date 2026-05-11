@@ -8,6 +8,51 @@
  */
 
 import "server-only";
+import katex from "katex";
+
+/** Nama fungsi untuk label (f, g, h, p, q, r). Skip "e" (Euler) dan single ambiguous. */
+const CURVE_FUNC_NAMES = ["f", "g", "h", "p", "q", "r"];
+
+/**
+ * Convert expression dari syntax compile (`x^2`, `2*x`, `sqrt(x)`, `pi`) ke LaTeX syntax.
+ * Pakai untuk render KaTeX.
+ */
+function toLatex(expr: string): string {
+  let r = expr
+    .replace(/\bsqrt\(([^)]+)\)/g, "\\sqrt{$1}")
+    .replace(/\babs\(([^)]+)\)/g, "\\left|$1\\right|")
+    .replace(/\bsin\b/g, "\\sin")
+    .replace(/\bcos\b/g, "\\cos")
+    .replace(/\btan\b/g, "\\tan")
+    .replace(/\bln\b/g, "\\ln")
+    .replace(/\blog\b/g, "\\log")
+    .replace(/\bexp\b/g, "\\exp")
+    .replace(/\bpi\b/gi, "\\pi");
+  // Pangkat: x^2 → x^{2}, x^(-1) → x^{-1}
+  r = r.replace(/\^(\([^)]+\)|\d+|[a-zA-Z])/g, "^{$1}");
+  // Multiplication: pakai \cdot di antara digit dan letter wisbukan kelumrahan
+  // Tapi LaTeX standard: keep implicit (2x), so HAPUS * antara digit/letter & letter/paren
+  for (let i = 0; i < 3; i++) {
+    r = r.replace(/(\d|[a-zA-Z}])\s*\*\s*([a-zA-Z\(\\])/g, "$1$2");
+  }
+  // Sisa * → \cdot
+  r = r.replace(/\s*\*\s*/g, " \\cdot ");
+  return r;
+}
+
+/** Render LaTeX expression jadi HTML+MathML (KaTeX). */
+function renderLatex(expr: string): string {
+  try {
+    return katex.renderToString(expr, {
+      displayMode: false,
+      throwOnError: false,
+      output: "htmlAndMathml",
+      strict: "ignore",
+    });
+  } catch {
+    return expr;
+  }
+}
 
 export type PlotCurve = {
   expression: string;
@@ -310,8 +355,46 @@ export function plotFunction(opts: PlotOptions): PlotResult {
     }
   }
 
+  // Helper: cari anchor untuk label kurva di area TENGAH curve (avoid edge).
+  // Sweep dari kanan ke kiri, return titik pertama yang valid (in y-range).
+  function findLabelAnchor(curveFn: (x: number) => number): { x: number; y: number } | null {
+    const tries = 60;
+    // Range 30%-70% xMax (tengah curve, jauh dari edge clipping)
+    for (let i = tries; i >= 0; i--) {
+      const ratio = 0.30 + (i / tries) * 0.40; // 0.30..0.70
+      const xv = opts.xMin + ratio * (opts.xMax - opts.xMin);
+      const yv = curveFn(xv);
+      if (Number.isFinite(yv) && yv >= yMin && yv <= yMax) return { x: xv, y: yv };
+    }
+    return null;
+  }
+
+  // Build inline curve label SVG element — KaTeX-rendered via foreignObject.
+  function buildCurveLabel(text: string, anchorX: number, anchorY: number, color: string, offsetIdx = 0, funcName = "f"): string {
+    const offsetY = -22 + offsetIdx * 28;
+    const ax = px(anchorX);
+    const ay = py(anchorY);
+    const labelWidth = 200;
+    const margin = 12;
+    // Default: label di RIGHT of anchor. Kalau exceed svg width, shift ke LEFT.
+    let lx = ax + margin;
+    if (lx + labelWidth > width - 5) {
+      lx = Math.max(padding, ax - margin - labelWidth);
+    }
+    const ly = ay + offsetY;
+    // Strip "y = " atau "f(x) = " prefix dari text kalau ada (kita re-prepend)
+    const cleanExpr = text.replace(/^\s*(y|f\(x\)|g\(x\)|h\(x\))\s*=\s*/i, "");
+    const latex = `${funcName}(x) = ${toLatex(cleanExpr)}`;
+    const katexHtml = renderLatex(latex);
+    return `<foreignObject x="${lx.toFixed(2)}" y="${ly.toFixed(2)}" width="${labelWidth}" height="32" style="overflow:visible">` +
+      `<div xmlns="http://www.w3.org/1999/xhtml" style="color:${color};font-size:14px;line-height:1.2;text-shadow:1.5px 0 white,-1.5px 0 white,0 1.5px white,0 -1.5px white,1px 1px white,-1px -1px white,1px -1px white,-1px 1px white;display:inline-block">` +
+      katexHtml +
+      `</div></foreignObject>`;
+  }
+
   // ====== EXTRA CURVES (multi-line) — render before main curve so main on top ======
   const extraCurveColors = ["#dc2626", "#16a34a", "#9333ea", "#ea580c", "#0891b2"];
+  const extraCurveLabels: { text: string; anchor: { x: number; y: number }; color: string; idx: number }[] = [];
   if (opts.extraCurves && opts.extraCurves.length > 0) {
     opts.extraCurves.forEach((curve, idx) => {
       try {
@@ -330,6 +413,11 @@ export function plotFunction(opts: PlotOptions): PlotResult {
         const sw = curve.strokeWidth ?? 2.5;
         const da = curve.dasharray ? ` stroke-dasharray="${curve.dasharray}"` : "";
         parts.push(`<path d="${segs.join(" ")}" fill="none" stroke="${cc}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"${da}/>`);
+
+        // Stash label info (render setelah main curve supaya di atas semua)
+        const labelText = curve.label ?? `y = ${curve.expression}`;
+        const anchor = findLabelAnchor(fnExtra);
+        if (anchor) extraCurveLabels.push({ text: labelText, anchor, color: cc, idx: idx + 1 });
       } catch {
         // skip extra curve error
       }
@@ -338,6 +426,17 @@ export function plotFunction(opts: PlotOptions): PlotResult {
 
   // Curve utama (di atas extra curves)
   parts.push(`<path d="${pathStr}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`);
+
+  // ====== INLINE CURVE LABELS (KaTeX-rendered via foreignObject) ======
+  // Naming: main = f(x), extra = g(x), h(x), p(x), q(x), r(x)
+  const mainAnchor = findLabelAnchor(fn);
+  if (mainAnchor) {
+    parts.push(buildCurveLabel(opts.label ?? opts.expression, mainAnchor.x, mainAnchor.y, color, 0, CURVE_FUNC_NAMES[0]));
+  }
+  for (const el of extraCurveLabels) {
+    const funcName = CURVE_FUNC_NAMES[el.idx] ?? CURVE_FUNC_NAMES[CURVE_FUNC_NAMES.length - 1];
+    parts.push(buildCurveLabel(el.text, el.anchor.x, el.anchor.y, el.color, el.idx, funcName));
+  }
 
   // ====== CUSTOM LABELS (text di koordinat matematika) ======
   if (opts.customLabels && opts.customLabels.length > 0) {
@@ -370,10 +469,8 @@ export function plotFunction(opts: PlotOptions): PlotResult {
     }
   }
 
-  // Label di atas (auto pretty: ^2 → ², * → ·, pi → π, dll)
-  if (opts.label) {
-    parts.push(`<text x="${(width / 2).toFixed(2)}" y="${(padding - 12).toFixed(2)}" font-size="14" fill="#1e293b" text-anchor="middle" font-weight="600">${escapeXml(prettyMath(opts.label))}</text>`);
-  }
+  // Note: label di atas grafik dihapus — sekarang label inline dekat kurva
+  // (rendered above sebagai buildCurveLabel + extra curve labels)
 
   parts.push(`</svg>`);
 
@@ -389,9 +486,9 @@ function escapeXml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-/** Format expression matematika ke unicode-pretty (untuk label tampilan). */
+/** Format expression matematika ke unicode-pretty LaTeX-style (untuk label tampilan). */
 function prettyMath(s: string): string {
-  return s
+  let r = s
     .replace(/\^2\b/g, "²")
     .replace(/\^3\b/g, "³")
     .replace(/\^4\b/g, "⁴")
@@ -403,10 +500,35 @@ function prettyMath(s: string): string {
     .replace(/\^0\b/g, "⁰")
     .replace(/\^\(-1\)/g, "⁻¹")
     .replace(/\^\(-2\)/g, "⁻²")
-    .replace(/\s*\*\s*/g, "·")
     .replace(/\bpi\b/gi, "π")
     .replace(/\bsqrt\(([^)]+)\)/g, "√($1)")
     .replace(/\babs\(([^)]+)\)/g, "|$1|");
+
+  // Implicit multiplication LaTeX-style:
+  //   - 4*x → 4x (digit × variable)
+  //   - 2*(x+1) → 2(x+1) (digit × group)
+  //   - 4*sin(x) → 4sin(x) (digit × function call)
+  //   - x*y → xy (variable × variable)
+  // Apply berulang untuk handle chain seperti 2*x*y → 2xy
+  for (let i = 0; i < 3; i++) {
+    r = r.replace(/(\d|[a-zA-Z²³⁴⁵⁶⁷⁸⁹⁰⁻]|\))\s*\*\s*([a-zA-Z\(])/g, "$1$2");
+  }
+  // Sisa * (e.g. digit*digit) → ·
+  r = r.replace(/\s*\*\s*/g, "·");
+
+  // Simplify -(single-term-with-superscript): -(x²) → -x²
+  r = r.replace(/-\(([a-zA-Zπ²³⁴⁵⁶⁷⁸⁹⁰]+)\)/g, "-$1");
+
+  // Add spaces around binary +/- antara operand (LaTeX style: "x² + 4x - 1")
+  // Pattern: (operand char)(+ or -)(operand char) → "$1 $2 $3"
+  // Apply berulang untuk handle chain
+  for (let i = 0; i < 3; i++) {
+    r = r.replace(/([0-9a-zA-Zπ²³⁴⁵⁶⁷⁸⁹⁰\)])\s*([+\-])\s*([0-9a-zA-Zπ\(])/g, "$1 $2 $3");
+  }
+  // Space sekitar =
+  r = r.replace(/\s*=\s*/g, " = ");
+
+  return r;
 }
 
 /**
