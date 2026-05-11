@@ -159,7 +159,16 @@ function quotaClusterTerpenuhi(
   used: Set<string>,
   minPerCluster: number = MIN_PER_CLUSTER_RELIABLE,
 ): boolean {
-  if (!state.userJenjang || state.userKelas === undefined) return true;
+  if (!state.userJenjang || state.userKelas === undefined) {
+    // INVARIANT VIOLATION: profile harus ter-set kalau ada di flow normal.
+    // Sebelumnya bypass silent → cluster quota tidak enforced → cluster A=2 anomali.
+    // Sekarang log warning supaya bisa di-track di monitoring.
+    console.warn(
+      "[Coverage] INVARIANT: quotaClusterTerpenuhi dipanggil tanpa userJenjang/userKelas",
+      { jalur: state.jalur, responsesCount: responses.length },
+    );
+    return true;
+  }
   const targets = AREA_TARGETS[state.jalur];
   const foundationTarget = pickFoundationTarget(state.userJenjang, state.userKelas);
   const itemMap = new Map(state.pool.map((it) => [it.id, it]));

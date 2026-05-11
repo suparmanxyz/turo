@@ -34,6 +34,15 @@ export async function POST(req: NextRequest) {
   }
   const jenjang = rawJenjang as Jenjang | undefined;
   const kelas = body.kelas as Kelas | undefined;
+  // INVARIANT: jenjang & kelas wajib untuk Diagnostik Awal. Tanpa keduanya,
+  // engine tidak bisa filter cluster A/B/C (silent bypass quota check),
+  // bug yang ke-detect di session OqvlLxz... — Cluster A cuma 2 items.
+  if (!jenjang || kelas === undefined) {
+    return NextResponse.json(
+      { error: "jenjang dan kelas wajib di-set sebelum memulai Diagnostik Awal" },
+      { status: 400 },
+    );
+  }
   const kategoriUtama = (body.kategoriUtama ?? "reguler") as KategoriUtama;
   const modePersiapan = body.modePersiapan as "sekolah" | "utbk" | "olimpiade" | undefined;
   const rawMode = body.modeKurikulum;
@@ -61,7 +70,7 @@ export async function POST(req: NextRequest) {
     onboardingStatus: "belum",
   });
 
-  const sessionId = await createDiagnosticSession(uid, jalur);
+  const sessionId = await createDiagnosticSession(uid, jalur, jenjangResmi, kelas);
   const step = await startOnboarding(jalur, jenjangResmi, modeKurikulum, kelas, babsExposed);
 
   return NextResponse.json({

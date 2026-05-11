@@ -102,6 +102,13 @@ export function pickNextLocatorItem(state: LocatorState): ItemBankEntry | null {
   // deteksi anak K12 yang real-nya K5 di pecahan.
   const targetKelas = Math.max(range.probingMin, Math.min(range.max, Math.round(state.kelasNow)));
 
+  // Track sub yang sudah dipakai di Locator → prefer sub baru (anti-repeat)
+  const usedSubKodes = new Set<string>();
+  for (const r of state.responses) {
+    const it = state.pool.find((p) => p.id === r.itemId);
+    if (it) usedSubKodes.add(it.subMateriKode);
+  }
+
   // Candidate filter: belum dipakai, kelas == targetKelas
   let candidates = state.pool.filter((it) => !state.used.has(it.id) && it.kelas === targetKelas);
 
@@ -113,11 +120,17 @@ export function pickNextLocatorItem(state: LocatorState): ItemBankEntry | null {
   }
   if (candidates.length === 0) return null;
 
+  // BIAS: prefer items dari sub yang BELUM ditest di Locator stage.
+  // Mencegah edge case "4× same sub" (bug ditemukan di session OqvlLxz...).
+  // Kalau ada candidates dari sub baru → pakai itu. Kalau tidak → fall back ke semua.
+  const newSubCandidates = candidates.filter((it) => !usedSubKodes.has(it.subMateriKode));
+  const finalCandidates = newSubCandidates.length > 0 ? newSubCandidates : candidates;
+
   // Max info di theta sekarang
-  const irtCandidates = toIrtItems(candidates);
+  const irtCandidates = toIrtItems(finalCandidates);
   const picked = selectMaxInfoItem(state.estimate.theta, irtCandidates, state.used);
   if (!picked) return null;
-  return candidates.find((c) => c.id === picked.id) ?? null;
+  return finalCandidates.find((c) => c.id === picked.id) ?? null;
 }
 
 /**

@@ -159,6 +159,9 @@ export type DiagnosticSessionDoc = {
   id: string;
   uid: string;
   jalur: JalurDiagnostik;
+  /** Jenjang & kelas user (snapshot at session start) — untuk audit + cross-check. */
+  jenjang?: "SD" | "SMP" | "SMA";
+  kelas?: number;
   stage: DiagnosticStage;
   /** Theta global running. */
   thetaGlobal?: number;
@@ -241,6 +244,8 @@ export type DiagnosticSessionDoc = {
 export async function createDiagnosticSession(
   uid: string,
   jalur: JalurDiagnostik,
+  jenjang?: "SD" | "SMP" | "SMA",
+  kelas?: number,
 ): Promise<string> {
   const db = getAdminDb();
   const ref = db.collection(COL.DIAGNOSTIC_SESSION).doc();
@@ -254,6 +259,8 @@ export async function createDiagnosticSession(
     itemsSkipped: 0,
     startedAt: now,
     updatedAt: now,
+    ...(jenjang ? { jenjang } : {}),
+    ...(kelas !== undefined ? { kelas } : {}),
   };
   await ref.set(doc);
   return ref.id;

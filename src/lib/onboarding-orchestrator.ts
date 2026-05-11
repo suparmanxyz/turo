@@ -291,10 +291,19 @@ async function nextStep(state: OnboardingState): Promise<OnboardingStep> {
     const deep = await rehydrateDeep(state);
     if (deep.done) {
       const result = finalizeDeep(deep);
+      // INVARIANT CHECK: kalau Coverage cluster A/B status="remediasi", Deep
+      // seharusnya jalan dengan items > 0. Kalau itemsUsed=0 → potential bug
+      // (bug ditemukan di session OqvlLxz... — Deep skipped despite cluster A&B fail).
+      const clusterScores = state.hasilCoverage?.clusterScores ?? [];
+      const aOrBRemediasi = clusterScores.some((c) => (c.cluster === "A" || c.cluster === "B") && c.status === "remediasi");
+      if (aOrBRemediasi && (result?.itemsUsed ?? 0) === 0) {
+        console.warn(
+          "[Orchestrator] INVARIANT: Deep stage selesai dengan 0 items meski cluster A/B status=remediasi",
+          { jalur: state.jalur, clusterScores },
+        );
+      }
       // PHASE 4: Diagnostik berhenti setelah Deep — drilling jadi modul Program Belajar
       // terpisah, bukan bagian tes. Anak burnout kalau tes 60-100 soal sekaligus.
-      // Logic drilling tetap ada di codebase (akan di-repurpose untuk generator
-      // Program Belajar di iterasi berikutnya).
       const newState: OnboardingState = { ...state, stage: "selesai", hasilDeep: result ?? undefined };
       return { state: newState, nextItem: null, done: true, progress: { stage: "selesai", itemsAnswered: state.responses.length, estimatedTotal: 0, label: STAGE_LABEL.selesai } };
     }
