@@ -438,19 +438,13 @@ async function tweakItem(idx, itemId, subKode) {
   btn.disabled = true; btn.textContent = "⏳ Tweaking...";
   status.textContent = "AI sedang revisi SVG..."; status.className = "ai-status";
 
-  // Sebelum kirim ke endpoint, REPLACE konten.svg item di Firestore (sementara)
-  // dengan currentSvg[itemId] supaya AI bisa baca SVG terkini sebagai context.
-  // Tapi endpoint /fix-visual chat baca dari Firestore item.konten.svg, bukan dari body.
-  // Workaround: pakai endpoint langsung dengan svgInput ditambah ke instruksi.
-
-  const fullInstruksi = "Berikut SVG saat ini sebagai context (jangan diubah secara struktural, hanya tweak sesuai instruksi user di akhir):\\n\\n" +
-    currentSvg[itemId] + "\\n\\nINSTRUKSI USER: " + instruksi;
-
+  // Kirim SVG terkini via svgInput supaya endpoint pakai itu (bukan dari Firestore).
+  // Endpoint preserve <foreignObject> KaTeX label kalau ada.
   try {
     const res = await fetch(BASE_URL + "/api/admin/item-bank/" + encodeURIComponent(subKode) + "/fix-visual", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + ADMIN_TOKEN },
-      body: JSON.stringify({ itemId, mode: "chat", instruksi: fullInstruksi, model }),
+      body: JSON.stringify({ itemId, mode: "chat", instruksi, model, svgInput: currentSvg[itemId] }),
     });
     const data = await res.json();
     if (!res.ok) { status.textContent = "✗ " + (data.error ?? res.status); status.className = "ai-status error"; }

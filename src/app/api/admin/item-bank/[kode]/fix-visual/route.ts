@@ -92,7 +92,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "instruksi wajib untuk mode chat" }, { status: 400 });
   }
 
-  const currentSvg = item.konten.svg ?? "";
+  // svgInput opsional: SVG yang sedang ditampilkan di UI (sudah ke-tweak sebelumnya).
+  // Kalau ada → pakai itu (preserve previous tweaks). Kalau tidak → fall back ke Firestore.
+  const svgInputRaw = typeof body.svgInput === "string" ? body.svgInput.trim() : "";
+  const currentSvg = svgInputRaw || item.konten.svg || "";
+  // Detect kalau SVG punya foreignObject KaTeX label (dari plotFunction extended)
+  const hasKatexLabel = /<foreignObject[^>]*>[\s\S]*?class="katex/.test(currentSvg);
+
   const prompt = `Kamu editor SVG matematika. Berikut soal MC + SVG saat ini:
 
 PERTANYAAN:
@@ -110,9 +116,13 @@ ${instruksi}
 ATURAN REVISI:
 - Hanya ubah SVG. Jangan ubah pertanyaan/opsi/kunci.
 - KONSISTENSI ANGKA: jumlah elemen visual harus match angka di pertanyaan.
-- Self-contained (tanpa <script>, tanpa external image/font).
-- viewBox proporsional (lebar 200-500). Stroke 2-3px. Font 14-22px.
-- Di dalam <text>, JANGAN pakai LaTeX. Pakai unicode (×, ÷, ≤, π, θ, x², dll).
+- Self-contained (tanpa <script>, tanpa external image/font kecuali yang sudah ada di SVG sekarang).
+- viewBox proporsional. Stroke 2-3px. Font 12-22px.
+${hasKatexLabel ? `- ⚠️ PRESERVE KaTeX LABEL: SVG punya <foreignObject> dengan class="katex" (label fungsi f(x), g(x), h(x), dll).
+  - JANGAN ubah struktur <foreignObject> atau isi KaTeX HTML di dalamnya.
+  - HANYA boleh ubah atribut x/y posisi <foreignObject> kalau instruksi user adalah "pindah label".
+  - JANGAN ganti <foreignObject> jadi <text> biasa.
+  - Kalau instruksi user adalah perubahan non-label (warna kurva, ukuran, area arsiran, dll), keep <foreignObject> exact.` : `- Di dalam <text>, JANGAN pakai LaTeX. Pakai unicode (×, ÷, ≤, π, θ, x², dll).`}
 - Output JSON murni TANPA code fence:
   { "svg": "<svg ...>...</svg>", "catatan": "ringkasan apa yang diubah (1 kalimat)" }`;
 
