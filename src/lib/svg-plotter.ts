@@ -355,13 +355,31 @@ export function plotFunction(opts: PlotOptions): PlotResult {
     }
   }
 
-  // Helper: cari anchor untuk label kurva di area TENGAH curve (avoid edge).
-  // Sweep dari kanan ke kiri, return titik pertama yang valid (in y-range).
-  function findLabelAnchor(curveFn: (x: number) => number): { x: number; y: number } | null {
-    const tries = 60;
-    // Range 30%-70% xMax (tengah curve, jauh dari edge clipping)
+  // Helper: cari anchor untuk label kurva. Multi-curve = diverse x position.
+  //   idx=0 (main):    center (40-60%)
+  //   idx=1 (extra 1): right of center (60-80%)
+  //   idx=2 (extra 2): left of center (20-40%)
+  //   idx=3+:          stagger lebih lebar
+  function findLabelAnchor(curveFn: (x: number) => number, idx = 0): { x: number; y: number } | null {
+    const ranges: [number, number][] = [
+      [0.40, 0.60], // main: center
+      [0.65, 0.85], // extra 1: right
+      [0.15, 0.35], // extra 2: left
+      [0.50, 0.70], // extra 3: right-center
+      [0.30, 0.50], // extra 4: left-center
+      [0.70, 0.90], // extra 5: far right
+    ];
+    const [lo, hi] = ranges[idx % ranges.length]!;
+    const tries = 40;
+    for (let i = 0; i <= tries; i++) {
+      const ratio = lo + (i / tries) * (hi - lo);
+      const xv = opts.xMin + ratio * (opts.xMax - opts.xMin);
+      const yv = curveFn(xv);
+      if (Number.isFinite(yv) && yv >= yMin && yv <= yMax) return { x: xv, y: yv };
+    }
+    // Fallback: try wider range
     for (let i = tries; i >= 0; i--) {
-      const ratio = 0.30 + (i / tries) * 0.40; // 0.30..0.70
+      const ratio = 0.20 + (i / tries) * 0.60;
       const xv = opts.xMin + ratio * (opts.xMax - opts.xMin);
       const yv = curveFn(xv);
       if (Number.isFinite(yv) && yv >= yMin && yv <= yMax) return { x: xv, y: yv };
@@ -369,24 +387,35 @@ export function plotFunction(opts: PlotOptions): PlotResult {
     return null;
   }
 
-  // Build inline curve label SVG element — KaTeX-rendered via foreignObject.
+  // Build inline curve label SVG — nempel di kurva, smart shift untuk avoid edge.
   function buildCurveLabel(text: string, anchorX: number, anchorY: number, color: string, offsetIdx = 0, funcName = "f"): string {
-    const offsetY = -22 + offsetIdx * 28;
     const ax = px(anchorX);
     const ay = py(anchorY);
-    const labelWidth = 200;
-    const margin = 12;
-    // Default: label di RIGHT of anchor. Kalau exceed svg width, shift ke LEFT.
+    const labelWidth = 180;
+    const labelHeight = 26;
+    const margin = 8;
+
+    // Vertical offset KECIL — nempel di kurva (sebelumnya -22px terlalu jauh)
+    // Untuk multi-curve, alternate atas-bawah supaya tidak overlap:
+    //   idx=0: atas anchor
+    //   idx=1: atas tapi lebih ke kanan (sudah handle via findLabelAnchor)
+    //   idx=2: bawah anchor
+    const verticalDir = offsetIdx % 2 === 0 ? -1 : 1; // -1=atas, +1=bawah
+    const offsetY = verticalDir === -1 ? -labelHeight - 2 : margin;
+
     let lx = ax + margin;
-    if (lx + labelWidth > width - 5) {
-      lx = Math.max(padding, ax - margin - labelWidth);
-    }
-    const ly = ay + offsetY;
-    // Strip "y = " atau "f(x) = " prefix dari text kalau ada (kita re-prepend)
+    // Kalau exceed right edge, shift ke LEFT of anchor
+    if (lx + labelWidth > width - 5) lx = Math.max(padding, ax - margin - labelWidth);
+    let ly = ay + offsetY;
+    // Pastikan dalam viewBox (atas)
+    if (ly < 2) ly = ay + margin;
+    // Pastikan dalam viewBox (bawah)
+    if (ly + labelHeight > height - 2) ly = ay - labelHeight - 2;
+
     const cleanExpr = text.replace(/^\s*(y|f\(x\)|g\(x\)|h\(x\))\s*=\s*/i, "");
     const latex = `${funcName}(x) = ${toLatex(cleanExpr)}`;
     const katexHtml = renderLatex(latex);
-    return `<foreignObject x="${lx.toFixed(2)}" y="${ly.toFixed(2)}" width="${labelWidth}" height="32" style="overflow:visible">` +
+    return `<foreignObject x="${lx.toFixed(2)}" y="${ly.toFixed(2)}" width="${labelWidth}" height="${labelHeight + 6}" style="overflow:visible">` +
       `<div xmlns="http://www.w3.org/1999/xhtml" style="color:${color};font-size:14px;line-height:1.2;text-shadow:1.5px 0 white,-1.5px 0 white,0 1.5px white,0 -1.5px white,1px 1px white,-1px -1px white,1px -1px white,-1px 1px white;display:inline-block">` +
       katexHtml +
       `</div></foreignObject>`;
@@ -416,7 +445,7 @@ export function plotFunction(opts: PlotOptions): PlotResult {
 
         // Stash label info (render setelah main curve supaya di atas semua)
         const labelText = curve.label ?? `y = ${curve.expression}`;
-        const anchor = findLabelAnchor(fnExtra);
+        const anchor = findLabelAnchor(fnExtra, idx + 1);
         if (anchor) extraCurveLabels.push({ text: labelText, anchor, color: cc, idx: idx + 1 });
       } catch {
         // skip extra curve error
@@ -429,7 +458,7 @@ export function plotFunction(opts: PlotOptions): PlotResult {
 
   // ====== INLINE CURVE LABELS (KaTeX-rendered via foreignObject) ======
   // Naming: main = f(x), extra = g(x), h(x), p(x), q(x), r(x)
-  const mainAnchor = findLabelAnchor(fn);
+  const mainAnchor = findLabelAnchor(fn, 0);
   if (mainAnchor) {
     parts.push(buildCurveLabel(opts.label ?? opts.expression, mainAnchor.x, mainAnchor.y, color, 0, CURVE_FUNC_NAMES[0]));
   }

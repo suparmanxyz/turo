@@ -41,6 +41,7 @@ const argVal = (flag) => (args.includes(flag) ? args[args.indexOf(flag) + 1] : n
 const jenjangFilter = argVal("--jenjang");
 const limitArg = argVal("--limit") ? parseInt(argVal("--limit"), 10) : null;
 const applyIds = argVal("--apply");
+const refreshHtmlOnly = args.includes("--refresh-html");
 
 async function mintAdminToken() {
   const u = await admin.auth().getUserByEmail(ADMIN_EMAIL);
@@ -196,9 +197,22 @@ if (applyIds) {
   process.exit(0);
 }
 
+let candidates = [];
+let cost = 0;
+const sugFileGlobal = resolve(ROOT, "scripts", "auto-fix-suggestions-v3.json");
+
+if (refreshHtmlOnly) {
+  if (!existsSync(sugFileGlobal)) {
+    console.error("JSON not found, run scan dulu sebelum --refresh-html");
+    process.exit(1);
+  }
+  candidates = JSON.parse(readFileSync(sugFileGlobal, "utf8"));
+  console.log(`🔄 Refresh HTML mode: ${candidates.length} candidate dari JSON.`);
+  console.log(`   Skip scan + vision + plot. Token fresh akan di-embed.\n`);
+} else {
+
 console.log("Scanning...");
 const snap = await db.collection("item_bank").get();
-let candidates = [];
 for (const doc of snap.docs) {
   const item = doc.data();
   if (!item.konten?.svg || item.konten.svg.trim().length === 0) continue;
@@ -216,7 +230,6 @@ if (limitArg) candidates = candidates.slice(0, limitArg);
 console.log(`Candidates: ${candidates.length}\n`);
 
 console.log("Phase 1: Vision analysis (multi-curve + labels + areas)...");
-let cost = 0;
 for (let i = 0; i < candidates.length; i++) {
   const c = candidates[i];
   process.stdout.write(`[${i + 1}/${candidates.length}] ${c.itemId.slice(0, 8)} ${c.subMateriKode} ... `);
@@ -245,12 +258,44 @@ for (let i = 0; i < valid.length; i++) {
   } catch (e) { c.plotError = e.message; console.log(`✗ ${e.message}`); }
 }
 
-const sugFile = resolve(ROOT, "scripts", "auto-fix-suggestions-v3.json");
-writeFileSync(sugFile, JSON.stringify(candidates, null, 2));
+writeFileSync(sugFileGlobal, JSON.stringify(candidates, null, 2));
+
+} // end of !refreshHtmlOnly
 
 const ok = candidates.filter((c) => c.svgAfter && !c.plotError);
 function escapeHtml(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Auto-fix v3 — Multi-curve + Labels + AI Tweak</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // 1. Render Markdown (tables, lists, dll) di element dengan data-md
+  document.querySelectorAll('[data-md]').forEach(el => {
+    const raw = el.textContent || '';
+    el.innerHTML = marked.parse(raw, { breaks: false });
+  });
+  // 2. Render KaTeX math (\$...\$) di body
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\\\(', right: '\\\\)', display: false },
+        { left: '\\\\[', right: '\\\\]', display: true },
+      ],
+      throwOnError: false,
+    });
+  }
+});
+</script>
+<style>
+.pertanyaan table { border-collapse: collapse; margin: 8px 0; font-size: 0.9em; }
+.pertanyaan th, .pertanyaan td { border: 1px solid #cbd5e1; padding: 4px 10px; }
+.pertanyaan th { background: #f1f5f9; }
+.pertanyaan p { margin: 6px 0; }
+</style>
 <style>
   body{font-family:-apple-system,system-ui,sans-serif;max-width:1280px;margin:0 auto;padding:20px;background:#f8fafc}
   .item{background:white;border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
@@ -301,7 +346,8 @@ ${ok.map((c, i) => `
     <div class="header">
       <div>
         <div class="meta">#${i + 1} · ${c.itemId} · ${c.subMateriKode} · ${c.jenjang} K${c.kelas}</div>
-        <div class="pertanyaan">${escapeHtml(c.pertanyaan.slice(0, 300))}${c.pertanyaan.length > 300 ? "..." : ""}</div>
+        <div class="pertanyaan" data-md>${escapeHtml(c.pertanyaan)}</div>
+        <details style="margin-top:6px;font-size:.85em"><summary style="cursor:pointer;color:#64748b">Lihat opsi (${c.opsi.length})</summary><ol style="margin-top:6px;padding-left:24px;color:#475569" type="A">${c.opsi.map((o) => `<li style="margin:4px 0">${escapeHtml(o.teks)}</li>`).join("")}</ol></details>
         <div>
           <span class="expr">y = ${escapeHtml(c.analysis.mainCurve.expression)}</span>
           <span class="badge ${c.analysis.confidence}">${c.analysis.confidence}</span>
