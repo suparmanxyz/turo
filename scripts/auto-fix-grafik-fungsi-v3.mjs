@@ -295,6 +295,55 @@ window.addEventListener('DOMContentLoaded', () => {
 .pertanyaan th, .pertanyaan td { border: 1px solid #cbd5e1; padding: 4px 10px; }
 .pertanyaan th { background: #f1f5f9; }
 .pertanyaan p { margin: 6px 0; }
+/* Inline SVG editor */
+.editable-svg { user-select: none; }
+.editable-svg text, .editable-svg foreignObject {
+  cursor: move;
+  transition: opacity 0.15s;
+}
+.editable-svg text:hover, .editable-svg foreignObject:hover {
+  opacity: 0.7;
+  outline: 1.5px dashed #f59e0b;
+}
+.editable-svg .dragging {
+  opacity: 0.4 !important;
+}
+.delete-overlay {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: #dc2626;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 5;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.delete-overlay:hover { background: #991b1b; transform: scale(1.1); }
+.editor-tools {
+  display: flex;
+  gap: 6px;
+  font-size: 0.75em;
+  color: #64748b;
+  margin-top: 4px;
+  align-items: center;
+}
+.editor-tools button {
+  background: white;
+  border: 1px solid #cbd5e1;
+  padding: 3px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.85em;
+}
+.editor-tools button:hover { background: #f1f5f9; }
+.editor-tools .reset-btn { color: #b45309; border-color: #fde68a; background: #fefce8; }
+.editor-tools .reset-btn:hover { background: #fef3c7; }
 </style>
 <style>
   body{font-family:-apple-system,system-ui,sans-serif;max-width:1280px;margin:0 auto;padding:20px;background:#f8fafc}
@@ -362,7 +411,14 @@ ${ok.map((c, i) => `
     </div>
     <div class="body-grid">
       <div class="col"><h4>Before</h4><div class="svg-box">${c.svgBefore}</div></div>
-      <div class="col"><h4>After (auto)</h4><div class="svg-box" id="after-${i}">${c.svgAfter}</div></div>
+      <div class="col">
+        <h4>After (auto) — drag label, klik 🗑️ untuk hapus</h4>
+        <div class="svg-box editable-svg" id="after-${i}" data-itemid="${c.itemId}">${c.svgAfter}</div>
+        <div class="editor-tools">
+          <button class="reset-btn" onclick="resetSvg('${c.itemId}', ${i})">🔄 Reset ke awal</button>
+          <span style="color:#94a3b8">Hover label → drag pindah · klik tombol merah 🗑️ untuk hapus</span>
+        </div>
+      </div>
       <div class="ai-panel">
         <h4>🤖 Tweak AI</h4>
         <div class="ai-suggest">Contoh: "perbesar 30%", "tambah label di titik puncak (2,5)", "ganti warna kurva ke merah", "tambah arsiran area di bawah kurva untuk x ∈ [0,2]"</div>
@@ -419,9 +475,115 @@ async function saveAllApproved() {
   if (success > 0) alert(success + " items saved! Refresh /admin/item-bank/[kode] untuk lihat hasilnya.");
 }
 
-// Map svgAfter terkini per item (mulai dari hasil auto-plot, ter-update setiap tweak)
+// Map svgAfter: original (untuk reset) + current (sedang ditampilkan)
+const originalSvg = {};
 const currentSvg = {};
-${ok.map((c, i) => `currentSvg["${c.itemId}"] = ${JSON.stringify(c.svgAfter).replace(/<\/script>/gi, "<\\/script>")};`).join("\n")}
+${ok.map((c) => {
+  const safeJson = JSON.stringify(c.svgAfter).replace(/<\/script>/gi, "<\\/script>");
+  return `originalSvg["${c.itemId}"] = ${safeJson};\ncurrentSvg["${c.itemId}"] = ${safeJson};`;
+}).join("\n")}
+
+// ============== INLINE SVG EDITOR (drag + delete + reset) ==============
+function attachEditorHandlers(container, itemId) {
+  if (!container) return;
+  const svg = container.querySelector('svg');
+  if (!svg) return;
+
+  // Get SVG viewBox untuk konversi pixel → SVG coord
+  const vb = svg.viewBox.baseVal;
+  const svgWidth = vb.width || 400;
+  const svgHeight = vb.height || 280;
+
+  // Attach drag to all text & foreignObject elements
+  const draggables = svg.querySelectorAll('text, foreignObject');
+  draggables.forEach((el, idx) => {
+    el.setAttribute('data-edit-idx', idx);
+
+    let dragging = false;
+    let startMouseX = 0, startMouseY = 0;
+    let startElX = 0, startElY = 0;
+
+    el.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return; // only left click
+      // Skip kalau klik delete overlay (handled separately)
+      if (e.target.classList?.contains('delete-overlay')) return;
+      dragging = true;
+      startMouseX = e.clientX;
+      startMouseY = e.clientY;
+      startElX = parseFloat(el.getAttribute('x') || 0);
+      startElY = parseFloat(el.getAttribute('y') || 0);
+      el.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    function onMove(e) {
+      if (!dragging) return;
+      // Calculate scale factor: SVG might be scaled to fit container
+      const rect = svg.getBoundingClientRect();
+      const scaleX = svgWidth / rect.width;
+      const scaleY = svgHeight / rect.height;
+      const dx = (e.clientX - startMouseX) * scaleX;
+      const dy = (e.clientY - startMouseY) * scaleY;
+      el.setAttribute('x', (startElX + dx).toFixed(1));
+      el.setAttribute('y', (startElY + dy).toFixed(1));
+    }
+    function onUp() {
+      if (dragging) {
+        dragging = false;
+        el.classList.remove('dragging');
+        // Save current SVG back ke state
+        currentSvg[itemId] = svg.outerHTML;
+      }
+    }
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+
+    // Add delete overlay (visible on hover)
+    const overlay = document.createElement('div');
+    overlay.className = 'delete-overlay';
+    overlay.textContent = '✗';
+    overlay.title = 'Hapus label';
+    overlay.style.display = 'none';
+
+    el.addEventListener('mouseenter', () => {
+      const elRect = el.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      overlay.style.left = (elRect.right - containerRect.left - 11) + 'px';
+      overlay.style.top = (elRect.top - containerRect.top - 11) + 'px';
+      overlay.style.display = 'flex';
+    });
+    overlay.addEventListener('mouseleave', () => {
+      overlay.style.display = 'none';
+    });
+    overlay.addEventListener('mousedown', (e) => e.stopPropagation()); // prevent drag
+    overlay.addEventListener('click', (e) => {
+      e.stopPropagation();
+      el.remove();
+      overlay.remove();
+      currentSvg[itemId] = svg.outerHTML;
+    });
+    container.appendChild(overlay);
+  });
+}
+
+function resetSvg(itemId, idx) {
+  if (!confirm('Reset SVG ke kondisi awal? Semua tweak akan hilang.')) return;
+  currentSvg[itemId] = originalSvg[itemId];
+  const container = document.getElementById('after-' + idx);
+  // Clear old overlays
+  container.querySelectorAll('.delete-overlay').forEach((o) => o.remove());
+  container.innerHTML = originalSvg[itemId];
+  attachEditorHandlers(container, itemId);
+}
+
+// Attach handlers ke semua editable SVG saat HTML load (after KaTeX render)
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.querySelectorAll('.editable-svg').forEach((c) => {
+      attachEditorHandlers(c, c.getAttribute('data-itemid'));
+    });
+  }, 500); // delay supaya KaTeX selesai render dulu
+});
 
 async function tweakItem(idx, itemId, subKode) {
   if (Date.now() > TOKEN_EXPIRES_AT) {
@@ -447,11 +609,23 @@ async function tweakItem(idx, itemId, subKode) {
       body: JSON.stringify({ itemId, mode: "chat", instruksi, model, svgInput: currentSvg[itemId] }),
     });
     const data = await res.json();
-    if (!res.ok) { status.textContent = "✗ " + (data.error ?? res.status); status.className = "ai-status error"; }
+    if (!res.ok) {
+      let errMsg = "✗ " + (data.error ?? res.status);
+      if (data.raw) errMsg += "\\n[Raw: " + data.raw.slice(0, 150) + "...]";
+      if (data.stopReason) errMsg += " (stop: " + data.stopReason + ")";
+      status.textContent = errMsg;
+      status.className = "ai-status error";
+      console.error("Tweak fail:", data);
+    }
     else if (!data.svgAfter) { status.textContent = "✗ AI return empty SVG"; status.className = "ai-status error"; }
     else {
       currentSvg[itemId] = data.svgAfter;
-      document.getElementById('after-' + idx).innerHTML = data.svgAfter;
+      const container = document.getElementById('after-' + idx);
+      // Clear old delete overlays before innerHTML swap
+      container.querySelectorAll('.delete-overlay').forEach((o) => o.remove());
+      container.innerHTML = data.svgAfter;
+      // Re-attach drag/delete handlers ke SVG baru
+      attachEditorHandlers(container, itemId);
       status.textContent = "✓ " + (data.catatan ?? "updated"); status.className = "ai-status success";
       input.value = "";
     }

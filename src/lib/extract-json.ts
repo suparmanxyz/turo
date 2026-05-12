@@ -52,18 +52,55 @@ function tryParseWithFix(s: string): unknown {
   return undefined;
 }
 
+/**
+ * Escape literal control chars (newline, tab, CR) di dalam JSON string literal.
+ * AI kadang output SVG dengan literal "\n" yang break JSON.parse.
+ */
+function escapeLiteralControls(text: string): string {
+  let out = "";
+  let inString = false;
+  let escape = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inString) {
+      if (escape) { escape = false; out += c; continue; }
+      if (c === "\\") { escape = true; out += c; continue; }
+      if (c === '"') { inString = false; out += c; continue; }
+      // Replace literal control chars dengan escape sequence
+      if (c === "\n") { out += "\\n"; continue; }
+      if (c === "\r") { out += "\\r"; continue; }
+      if (c === "\t") { out += "\\t"; continue; }
+      out += c;
+      continue;
+    }
+    out += c;
+    if (c === '"') inString = true;
+  }
+  return out;
+}
+
 export function extractJson(text: string): unknown {
   const r1 = tryParseWithFix(text);
   if (r1 !== undefined) return r1;
 
+  // Fallback: escape literal newline/tab di string literals
+  const r2 = tryParseWithFix(escapeLiteralControls(text));
+  if (r2 !== undefined) return r2;
+
+  // Combined: escape newlines + fix LaTeX backslash
+  const r3 = tryParseWithFix(fixLatexBackslash(escapeLiteralControls(text)));
+  if (r3 !== undefined) return r3;
+
   const fenceClosed = text.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (fenceClosed) {
-    const r = tryParseWithFix(fenceClosed[1].trim());
+    const cleaned = fenceClosed[1].trim();
+    const r = tryParseWithFix(cleaned) ?? tryParseWithFix(escapeLiteralControls(cleaned));
     if (r !== undefined) return r;
   }
   const fenceOpen = text.match(/```(?:json)?\s*([\s\S]*)/);
   if (fenceOpen) {
-    const r = tryParseWithFix(fenceOpen[1].trim());
+    const cleaned = fenceOpen[1].trim();
+    const r = tryParseWithFix(cleaned) ?? tryParseWithFix(escapeLiteralControls(cleaned));
     if (r !== undefined) return r;
   }
 
@@ -91,11 +128,24 @@ export function extractJson(text: string): unknown {
       depth--;
       if (depth === 0 && start !== -1) {
         const candidate = text.slice(start, i + 1);
-        const r = tryParseWithFix(candidate);
+        const r = tryParseWithFix(candidate) ?? tryParseWithFix(escapeLiteralControls(candidate));
         if (r !== undefined) return r;
         start = -1;
       }
     }
   }
+
+  // Last resort: regex extract "svg" field langsung dari text
+  const svgMatch = text.match(/"svg"\s*:\s*"((?:\\[\s\S]|[^"\\])*)"/);
+  if (svgMatch) {
+    try {
+      // Unescape JSON string ke real value
+      const svgStr = JSON.parse(`"${svgMatch[1]}"`);
+      const catatanMatch = text.match(/"catatan"\s*:\s*"((?:\\.|[^"\\])*)"/);
+      const catatan = catatanMatch ? JSON.parse(`"${catatanMatch[1]}"`) : "extracted via regex fallback";
+      return { svg: svgStr, catatan };
+    } catch {}
+  }
+
   throw new Error("No valid JSON object found in response");
 }

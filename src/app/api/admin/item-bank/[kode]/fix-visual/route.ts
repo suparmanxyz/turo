@@ -128,17 +128,38 @@ ${hasKatexLabel ? `- ⚠️ PRESERVE KaTeX LABEL: SVG punya <foreignObject> deng
 
   const claude = getClaude();
   let msg;
-  try {
-    msg = await claude.messages.create({
-      model: modelChoice,
-      max_tokens: 8000,
-      messages: [{ role: "user", content: prompt }],
-    });
-  } catch (e) {
-    return NextResponse.json(
-      { error: e instanceof Error ? e.message : String(e) },
-      { status: 502 },
-    );
+  // Auto-retry untuk 529 overloaded + pakai streaming (required Anthropic SDK
+  // untuk max_tokens tinggi → operation might take > 10 min).
+  const delays = [1000, 3000, 6000];
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < delays.length + 1; attempt++) {
+    try {
+      const stream = claude.messages.stream({
+        model: modelChoice,
+        max_tokens: 24000,
+        messages: [{ role: "user", content: prompt }],
+      });
+      msg = await stream.finalMessage();
+      break;
+    } catch (e) {
+      lastError = e;
+      const errStr = e instanceof Error ? e.message : String(e);
+      const isOverload = errStr.includes("529") || errStr.includes("overloaded") || errStr.includes("rate_limit");
+      if (!isOverload || attempt >= delays.length) {
+        return NextResponse.json(
+          {
+            error: isOverload
+              ? "Anthropic API overloaded setelah 3x retry — coba lagi 30 detik kemudian"
+              : errStr,
+          },
+          { status: 502 },
+        );
+      }
+      await new Promise((r) => setTimeout(r, delays[attempt]));
+    }
+  }
+  if (!msg) {
+    return NextResponse.json({ error: lastError instanceof Error ? lastError.message : "Failed" }, { status: 502 });
   }
 
   const text = msg.content
@@ -146,12 +167,22 @@ ${hasKatexLabel ? `- ⚠️ PRESERVE KaTeX LABEL: SVG punya <foreignObject> deng
     .map((c) => (c as { text: string }).text)
     .join("\n");
 
+  // Cek apakah response truncated (max_tokens reached)
+  const stopReason = msg.stop_reason;
+  const truncated = stopReason === "max_tokens";
+
   let obj: unknown;
   try {
     obj = extractJson(text);
   } catch {
     return NextResponse.json(
-      { error: "AI tidak return JSON valid", raw: text.slice(0, 500) },
+      {
+        error: truncated
+          ? "AI response truncated (max_tokens reached) — instruksi terlalu kompleks, coba lebih singkat atau gunakan Opus"
+          : "AI tidak return JSON valid",
+        raw: text.slice(0, 800),
+        stopReason,
+      },
       { status: 502 },
     );
   }
