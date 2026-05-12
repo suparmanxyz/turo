@@ -35,6 +35,7 @@ export default function AdminIndexPage() {
     { href: "/admin/item-meta-audit", emoji: "📊", judul: "Item Meta Audit", desc: "Coverage metadata pedagogis per item (foundation untuk Maturity scoring). Per-field stats, per-jenjang breakdown, auto-refresh untuk monitor enrichment progress." },
     { href: "/admin/materi", emoji: "📚", judul: "Materi & Pohon Prasyarat", desc: "Lihat 472 sub-materi resmi & pohon prasyarat dari peta-prasyarat.json." },
     { href: "/admin/item-bank", emoji: "🏦", judul: "Item Bank", desc: "Seed soal MC ke item_bank per sub-materi prioritas (untuk diagnostik IRT)." },
+    { href: "/admin/item-review", emoji: "📚", judul: "Review Items (50/halaman)", desc: "Browse semua soal dengan pagination 50/halaman + inline edit teks pertanyaan/opsi/alasan + AI tweak SVG. Filter jenjang/kelas/has SVG." },
     { href: "/admin/diagnostic-sessions", emoji: "🎯", judul: "Sesi Diagnostik IRT", desc: "Audit sesi onboarding Phase B (Locator/Coverage/Deep): soal, jawaban, kecocokan vs peta." },
     { href: "/admin/klasifikasi-config", emoji: "⚙", judul: "Threshold Klasifikasi", desc: "Tune batas accuracy lemah/cukup/kuat & remediasi/review/siap untuk diagnostik." },
     { href: "/admin/diagnostik", emoji: "📋", judul: "Soal Diagnostik (legacy)", desc: "Validasi soal hasil generate AI dari diagnostik per-bab (pre-IRT)." },
