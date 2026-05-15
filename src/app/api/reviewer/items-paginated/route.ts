@@ -33,15 +33,17 @@ export async function GET(req: NextRequest) {
   const hasSvgFilter = url.searchParams.get("hasSvg");
   const status = (url.searchParams.get("status") ?? "pending") as "pending" | "mine" | "all";
 
-  // Load assignment (admin can pass ?adminView=all to skip filter; default same as reviewer)
+  // Assignment policy:
+  //   - Admin: default lihat semua (?adminScope=assigned untuk batasi ke assignment-nya)
+  //   - Reviewer: harus punya assignment, kalau tidak return empty + message
   const assignment = await getReviewerAssignment(user.uid);
-  const adminView = userIsAdmin && url.searchParams.get("adminView") === "all";
+  const adminScopeAssigned = userIsAdmin && url.searchParams.get("adminScope") === "assigned";
 
-  if (!adminView && (!assignment || assignment.filters.length === 0)) {
+  if (!userIsAdmin && (!assignment || assignment.filters.length === 0)) {
     return NextResponse.json({
       items: [],
       pagination: { page, limit, total: 0, totalPages: 0 },
-      message: "Belum ada assignment. Hubungi admin.",
+      message: "Belum ada assignment. Hubungi admin untuk set filter di /admin/assign-reviewer.",
     });
   }
 
@@ -50,9 +52,10 @@ export async function GET(req: NextRequest) {
   const snap = await db.collection("item_bank").select("id", "subMateriKode", "jenjang", "kelas", "area", "b", "konten", "meta").get();
   let allItems = snap.docs.map((d) => d.data() as ItemBankEntry);
 
-  // Assignment filter
-  if (!adminView) {
-    allItems = allItems.filter((it) => itemMatchesAssignment(it, assignment!.filters));
+  // Assignment filter (reviewer always; admin only kalau adminScope=assigned)
+  const shouldApplyAssignment = !userIsAdmin || adminScopeAssigned;
+  if (shouldApplyAssignment && assignment && assignment.filters.length > 0) {
+    allItems = allItems.filter((it) => itemMatchesAssignment(it, assignment.filters));
   }
   if (hasSvgFilter === "yes") allItems = allItems.filter((it) => it.konten?.svg && it.konten.svg.trim().length > 0);
   else if (hasSvgFilter === "no") allItems = allItems.filter((it) => !it.konten?.svg || it.konten.svg.trim().length === 0);

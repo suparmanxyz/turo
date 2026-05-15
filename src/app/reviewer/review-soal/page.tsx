@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
-import { isAdminOrReviewerEmail } from "@/lib/admin";
+import { isAdminOrReviewerEmail, isAdminEmail } from "@/lib/admin";
 import { MathText } from "@/components/MathText";
 
 type Item = {
@@ -223,7 +223,10 @@ export default function ReviewSoalPage() {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">📝 Review Soal</h1>
-          <p className="text-xs text-slate-500 mt-1">Login: {user.email}</p>
+          <p className="text-xs text-slate-500 mt-1">
+            Login: {user.email}
+            {isAdminEmail(user.email) && <span className="ml-2 px-1.5 py-0.5 rounded bg-violet-100 text-violet-700">admin · lihat semua item</span>}
+          </p>
         </div>
         <Link href="/" className="text-sm text-brand hover:underline">← Home</Link>
       </div>
