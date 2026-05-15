@@ -186,15 +186,23 @@ export default function ReviewSoalPage() {
     setAiBox((b) => ({ ...b, [item.id]: { ...ai, loading: true, status: "AI sedang revisi..." } }));
     try {
       const idToken = await user.getIdToken();
-      const res = await fetch(`/api/admin/item-bank/${encodeURIComponent(item.subMateriKode)}/fix-visual`, {
+      const edited = edits[item.id] ?? {};
+      // Kirim baseline = item asli + edits yang sudah dilakukan di UI (preserve)
+      const currentKonten = {
+        pertanyaan: edited.pertanyaan ?? item.konten.pertanyaan,
+        opsi: edited.opsi ?? item.konten.opsi,
+        kunci: typeof edited.kunci === "number" ? edited.kunci : item.konten.kunci,
+        pembahasan: edited.pembahasan ?? item.konten.pembahasan ?? "",
+        svg: edited.svg ?? item.konten.svg ?? "",
+      };
+      const res = await fetch(`/api/reviewer/ai-tweak`, {
         method: "POST",
         headers: { "Content-Type": "application/json", authorization: `Bearer ${idToken}` },
         body: JSON.stringify({
           itemId: item.id,
-          mode: "chat",
           instruksi: ai.instruksi,
           model: ai.model,
-          svgInput: edits[item.id]?.svg ?? item.konten.svg ?? "",
+          currentKonten,
         }),
       });
       const data = await res.json();
@@ -202,13 +210,19 @@ export default function ReviewSoalPage() {
         setAiBox((b) => ({ ...b, [item.id]: { ...ai, loading: false, status: "✗ " + (data.error ?? res.status) } }));
         return;
       }
-      if (data.svgAfter) {
-        updateField(item.id, "svg", data.svgAfter);
-        setUsedAiMap((m) => ({ ...m, [item.id]: true }));
-        setAiBox((b) => ({ ...b, [item.id]: { ...ai, loading: false, status: "✓ " + (data.catatan ?? "updated"), instruksi: "" } }));
-      } else {
-        setAiBox((b) => ({ ...b, [item.id]: { ...ai, loading: false, status: "✗ AI tidak return SVG" } }));
+      // Apply semua field yang AI return
+      const applied: string[] = [];
+      if (typeof data.pertanyaanAfter === "string") { updateField(item.id, "pertanyaan", data.pertanyaanAfter); applied.push("pertanyaan"); }
+      if (Array.isArray(data.opsiAfter)) { updateField(item.id, "opsi", data.opsiAfter); applied.push("opsi"); }
+      if (typeof data.kunciAfter === "number") { updateField(item.id, "kunci", data.kunciAfter); applied.push("kunci"); }
+      if (typeof data.pembahasanAfter === "string") { updateField(item.id, "pembahasan", data.pembahasanAfter); applied.push("pembahasan"); }
+      if (typeof data.svgAfter === "string") { updateField(item.id, "svg", data.svgAfter); applied.push("svg"); }
+      if (applied.length === 0) {
+        setAiBox((b) => ({ ...b, [item.id]: { ...ai, loading: false, status: "✗ AI tidak return field apapun" } }));
+        return;
       }
+      setUsedAiMap((m) => ({ ...m, [item.id]: true }));
+      setAiBox((b) => ({ ...b, [item.id]: { ...ai, loading: false, status: `✓ ${applied.join(", ")} · ${data.catatan ?? ""}`, instruksi: "" } }));
     } catch (e) {
       setAiBox((b) => ({ ...b, [item.id]: { ...ai, loading: false, status: "✗ " + (e instanceof Error ? e.message : e) } }));
     }
@@ -337,7 +351,21 @@ export default function ReviewSoalPage() {
 
               {/* Opsi */}
               <div className="mb-3">
-                <label className="text-xs font-semibold text-slate-500 uppercase">Opsi (kunci: {String.fromCharCode(65 + currentKonten.kunci)})</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-500 uppercase">
+                    Opsi (kunci:{" "}
+                    <select
+                      value={currentKonten.kunci}
+                      onChange={(e) => updateField(item.id, "kunci", Number(e.target.value))}
+                      className="ml-1 rounded border-slate-200 border px-1.5 py-0.5 text-xs font-bold"
+                    >
+                      {currentKonten.opsi.map((_, i) => (
+                        <option key={i} value={i}>{String.fromCharCode(65 + i)}</option>
+                      ))}
+                    </select>
+                    )
+                  </label>
+                </div>
                 <div className="mt-1 space-y-2">
                   {currentKonten.opsi.map((o, i) => (
                     <div key={i} className={`p-2 rounded border ${i === currentKonten.kunci ? "border-emerald-300 bg-emerald-50" : "border-slate-200"}`}>
@@ -371,14 +399,31 @@ export default function ReviewSoalPage() {
                 </div>
               </div>
 
+              {/* Pembahasan */}
+              <div className="mb-3">
+                <label className="text-xs font-semibold text-slate-500 uppercase">Pembahasan</label>
+                <textarea
+                  value={currentKonten.pembahasan ?? ""}
+                  onChange={(e) => updateField(item.id, "pembahasan", e.target.value)}
+                  rows={Math.max(2, Math.ceil((currentKonten.pembahasan ?? "").length / 90))}
+                  placeholder="Pembahasan langkah-langkah..."
+                  className="w-full mt-1 p-2 border border-slate-200 rounded text-sm font-mono"
+                />
+                {currentKonten.pembahasan && (
+                  <div className="mt-1 p-2 bg-slate-50 rounded text-sm">
+                    <MathText>{currentKonten.pembahasan}</MathText>
+                  </div>
+                )}
+              </div>
+
               {/* AI Tweak */}
               <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded">
-                <label className="text-xs font-semibold text-amber-900 uppercase">🤖 AI Tweak (revisi SVG via instruksi)</label>
+                <label className="text-xs font-semibold text-amber-900 uppercase">🤖 AI Tweak — semua field (pertanyaan/opsi/kunci/pembahasan/svg)</label>
                 <div className="mt-1 flex gap-2 items-start">
                   <textarea
                     value={ai.instruksi}
                     onChange={(e) => setAiBox((b) => ({ ...b, [item.id]: { ...ai, instruksi: e.target.value } }))}
-                    placeholder="Contoh: 'pindah label ke kiri', 'tambah arsiran di bawah kurva untuk x∈[0,2]', dll"
+                    placeholder="Contoh: 'ganti angka 5 jadi 7 di pertanyaan', 'opsi B salah, harusnya 12', 'kunci salah, harusnya C', 'pindah label grafik ke kiri', dll"
                     rows={2}
                     className="flex-1 p-2 border border-amber-200 rounded text-sm"
                   />
