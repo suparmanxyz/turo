@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-server";
+import { requireAdminOrAssignedReviewer } from "@/lib/reviewer-server";
 import { loadItem } from "@/lib/item-bank";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { getClaude } from "@/lib/claude";
@@ -23,15 +24,15 @@ const ResponseSchema = z.object({
  * preview di client. Save terjadi terpisah (PUT endpoint atau via admin UI).
  */
 export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const itemId = String(body.itemId ?? "").trim();
+
   try {
-    await requireAdmin(req);
+    await requireAdminOrAssignedReviewer(req, itemId);
   } catch (e) {
     if (e instanceof Response) return e;
     throw e;
   }
-
-  const body = await req.json();
-  const itemId = String(body.itemId ?? "").trim();
   const mode = body.mode === "plot-fungsi" ? "plot-fungsi" : "chat";
   if (!itemId) {
     return NextResponse.json({ error: "itemId wajib" }, { status: 400 });

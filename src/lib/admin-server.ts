@@ -1,13 +1,13 @@
 import "server-only";
 import { NextRequest } from "next/server";
 import { getAdminAuth } from "@/lib/firebase-admin";
-import { isAdminEmail } from "@/lib/admin";
+import { isAdminEmail, isAdminOrReviewerEmail } from "@/lib/admin";
 
 /**
- * Server-side admin guard. Verify Firebase ID token dari header Authorization,
- * lalu cek email vs allowlist. Throws Response (401/403) kalau gagal.
+ * Verify Firebase ID token dari header Authorization. Returns decoded user.
+ * Throws Response (401) kalau token invalid.
  */
-export async function requireAdmin(req: NextRequest): Promise<{ uid: string; email: string }> {
+async function verifyTokenFromReq(req: NextRequest): Promise<{ uid: string; email: string }> {
   const auth = req.headers.get("authorization") ?? "";
   const m = auth.match(/^Bearer\s+(.+)$/i);
   if (!m) {
@@ -26,11 +26,35 @@ export async function requireAdmin(req: NextRequest): Promise<{ uid: string; ema
       headers: { "Content-Type": "application/json" },
     });
   }
-  if (!isAdminEmail(decoded.email)) {
+  return { uid: decoded.uid, email: decoded.email! };
+}
+
+/**
+ * Server-side admin guard. Verify token + cek email vs admin allowlist.
+ * Throws Response (401/403) kalau gagal.
+ */
+export async function requireAdmin(req: NextRequest): Promise<{ uid: string; email: string }> {
+  const user = await verifyTokenFromReq(req);
+  if (!isAdminEmail(user.email)) {
     throw new Response(JSON.stringify({ error: "Bukan admin" }), {
       status: 403,
       headers: { "Content-Type": "application/json" },
     });
   }
-  return { uid: decoded.uid, email: decoded.email! };
+  return user;
+}
+
+/**
+ * Server-side reviewer guard. Admin juga lolos (admin > reviewer).
+ * Throws Response (401/403) kalau bukan reviewer/admin.
+ */
+export async function requireReviewer(req: NextRequest): Promise<{ uid: string; email: string }> {
+  const user = await verifyTokenFromReq(req);
+  if (!isAdminOrReviewerEmail(user.email)) {
+    throw new Response(JSON.stringify({ error: "Bukan reviewer atau admin" }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  return user;
 }

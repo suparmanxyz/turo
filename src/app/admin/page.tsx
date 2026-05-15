@@ -43,6 +43,9 @@ export default function AdminIndexPage() {
     { href: "/admin/import-item-bank", emoji: "📤", judul: "Import PDF → Item Bank Diagnostic", desc: "Upload PDF + AI auto-tag ke peta-prasyarat sub-materi + difficulty + meta pedagogis. Save langsung ke item_bank yang dipakai engine diagnostic." },
     { href: "/admin/seed-item-bank", emoji: "🌱", judul: "Seed Item Bank Balance", desc: "Generate soal otomatis (Sonnet 4.6) untuk balance distribusi difficulty per sub. Target 1E + 2M + 2H per sub. Pak ustadz pilih sub mana yang mau di-seed (max 5 per batch)." },
     { href: "/admin/test-agent", emoji: "🤖", judul: "Test Agent Diagnostik", desc: "Jalankan agent fake (17+ persona) yang melakukan tes diagnostik end-to-end via API real, lalu review trace lengkap (soal + jawaban) + asersi otomatis." },
+    { href: "/admin/assign-reviewer", emoji: "👥", judul: "Assign Reviewer", desc: "Tugaskan reviewer untuk cek soal. Set filter per reviewer (jenjang/kelas/subKode) supaya soal terbagi rapi tanpa tabrakan." },
+    { href: "/admin/reviewer-stats", emoji: "📊", judul: "Reviewer Stats", desc: "Rekap approval per reviewer: total, 7 hari terakhir, breakdown jenjang, edits + AI tweak count." },
+    { href: "/reviewer/review-soal", emoji: "✅", judul: "Review Soal (reviewer view)", desc: "Halaman reviewer untuk cek soal satu-satu + approve. Admin juga bisa pakai untuk testing." },
   ];
 
   return (
