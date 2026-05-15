@@ -25,29 +25,25 @@ export async function GET(req: NextRequest) {
   const hasSvgFilter = url.searchParams.get("hasSvg"); // "yes" | "no" | null
 
   const db = getAdminDb();
-  let query: FirebaseFirestore.Query = db.collection("item_bank");
 
-  if (jenjangFilter) query = query.where("jenjang", "==", jenjangFilter);
-  if (kelasFilter) query = query.where("kelas", "==", Number(kelasFilter));
+  // Strategy: fetch ALL items (cache friendly, ~5K items × ~1KB = 5MB), filter +
+  // paginate in-memory. Avoid Firestore composite index requirement untuk
+  // orderBy + multiple filter combinations.
+  const snap = await db.collection("item_bank").select("id", "subMateriKode", "jenjang", "kelas", "area", "b", "konten", "meta").get();
+  let allItems = snap.docs.map((d) => d.data() as ItemBankEntry);
 
-  // Sort by subMateriKode + createdAt untuk consistent pagination
-  query = query.orderBy("subMateriKode").orderBy("createdAt");
+  // Apply filters
+  if (jenjangFilter) allItems = allItems.filter((it) => it.jenjang === jenjangFilter);
+  if (kelasFilter) allItems = allItems.filter((it) => it.kelas === Number(kelasFilter));
+  if (hasSvgFilter === "yes") allItems = allItems.filter((it) => it.konten?.svg && it.konten.svg.trim().length > 0);
+  else if (hasSvgFilter === "no") allItems = allItems.filter((it) => !it.konten?.svg || it.konten.svg.trim().length === 0);
 
-  // Count total (efficient via aggregation)
-  const countSnap = await query.count().get();
-  const totalAll = countSnap.data().count;
+  // Sort by subMateriKode untuk consistent pagination
+  allItems.sort((a, b) => (a.subMateriKode || "").localeCompare(b.subMateriKode || ""));
 
-  // Pagination via offset (acceptable untuk admin tool, items <5000)
+  const totalAll = allItems.length;
   const offset = (page - 1) * limit;
-  const snap = await query.offset(offset).limit(limit).get();
-  let items = snap.docs.map((d) => d.data() as ItemBankEntry);
-
-  // Filter hasSvg (client-side karena Firestore tidak support null check di nested)
-  if (hasSvgFilter === "yes") {
-    items = items.filter((it) => it.konten?.svg && it.konten.svg.trim().length > 0);
-  } else if (hasSvgFilter === "no") {
-    items = items.filter((it) => !it.konten?.svg || it.konten.svg.trim().length === 0);
-  }
+  const items = allItems.slice(offset, offset + limit);
 
   return NextResponse.json({
     items: items.map((it) => ({

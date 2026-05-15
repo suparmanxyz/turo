@@ -387,36 +387,30 @@ export function plotFunction(opts: PlotOptions): PlotResult {
     return null;
   }
 
-  // Build inline curve label SVG — nempel di kurva, smart shift untuk avoid edge.
+  // Build inline curve label SVG — KaTeX, 1 baris (white-space: nowrap, no wrap).
+  // Posisi awal dekat kurva; user bisa drag ke posisi presisi via inline editor.
   function buildCurveLabel(text: string, anchorX: number, anchorY: number, color: string, offsetIdx = 0, funcName = "f"): string {
     const ax = px(anchorX);
     const ay = py(anchorY);
-    const labelWidth = 180;
     const labelHeight = 26;
     const margin = 8;
 
-    // Vertical offset KECIL — nempel di kurva (sebelumnya -22px terlalu jauh)
-    // Untuk multi-curve, alternate atas-bawah supaya tidak overlap:
-    //   idx=0: atas anchor
-    //   idx=1: atas tapi lebih ke kanan (sudah handle via findLabelAnchor)
-    //   idx=2: bawah anchor
-    const verticalDir = offsetIdx % 2 === 0 ? -1 : 1; // -1=atas, +1=bawah
+    // Vertical offset alternate atas-bawah untuk multi-curve
+    const verticalDir = offsetIdx % 2 === 0 ? -1 : 1;
     const offsetY = verticalDir === -1 ? -labelHeight - 2 : margin;
 
-    let lx = ax + margin;
-    // Kalau exceed right edge, shift ke LEFT of anchor
-    if (lx + labelWidth > width - 5) lx = Math.max(padding, ax - margin - labelWidth);
+    const lx = ax + margin;
     let ly = ay + offsetY;
-    // Pastikan dalam viewBox (atas)
     if (ly < 2) ly = ay + margin;
-    // Pastikan dalam viewBox (bawah)
     if (ly + labelHeight > height - 2) ly = ay - labelHeight - 2;
 
     const cleanExpr = text.replace(/^\s*(y|f\(x\)|g\(x\)|h\(x\))\s*=\s*/i, "");
     const latex = `${funcName}(x) = ${toLatex(cleanExpr)}`;
     const katexHtml = renderLatex(latex);
-    return `<foreignObject x="${lx.toFixed(2)}" y="${ly.toFixed(2)}" width="${labelWidth}" height="${labelHeight + 6}" style="overflow:visible">` +
-      `<div xmlns="http://www.w3.org/1999/xhtml" style="color:${color};font-size:14px;line-height:1.2;text-shadow:1.5px 0 white,-1.5px 0 white,0 1.5px white,0 -1.5px white,1px 1px white,-1px -1px white,1px -1px white,-1px 1px white;display:inline-block">` +
+    // Width 400 + overflow:visible + white-space:nowrap → 1 baris terjamin
+    // Boleh keluar viewBox karena user bisa drag ke posisi presisi
+    return `<foreignObject x="${lx.toFixed(2)}" y="${ly.toFixed(2)}" width="400" height="${labelHeight + 6}" style="overflow:visible">` +
+      `<div xmlns="http://www.w3.org/1999/xhtml" style="color:${color};font-size:14px;line-height:1.2;white-space:nowrap;text-shadow:1.5px 0 white,-1.5px 0 white,0 1.5px white,0 -1.5px white,1px 1px white,-1px -1px white,1px -1px white,-1px 1px white;display:inline-block">` +
       katexHtml +
       `</div></foreignObject>`;
   }

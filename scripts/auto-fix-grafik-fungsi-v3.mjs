@@ -206,9 +206,20 @@ if (refreshHtmlOnly) {
     console.error("JSON not found, run scan dulu sebelum --refresh-html");
     process.exit(1);
   }
-  candidates = JSON.parse(readFileSync(sugFileGlobal, "utf8"));
-  console.log(`🔄 Refresh HTML mode: ${candidates.length} candidate dari JSON.`);
-  console.log(`   Skip scan + vision + plot. Token fresh akan di-embed.\n`);
+  const allCandidates = JSON.parse(readFileSync(sugFileGlobal, "utf8"));
+  console.log(`🔄 Refresh HTML mode: ${allCandidates.length} candidate dari JSON.`);
+
+  // Fetch saved list dari Firestore admin_state — survive rerun + cross-browser.
+  console.log(`   Fetch saved list (admin_state/auto-fix-saved-items)...`);
+  const savedDoc = await db.collection("admin_state").doc("auto-fix-saved-items").get();
+  const savedIds = new Set(savedDoc.exists ? (savedDoc.data()?.ids ?? []) : []);
+
+  let savedCount = 0;
+  candidates = allCandidates.filter((c) => {
+    if (savedIds.has(c.itemId)) { savedCount++; return false; }
+    return true;
+  });
+  console.log(`   ${savedCount} items skipped (sudah saved), ${candidates.length} masih perlu review.\n`);
 } else {
 
 console.log("Scanning...");
@@ -384,11 +395,10 @@ window.addEventListener('DOMContentLoaded', () => {
 <div class="summary">
 <strong>Approved (<span id="count">0</span>):</strong>
 <button onclick="saveAllApproved()" id="save-all-btn" style="background:#10b981;color:white;border:none;padding:8px 16px;border-radius:6px;font-weight:600;cursor:pointer;margin-right:8px">💾 Save All Approved (langsung ke Firestore)</button>
-<button onclick="copyCmd()" style="background:#64748b;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:.85em">📋 Copy CLI</button>
+<button onclick="toggleShowSaved()" id="toggle-saved-btn" style="background:#64748b;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:.85em">🙈 Hide yang sudah saved</button>
+<button onclick="if(confirm('Reset list saved? Semua item akan muncul kembali.')) { clearSavedIds(); location.reload(); }" style="background:#f59e0b;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:.85em;margin-left:4px">🔄 Reset Hidden</button>
 <div id="save-status" style="margin-top:6px;font-size:.85em;color:#64748b"></div>
-<details style="margin-top:6px"><summary style="font-size:.8em;color:#64748b;cursor:pointer">CLI fallback</summary>
-<code id="cmd" style="margin-top:4px">node scripts/auto-fix-grafik-fungsi-v3.mjs --apply </code>
-</details>
+<div id="saved-indicator" style="margin-top:4px;font-size:.85em;color:#16a34a;font-weight:600"></div>
 </div>
 ${ok.map((c, i) => `
   <div class="item" id="item-${i}" data-itemid="${c.itemId}" data-subkode="${c.subMateriKode}">
@@ -434,9 +444,33 @@ ${ok.map((c, i) => `
   </div>
 `).join("")}
 <script>
-const ADMIN_TOKEN = ${JSON.stringify(idToken)};
+let ADMIN_TOKEN = ${JSON.stringify(idToken)};
 const BASE_URL = "${BASE_URL}";
-const TOKEN_EXPIRES_AT = Date.now() + 50 * 60 * 1000; // 50 min (token valid 1h)
+
+// Auto-refresh token setiap 45 menit (Firebase ID token valid 1h).
+// Endpoint /api/admin/dev-token hanya aktif di dev (NODE_ENV !== production).
+async function refreshAdminToken() {
+  try {
+    const res = await fetch(BASE_URL + "/api/admin/dev-token");
+    if (!res.ok) {
+      console.warn("Token refresh failed:", res.status);
+      return false;
+    }
+    const data = await res.json();
+    if (data.idToken) {
+      ADMIN_TOKEN = data.idToken;
+      console.log("✓ Admin token refreshed (auto)");
+      return true;
+    }
+  } catch (e) {
+    console.warn("Token refresh error:", e);
+  }
+  return false;
+}
+// Schedule auto-refresh setiap 45 menit
+setInterval(refreshAdminToken, 45 * 60 * 1000);
+// Plus refresh saat halaman load (dapat token segar tanpa harus restart script)
+window.addEventListener('load', () => { setTimeout(refreshAdminToken, 500); });
 
 const ap = new Set();
 function toggle(id, i) {
@@ -448,14 +482,52 @@ function toggle(id, i) {
 }
 function copyCmd() { navigator.clipboard.writeText(document.getElementById('cmd').textContent); alert('CLI command copied!'); }
 
+// Persistent tracking: itemId yang sudah disimpan ke Firestore (localStorage).
+const SAVED_KEY = 'autofix-saved-items';
+function getSavedIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')); } catch { return new Set(); }
+}
+function addSavedIds(ids) {
+  const s = getSavedIds();
+  ids.forEach((id) => s.add(id));
+  localStorage.setItem(SAVED_KEY, JSON.stringify(Array.from(s)));
+}
+function clearSavedIds() { localStorage.removeItem(SAVED_KEY); }
+
+function hideSavedItems() {
+  const saved = getSavedIds();
+  let hiddenCount = 0;
+  document.querySelectorAll('.item').forEach((el) => {
+    const id = el.getAttribute('data-itemid');
+    if (id && saved.has(id)) { el.style.display = 'none'; hiddenCount++; }
+  });
+  const indicator = document.getElementById('saved-indicator');
+  if (indicator) {
+    indicator.textContent = hiddenCount > 0 ? '✓ ' + hiddenCount + ' item sudah saved (disembunyikan)' : '';
+  }
+}
+
+function toggleShowSaved() {
+  const showing = document.body.dataset.showSaved === 'true';
+  document.body.dataset.showSaved = (!showing).toString();
+  if (!showing) {
+    // Show all
+    document.querySelectorAll('.item').forEach((el) => { el.style.display = ''; });
+    document.getElementById('toggle-saved-btn').textContent = '🙈 Hide yang sudah saved';
+  } else {
+    hideSavedItems();
+    document.getElementById('toggle-saved-btn').textContent = '👁️ Show semua (incl. saved)';
+  }
+}
+
 async function saveAllApproved() {
-  if (Date.now() > TOKEN_EXPIRES_AT) { alert("Token expired (1 jam). Re-run script untuk dapat token baru."); return; }
   if (ap.size === 0) { alert("Tidak ada item approved"); return; }
   if (!confirm("Save " + ap.size + " items ke Firestore (TERMASUK semua tweaks AI)?")) return;
   const status = document.getElementById('save-status');
   const btn = document.getElementById('save-all-btn');
   btn.disabled = true; btn.textContent = "⏳ Saving...";
   let success = 0, fail = 0;
+  const savedNow = [];
   for (const id of Array.from(ap)) {
     const itemEl = document.querySelector('[data-itemid="' + id + '"]');
     if (!itemEl) { fail++; continue; }
@@ -466,13 +538,34 @@ async function saveAllApproved() {
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + ADMIN_TOKEN },
         body: JSON.stringify({ itemId: id, svg: currentSvg[id] }),
       });
-      if (res.ok) { success++; status.textContent = "Saving " + (success + fail) + "/" + ap.size + "..."; }
-      else fail++;
+      if (res.ok) {
+        success++;
+        savedNow.push(id);
+        status.textContent = "Saving " + (success + fail) + "/" + ap.size + "...";
+      } else fail++;
     } catch (e) { fail++; }
   }
   btn.disabled = false; btn.textContent = "💾 Save All Approved";
-  status.textContent = "✓ " + success + " saved, " + fail + " failed";
-  if (success > 0) alert(success + " items saved! Refresh /admin/item-bank/[kode] untuk lihat hasilnya.");
+  // Persist saved IDs ke localStorage + server (Firestore admin_state).
+  if (savedNow.length > 0) {
+    addSavedIds(savedNow);
+    // Server-side tracking (survive cross-browser, post-rerun)
+    try {
+      await fetch(BASE_URL + "/api/admin/auto-fix-saved", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + ADMIN_TOKEN },
+        body: JSON.stringify({ ids: savedNow }),
+      });
+    } catch (e) { console.warn("Server-side track gagal:", e); }
+    savedNow.forEach((id) => {
+      const itemEl = document.querySelector('[data-itemid="' + id + '"]');
+      if (itemEl) itemEl.style.display = 'none';
+    });
+    ap.clear();
+    document.getElementById('count').textContent = '0';
+  }
+  status.textContent = "✓ " + success + " saved (disembunyikan), " + fail + " failed";
+  hideSavedItems();
 }
 
 // Map svgAfter: original (untuk reset) + current (sedang ditampilkan)
@@ -582,14 +675,14 @@ window.addEventListener('load', () => {
     document.querySelectorAll('.editable-svg').forEach((c) => {
       attachEditorHandlers(c, c.getAttribute('data-itemid'));
     });
+    // Sembunyikan items yang sudah saved (dari localStorage)
+    hideSavedItems();
   }, 500); // delay supaya KaTeX selesai render dulu
 });
 
 async function tweakItem(idx, itemId, subKode) {
-  if (Date.now() > TOKEN_EXPIRES_AT) {
-    alert("Token expired (1 jam). Re-run script untuk dapat token baru.");
-    return;
-  }
+  // Token auto-refresh setiap 45 menit via setInterval, plus on page load.
+  // Kalau masih gagal auth, user retry → next call sudah pakai token baru.
   const input = document.getElementById('ai-input-' + idx);
   const status = document.getElementById('ai-status-' + idx);
   const btn = document.getElementById('ai-btn-' + idx);
