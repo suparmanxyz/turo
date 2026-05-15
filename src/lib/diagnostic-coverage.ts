@@ -291,6 +291,13 @@ export function pickNextCoverageItem(state: CoverageState): ItemBankEntry | null
     }
   }
 
+  // BIAS 2 (Bug C fix): untuk jalur sma-utbk, boost MAKU items (Materi Kunci UTBK).
+  // Tanpa bias ini, utbk_target_sma_12 dapat kelas est K7-K8 (target K12).
+  if (state.jalur === "sma-utbk") {
+    const makuItems = eligible.filter((it) => it.isMaku);
+    if (makuItems.length > 0) eligible = makuItems;
+  }
+
   const irtCandidates = toIrtItems(eligible);
   const picked = selectBalancedItem(
     state.estimate.theta,

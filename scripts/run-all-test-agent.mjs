@@ -138,7 +138,7 @@ function summarizeRun(run) {
     assertionsTotal: assertions.length,
     assertionsPassed: passedAssertions,
     assertionsFailed: failedAssertions.length,
-    failedAssertionLabels: failedAssertions.map((a) => a.label),
+    failedAssertionLabels: failedAssertions.map((a) => a.name),
     error: run.error ?? null,
   };
 }

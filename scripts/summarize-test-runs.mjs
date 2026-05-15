@@ -107,7 +107,7 @@ for (const r of results.results) {
     maturityOverall: run.maturityOverall !== undefined ? Number(run.maturityOverall.toFixed(2)) : null,
     assertionsTotal: run.assertionsTotal ?? 0,
     assertionsPassed: run.assertionsPassed ?? 0,
-    failedAssertions: (run.assertions ?? []).filter((a) => !a.passed).map((a) => ({ label: a.label, detail: a.detail })),
+    failedAssertions: (run.assertions ?? []).filter((a) => !a.passed).map((a) => ({ name: a.name, expected: a.expected, actual: a.actual, reason: a.reason })),
     error: run.errorMsg ?? null,
   });
 }
@@ -142,7 +142,7 @@ for (const s of summaries) {
   console.log(`  Kelas est: ${s.kelasEstimasi ?? "-"} · Path: ${s.pathRoute ?? "-"} · Maturity: ${s.maturityLevel ?? "-"} (${s.maturityOverall ?? "-"})`);
   console.log(`  Asersi: ${s.assertionsPassed}/${s.assertionsTotal} pass`);
   if (s.failedAssertions.length > 0) {
-    s.failedAssertions.forEach((a) => console.log(`    ✗ ${a.label}${a.detail ? ` — ${a.detail}` : ""}`));
+    s.failedAssertions.forEach((a) => console.log(`    ✗ ${a.name} — expected: ${JSON.stringify(a.expected)}, actual: ${JSON.stringify(a.actual)}${a.reason ? ` (${a.reason})` : ""}`));
   }
   if (realismFlags.length > 0) {
     realismFlags.forEach((f) => console.log(`  ⚠ REALISM: ${f}`));

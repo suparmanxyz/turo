@@ -120,13 +120,18 @@ export function pickNextLocatorItem(state: LocatorState): ItemBankEntry | null {
   }
   if (candidates.length === 0) return null;
 
-  // BIAS: prefer items dari sub yang BELUM ditest di Locator stage.
-  // Mencegah edge case "4× same sub" (bug ditemukan di session OqvlLxz...).
-  // Kalau ada candidates dari sub baru → pakai itu. Kalau tidak → fall back ke semua.
+  // BIAS 1: prefer items dari sub yang BELUM ditest di Locator stage.
   const newSubCandidates = candidates.filter((it) => !usedSubKodes.has(it.subMateriKode));
-  const finalCandidates = newSubCandidates.length > 0 ? newSubCandidates : candidates;
+  let finalCandidates = newSubCandidates.length > 0 ? newSubCandidates : candidates;
 
-  // Max info di theta sekarang
+  // BIAS 2 (Bug C fix): untuk jalur sma-utbk, boost MAKU items (Materi Kunci UTBK).
+  // Tanpa bias ini, utbk_target_sma_12 dapat kelas est K7-K8 (target K12)
+  // karena MAKU items tidak diprioritaskan di Locator stage.
+  if (state.jalur === "sma-utbk") {
+    const makuCandidates = finalCandidates.filter((it) => it.isMaku);
+    if (makuCandidates.length > 0) finalCandidates = makuCandidates;
+  }
+
   const irtCandidates = toIrtItems(finalCandidates);
   const picked = selectMaxInfoItem(state.estimate.theta, irtCandidates, state.used);
   if (!picked) return null;
